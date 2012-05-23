@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * Implements hook_page_alter().
+ */
+function ipe_page_alter(&$page) {
+  // Remove the toolbar drawer toggle by overriding the toolbar's #pre_render
+  // callback with our own..
+  if (isset($page['page_top']['toolbar'])) {
+    unset($page['page_top']['toolbar']['#pre_render'][0]);
+    array_unshift($page['page_top']['toolbar']['#pre_render'], 'ipe_toolbar_pre_render');
+  }
+}
+
+/**
+ * #pre_render callback for the toolbar.
+ */
+function ipe_toolbar_pre_render($toolbar) {
+  // The original.
+  $toolbar = toolbar_pre_render($toolbar);
+
+  // The toolbar should never be collapsed.
+  $_COOKIE['Drupal_toolbar_collapsed'] = 0;
+
+  // Now we remove the toolbar drawer toggle.
+  unset($toolbar['toolbar_toggle']);
+
+  // Add some CSS that will make.
+  $toolbar['#attached']['css'][] = drupal_get_path('module', 'ipe') . '/overrides.css';
+
+  return $toolbar;
+}
+

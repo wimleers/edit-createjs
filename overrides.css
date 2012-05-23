@@ -1,0 +1,5 @@
+/* Shift the "Hello <user>" and "Log out" links back to the right. */
+#toolbar div.toolbar-menu {
+  padding-right: 10px;
+}
+
