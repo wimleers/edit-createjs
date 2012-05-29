@@ -5,14 +5,14 @@
  */
 function ipe_page_alter(&$page) {
   if (isset($page['page_top']['toolbar'])) {
-    // Remove the toolbar drawer toggle by overriding the toolbar's #pre_render
-    // callback with our own..
+    // Remove the toolbar drawer toggle by overriding toolbar.module's pre-render
+    // function with our own.
     if (isset($page['page_top']['toolbar']['#pre_render'][0]) && $page['page_top']['toolbar']['#pre_render'][0] == 'toolbar_pre_render') {
-      $page['page_top']['toolbar']['#pre_render'][0] = 'ipe_toolbar_pre_render';
+      $page['page_top']['toolbar']['#pre_render'][0] = 'ipe_override_toolbar_pre_render';
     }
-    // Replace the shortcut module's toolbar #pre_render callback with our own.
+    // Replace the shortcut.module's toolbar pre-render function with our own.
     if (isset($page['page_top']['toolbar']['#pre_render'][1]) && $page['page_top']['toolbar']['#pre_render'][1] == 'shortcut_toolbar_pre_render') {
-      $page['page_top']['toolbar']['#pre_render'][1] = 'ipe_shortcut_toolbar_pre_render';
+      $page['page_top']['toolbar']['#pre_render'][1] = 'ipe_override_shortcut_toolbar_pre_render';
     }
   }
 }
@@ -32,9 +32,9 @@ function ipe_module_implements_alter(&$implementations, $hook) {
 }
 
 /**
- * #pre_render callback for the toolbar.
+ * Override of pre-render function for toolbar.module.
  */
-function ipe_toolbar_pre_render($toolbar) {
+function ipe_override_toolbar_pre_render($toolbar) {
   // The original.
   $toolbar = toolbar_pre_render($toolbar);
 
@@ -50,9 +50,9 @@ function ipe_toolbar_pre_render($toolbar) {
 }
 
 /**
- * #pre_render callback for the shortcuts.
+ * Override of pre-render function for shortcut.module.
  */
-function ipe_shortcut_toolbar_pre_render($toolbar) {
+function ipe_override_shortcut_toolbar_pre_render($toolbar) {
   // The original.
   $toolbar = shortcut_toolbar_pre_render($toolbar);
 
