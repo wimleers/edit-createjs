@@ -4,11 +4,30 @@
  * Implements hook_page_alter().
  */
 function ipe_page_alter(&$page) {
-  // Remove the toolbar drawer toggle by overriding the toolbar's #pre_render
-  // callback with our own..
   if (isset($page['page_top']['toolbar'])) {
-    unset($page['page_top']['toolbar']['#pre_render'][0]);
-    array_unshift($page['page_top']['toolbar']['#pre_render'], 'ipe_toolbar_pre_render');
+    // Remove the toolbar drawer toggle by overriding the toolbar's #pre_render
+    // callback with our own..
+    if (isset($page['page_top']['toolbar']['#pre_render'][0]) && $page['page_top']['toolbar']['#pre_render'][0] == 'toolbar_pre_render') {
+      $page['page_top']['toolbar']['#pre_render'][0] = 'ipe_toolbar_pre_render';
+    }
+    // Replace the shortcut module's toolbar #pre_render callback with our own.
+    if (isset($page['page_top']['toolbar']['#pre_render'][1]) && $page['page_top']['toolbar']['#pre_render'][1] == 'shortcut_toolbar_pre_render') {
+      $page['page_top']['toolbar']['#pre_render'][1] = 'ipe_shortcut_toolbar_pre_render';
+    }
+  }
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function ipe_module_implements_alter(&$implementations, $hook) {
+  // Run ipe's hook_page_alter() after shortcut's, but retain the ordering.
+  // We need this to be able to override shortcut's #pre_render callback for
+  // rendering the shortcuts into the toolbar.
+  if ($hook == 'page_alter') {
+    unset($implementations['ipe']);
+    $index = array_search('shortcut', array_keys($implementations));
+    $implementations = array_slice($implementations, 0, $index + 1) + array('ipe' => FALSE) + array_slice($implementations, $index + 1);
   }
 }
 
@@ -25,7 +44,23 @@ function ipe_toolbar_pre_render($toolbar) {
   // Now we remove the toolbar drawer toggle.
   unset($toolbar['toolbar_toggle']);
 
-  // Add some CSS that will make.
+  $toolbar['#attached']['css'][] = drupal_get_path('module', 'ipe') . '/overrides.css';
+
+  return $toolbar;
+}
+
+/**
+ * #pre_render callback for the shortcuts.
+ */
+function ipe_shortcut_toolbar_pre_render($toolbar) {
+  // The original.
+  $toolbar = shortcut_toolbar_pre_render($toolbar);
+
+  // Put the shortcuts themselves *after* their configure link in the HTML,
+  // because we'll float them right.
+  $shortcuts = array_shift($toolbar['toolbar_drawer'][0]);
+  array_push($toolbar['toolbar_drawer'][0], $shortcuts);
+
   $toolbar['#attached']['css'][] = drupal_get_path('module', 'ipe') . '/overrides.css';
 
   return $toolbar;

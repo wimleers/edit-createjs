@@ -3,3 +3,13 @@
   padding-right: 10px;
 }
 
+/* Have both the shortcuts and their "Edit shortcuts" link on the right. */
+#toolbar .toolbar-shortcuts,
+#toolbar a#edit-shortcuts {
+  float: right;
+}
+#toolbar a#edit-shortcuts {
+  margin-left: 15px;
+  font-size: 80%;
+}
+
