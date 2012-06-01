@@ -14,6 +14,10 @@ function ipe_page_alter(&$page) {
     if (isset($page['page_top']['toolbar']['#pre_render'][1]) && $page['page_top']['toolbar']['#pre_render'][1] == 'shortcut_toolbar_pre_render') {
       $page['page_top']['toolbar']['#pre_render'][1] = 'ipe_override_shortcut_toolbar_pre_render';
     }
+
+    // If the toolbar is available, add a pre-render function to display the
+    // view/edit mode toggle.
+    $page['page_top']['toolbar']['#pre_render'][] = 'ipe_toolbar_pre_render';
   }
 }
 
@@ -29,6 +33,40 @@ function ipe_module_implements_alter(&$implementations, $hook) {
     $index = array_search('shortcut', array_keys($implementations));
     $implementations = array_slice($implementations, 0, $index + 1) + array('ipe' => FALSE) + array_slice($implementations, $index + 1);
   }
+}
+
+/**
+ * Pre-render function for ipe.module; view/edit mode toggle.
+*/
+function ipe_toolbar_pre_render($toolbar) {
+  $module_path = drupal_get_path('module', 'ipe');
+require_once 'includes/form.inc';
+  $toolbar['toolbar_drawer'][] = array(
+    'view_edit_toggle' => array(
+      // TODO: make this less hacky; but we might move to something else than radios!
+      '#markup' => '
+<div id="ipe-view-edit-toggle" class="form-radios">
+  <div class="form-item form-type-radio">
+    <input type="radio" id="ipe-view-edit-toggle--view" value="view" class="form-radio" name="ipe_view_edit_toggle" checked="checked">
+    <label class="option" for="ipe-view-edit-toggle--view">' . t('View') . '</label>
+  </div>
+  <div class="form-item form-type-radio">
+    <input type="radio" id="ipe-view-edit-toggle--edit" value="edit" class="form-radio" name="ipe_view_edit_toggle">
+    <label class="option" for="ipe-view-edit-toggle--edit">' . t('Edit') . '</label>
+  </div>
+</div>',
+      '#attached' => array(
+        'js' => array(
+          $module_path . '/js/ipe.js',
+        ),
+        'css' => array(
+          $module_path . '/css/ipe.css',
+        ),
+      ),
+    ),
+  );
+
+  return $toolbar;
 }
 
 /**
