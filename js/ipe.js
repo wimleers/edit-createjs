@@ -247,7 +247,11 @@ Drupal.ipe.startEditField = function($f) {
 
   Drupal.ipe.getToolbar($f)
   .find('.ipe-toolbar.secondary:not(:has(.ipe-toolgroup.ops))')
-  .append('<div class="ipe-toolgroup ops"><a href="#" class="save gray-button">Save</a><a href="#" class="close gray-button"><span class="close"></span></a></div>');
+  .append('<div class="ipe-toolgroup ops"><a href="#" class="save gray-button">Save</a><a href="#" class="close gray-button"><span class="close"></span></a></div>')
+  .find('.close').bind('click', function() {
+    Drupal.ipe.stopEditField(Drupal.ipe.state.fieldBeingEdited);
+    return false;
+  });
 
   Drupal.ipe.state.fieldBeingEdited = $f;
 };
