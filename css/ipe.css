@@ -27,15 +27,26 @@
   left: 0px;
 }
 
-.ipe-editable-candidate {
-  outline: 1px solid #999;
+.ipe-editable {
   z-index: 300;
   position: relative;
 }
+.ipe-editable.field {
+  outline: 1px solid #999;
+}
+.ipe-editable.entity {
+  outline: 1px solid white;
+}
 
-.ipe-editable-candidate.editing {
+.ipe-editable.entity.highlighted,
+.ipe-editable.field.highlighted {
   outline: 1px solid #0199FF;
+}
+.ipe-editable.field.highlighted {
   box-shadow: 0 0 8px #666;
+}
+.ipe-editable.entity.highlighted {
+  box-shadow: 0 0 5px #666;
 }
 
 
@@ -60,25 +71,38 @@
 /* The toolbar; these are not necessarily visible. */
 .ipe-toolbar {
   position: absolute;
-  top: -32px;
-  right: 0px;
+  top: -31px;
   height: 32px;
   z-index: 300;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+}
+.ipe-toolbar.primary {
+  left: 0px; /* LTR */
+}
+.ipe-toolbar.secondary {
+  right: 0px; /* LTR */
 }
 
 /* The toolbar contains toolgroups; these are visible. */
 .ipe-toolgroup {
   float: left; /* LTR */
+  padding-left: 5px; /* LTR */
   outline: 1px solid #999;
   background-color: white;
   box-shadow: 0 0 8px #666;
 }
 
+/* Entity toolgroup. */
+.ipe-toolgroup.entity,
+.ipe-toolgroup.info {
+  float: left; /* LTR */
+  box-shadow: 0 -3px 8px #666;
+  outline: 1px solid #0199FF;
+}
+
 /* Operations toolgroup. */
 .ipe-toolgroup.ops {
   float: right; /* LTR */
-  padding-left: 5px; /* LTR */
   box-shadow: 0 -2px 8px #777;
 }
 
