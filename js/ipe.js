@@ -140,8 +140,9 @@ Drupal.ipe.startEditableFields = function($f) {
 Drupal.ipe.stopEditableFields = function($f) {
   $f
   .removeClass('ipe-editable-candidate ipe-editable field highlighted editing')
-  .unbind('mouseenter mouseleave click')
-  .removeAttr('contenteditable');
+  .unbind('mouseenter mouseleave click ipe-content-changed')
+  .removeAttr('contenteditable')
+  .removeData(['ipe-content-original', 'ipe-content-changed']);
 };
 
 Drupal.ipe.clickOverlay = function() {
@@ -241,27 +242,41 @@ Drupal.ipe.startEditField = function($f) {
 
   $f
   .data('ipe-content-original', $f.html())
+  .data('ipe-content-changed', false)
   .addClass('editing')
   .attr('contenteditable', true)
   .bind('blur keyup paste', function() {
     if ($f.html() != $f.data('ipe-content-original')) {
+      $f.data('ipe-content-changed', true);
       $f.trigger('ipe-content-changed');
       console.log('changed!');
     }
   })
   .bind('ipe-content-changed', function() {
     Drupal.ipe.getToolbar($f)
-    .find('.save').addClass('blue-button').removeClass('gray-button');
+    .find('a.save').addClass('blue-button').removeClass('gray-button');
   });
 
   // While editing, don't show *any* other field or entity as editable.
   $('.ipe-editable-candidate').not('.editing').removeClass('ipe-editable');
 
+  // Toolbar + toolbar event handlers.
   Drupal.ipe.getToolbar($f)
   .find('.ipe-toolbar.secondary:not(:has(.ipe-toolgroup.ops))')
   .append('<div class="ipe-toolgroup ops"><a href="#" class="save gray-button">Save</a><a href="#" class="close gray-button"><span class="close"></span></a></div>')
-  .find('.close').bind('click', function() {
-    Drupal.ipe.stopEditField(Drupal.ipe.state.fieldBeingEdited);
+  .find('a.save').bind('click', function() {
+    console.log('TODO: save');
+    Drupal.ipe.stopEditField($f);
+    return false;
+  }).end()
+  .find('a.close').bind('click', function() {
+    // Content not changed: stop editing field.
+    if (!$f.data('ipe-content-changed')) {
+      Drupal.ipe.stopEditField($f);
+    }
+    // Content changed: show modal.
+    else {
+    }
     return false;
   });
 
@@ -276,7 +291,9 @@ Drupal.ipe.stopEditField = function($f) {
 
   $f
   .removeClass('highlighted editing')
-  .removeAttr('contenteditable');
+  .removeAttr('contenteditable')
+  .unbind('blur keyup paste')
+  .removeData(['ipe-content-original', 'ipe-content-changed']);
 
   // Make the other fields and entities editable again.
   $('.ipe-editable-candidate').addClass('ipe-editable');
