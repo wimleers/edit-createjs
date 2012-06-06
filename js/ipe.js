@@ -166,9 +166,8 @@ Drupal.ipe.createToolbar = function($element) {
       e.stopPropagation();
     })
     .bind('mouseleave', function(e) {
-      var rt = (e.relatedTarget) ? e.relatedTarget : e.toElement;
       var el = $element[0];
-      if (rt != el && !jQuery.contains(el, e.relatedTarget)) {
+      if (e.relatedTarget != el && !jQuery.contains(el, e.relatedTarget)) {
         console.log('triggering mouseleave on ', $element);
         $element.trigger('mouseleave');
       }
@@ -363,20 +362,8 @@ Drupal.ipe._getBgColor = function($e) {
 };
 
 Drupal.ipe._ignoreToolbarMousing = function(e, callback) {
-  var rt;
-  if (e.type == 'mouseleave') {
-    rt = (e.relatedTarget) ? e.relatedTarget : e.toElement;
-  }
-  else if (e.type == 'mouseenter') {
-    rt = (e.relatedTarget) ? e.relatedTarget : e.fromElement;
-  }
-  else {
-    return;
-  }
-
-  if ($(rt).parents(".ipe-toolbar-container").length > 0) {
+  if ($(e.relatedTarget).parents(".ipe-toolbar-container").length > 0) {
     e.stopPropagation();
-    return;
   }
   else {
     callback();
