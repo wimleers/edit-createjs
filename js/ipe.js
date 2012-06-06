@@ -238,9 +238,21 @@ Drupal.ipe.startEditField = function($f) {
   if (Drupal.ipe.state.fieldBeingHighlighted[0] != $f[0]) {
     Drupal.ipe.startHighlightField($f);
   }
+
   $f
+  .data('ipe-content-original', $f.html())
   .addClass('editing')
-  .attr('contenteditable', true);
+  .attr('contenteditable', true)
+  .bind('blur keyup paste', function() {
+    if ($f.html() != $f.data('ipe-content-original')) {
+      $f.trigger('ipe-content-changed');
+      console.log('changed!');
+    }
+  })
+  .bind('ipe-content-changed', function() {
+    Drupal.ipe.getToolbar($f)
+    .find('.save').addClass('blue-button').removeClass('gray-button');
+  });
 
   // While editing, don't show *any* other field or entity as editable.
   $('.ipe-editable-candidate').not('.editing').removeClass('ipe-editable');
