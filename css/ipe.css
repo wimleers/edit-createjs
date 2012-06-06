@@ -53,6 +53,44 @@
 
 
 /**
+ * Edit mode: modal.
+ */
+#ipe-modal {
+  z-index: 350;
+  position: fixed;
+  top: 40%;
+  left: 40%;
+  width: 20%;
+  min-width: 330px;
+  box-shadow: 3px 3px 5px #333;
+  background-color: white;
+  border: 1px solid #0199FF;
+  font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+}
+
+#ipe-modal .main {
+  font-size: 130%;
+  margin: 25px;
+  padding-left: 40px;
+  background: transparent url('../images/attention.png') no-repeat;
+}
+
+#ipe-modal .actions {
+  border-top: 1px solid #CCC;
+  padding: 3px inherit;
+  text-align: center;
+}
+
+/* Modal active: prevent user from interacting with toolbar & editables. */
+.ipe-toolbar-container.belowoverlay,
+.ipe-editable.belowoverlay {
+  z-index: 200;
+}
+
+
+
+
+/**
  * Edit mode: toolbars
  */
 
@@ -106,7 +144,11 @@
   box-shadow: 0 -2px 8px #777;
 }
 
-/* Buttons in the toolbar. */
+
+/**
+ * Edit mode: buttons (in both modal and toolbar).
+ */
+#ipe-modal a,
 .ipe-toolbar a {
   float: left; /* LTR */
   display: block;
@@ -120,7 +162,15 @@
   text-decoration: none;
   font-size: 13px;
 }
+#ipe-modal a {
+  float: none;
+  display: inline-block;
+}
 
+#ipe-modal a:link,
+#ipe-modal a:visited,
+#ipe-modal a:hover,
+#ipe-modal a:active,
 .ipe-toolbar a:link,
 .ipe-toolbar a:visited,
 .ipe-toolbar a:hover,
@@ -129,6 +179,7 @@
 }
 
 /* Button with icons. */
+#ipe-modal a span,
 .ipe-toolbar a span {
   width: 22px;
   height: 19px;
@@ -138,6 +189,7 @@
 .ipe-toolbar a span.close {
   background: url('../images/close.png') no-repeat 2px 2px;
 }
+
 .ipe-toolbar a span.close:hover {
   /* TODO: use a different "close" image */
 }
@@ -147,6 +199,7 @@
   color: black;
 }
 
+#ipe-modal a.blue-button,
 .ipe-toolbar a.blue-button {
   color: white;
   /* Firefox v3.6+ */
@@ -170,6 +223,7 @@
   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#ff6fc2f2,endColorstr=#ff4e97c0,GradientType=0);
 }
 
+#ipe-modal a.gray-button,
 .ipe-toolbar a.gray-button {
   color: #666;
   /* Firefox v3.6+ */
@@ -193,14 +247,17 @@
   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#fff5f5f5,endColorstr=#ffcccccc,GradientType=0);
 }
 
+#ipe-modal a img.gray-button.close img, .gray-button.save img, .blue-button.save img,
 .ipe-toolbar a img.gray-button.close img, .gray-button.save img, .blue-button.save img {
   padding: 0;
 }
 
+.gray-button img, .blue-button img,
 .gray-button img, .blue-button img {
   padding-right: 5px;
 }
 
+#ipe-modal a.blue-button:hover,
 .ipe-toolbar a.blue-button:hover {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%); 
@@ -234,6 +291,7 @@
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#33000000,Positive=true);
 }
 
+#ipe-modal a.gray-button:hover,
 .ipe-toolbar a.gray-button:hover {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%); 
@@ -267,6 +325,7 @@
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#1a000000,Positive=true);
 }
 
+#ipe-modal a.blue-button:active,
 .ipe-toolbar a.blue-button:active {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%); 
@@ -302,6 +361,7 @@
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#33000000,Positive=true);
 }
 
+#ipe-modal a.gray-button:active,
 .ipe-toolbar a.gray-button:active {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%); 

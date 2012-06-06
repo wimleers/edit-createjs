@@ -41,7 +41,7 @@ Drupal.ipe.init = function() {
       Drupal.ipe.startEditableEntities($e);
     }
     else if (!wasViewing && isViewing) {
-      $('#ipe-overlay, .ipe-toolbar-container').remove();
+      $('#ipe-overlay, .ipe-toolbar-container, #ipe-modal').remove();
       var $f = Drupal.ipe.findEditableFields();
       Drupal.ipe.stopEditableFields($f);
       var $e = Drupal.ipe.findEditableEntities();
@@ -139,15 +139,19 @@ Drupal.ipe.startEditableFields = function($f) {
 
 Drupal.ipe.stopEditableFields = function($f) {
   $f
-  .removeClass('ipe-editable-candidate ipe-editable field highlighted editing')
+  .removeClass('ipe-editable-candidate ipe-editable field highlighted editing belowoverlay')
   .unbind('mouseenter mouseleave click ipe-content-changed')
   .removeAttr('contenteditable')
   .removeData(['ipe-content-original', 'ipe-content-changed']);
 };
 
-Drupal.ipe.clickOverlay = function() {
+Drupal.ipe.clickOverlay = function(e) {
   console.log('clicked overlay');
-  Drupal.ipe.stopEditField(Drupal.ipe.state.fieldBeingEdited);
+
+  if (Drupal.ipe.getModal().length == 0) {
+    Drupal.ipe.getToolbar(Drupal.ipe.state.fieldBeingEdited)
+    .find('a.close').trigger('click');
+  }
 };
 
 Drupal.ipe.createToolbar = function($element) {
@@ -177,6 +181,28 @@ Drupal.ipe.createToolbar = function($element) {
 
 Drupal.ipe.getToolbar = function($element) {
   return $element.prev('.ipe-toolbar-container');
+};
+
+Drupal.ipe.createModal = function(message, $actions, $field) {
+  // The modal should be the only interaction element now.
+  $field.addClass('belowoverlay');
+  Drupal.ipe.getToolbar($field).addClass('belowoverlay');
+
+  $('<div id="ipe-modal"><div class="main"><p></p></div><div class="actions"></div></div>')
+  .appendTo('body')
+  .find('.main p').text(message).end()
+  .find('.actions').append($actions);
+};
+
+Drupal.ipe.getModal = function() {
+  return $('#ipe-modal');
+};
+
+Drupal.ipe.removeModal = function() {
+  Drupal.ipe.getModal().remove();
+
+  // Make the other interaction elements available again.
+  $('.belowoverlay').removeClass('belowoverlay');
 };
 
 Drupal.ipe.startHighlightEntity = function($e) {
@@ -276,6 +302,22 @@ Drupal.ipe.startEditField = function($f) {
     }
     // Content changed: show modal.
     else {
+     var $actions = $('<a href="#" class="gray-button discard">Discard changes</a><a href="#" class="blue-button save">Save</a>');
+     Drupal.ipe.createModal(Drupal.t('You have unsaved changes'), $actions, $f);
+  
+     Drupal.ipe.getModal()
+     .find('a.discard').bind('click', function() {
+       // Restore to original state.
+       $f.html($f.data('ipe-content-original'));
+       $f.data('ipe-content-changed', false);
+
+       Drupal.ipe.removeModal();
+       Drupal.ipe.getToolbar($f).find('a.close').trigger('click');
+     }).end()
+     .find('a.save').bind('click', function() {
+       Drupal.ipe.removeModal();
+       Drupal.ipe.getToolbar($f).find('a.save').trigger('click');
+     });
     }
     return false;
   });
