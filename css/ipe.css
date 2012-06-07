@@ -38,6 +38,11 @@
   outline: 1px solid white;
 }
 
+.ipe-editable.highlighted {
+  display: block;   /* TODO: currently, we cannot yet deal well with inline elements. */
+  min-width: 200px; /* TODO: we even need them to be at least fairly wide! */
+}
+
 .ipe-editable.entity.highlighted,
 .ipe-editable.field.highlighted {
   outline: 1px solid #0199FF;
