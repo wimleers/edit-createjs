@@ -64,7 +64,11 @@ Drupal.ipe.findEditableEntities = function() {
 
 Drupal.ipe.findEditableFields = function() {
   var $content = $('#content');
-  var $f = $('.title, .ipe-field.ipe-editable-allowed .field-item', $content).not('.comment-form');
+  var $f = $('.ipe-field.ipe-editable-allowed .field-item', $content);
+  // Edge case: "title" pseudofield on pages with lists of nodes.
+  $f = $f.add('h2.ipe-pseudofield.ipe-editable-allowed a', $content);
+  // Edge case: "title" pseudofield on node pages.
+  $f = $f.add('.ipe-pseudofield.ipe-editable-allowed h1', $content);
   return $f;
 };
 
