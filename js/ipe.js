@@ -131,7 +131,7 @@ Drupal.ipe.startEditableFields = function($f) {
       e.stopPropagation();
     });
   })
-  .bind('click', function() { Drupal.ipe.startEditField($(this)); })
+  .bind('click', function() { Drupal.ipe.startEditField($(this)); return false; })
   // Some transformations are field-specific.
   .map(function() {
     // This does not get stripped when going back to view mode. The only way
