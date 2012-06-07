@@ -64,7 +64,7 @@ Drupal.ipe.findEditableEntities = function() {
 
 Drupal.ipe.findEditableFields = function() {
   var $content = $('#content');
-  var $f = $('.title, .field-item', $content).not('.comment-form');
+  var $f = $('.title, .ipe-field.ipe-editable-allowed .field-item', $content).not('.comment-form');
   return $f;
 };
 
@@ -234,9 +234,10 @@ Drupal.ipe.startHighlightField = function($f) {
     Drupal.ipe.stopHighlightEntity($e);
   }
   if (Drupal.ipe.createToolbar($f)) {
+    var label = $f.parents('.field').data('ipe-field-label');
     Drupal.ipe.getToolbar($f)
     .find('.ipe-toolbar.primary:not(:has(.ipe-toolgroup.info))')
-    .append('<div class="ipe-toolgroup info"><a href="#" class="blank-button">Field name</a></div>');
+    .append('<div class="ipe-toolgroup info"><a href="#" class="blank-button">' + label + ' </a></div>');
   }
   $f.addClass('highlighted');
 

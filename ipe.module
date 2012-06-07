@@ -59,6 +59,41 @@ function ipe_preprocess_node(&$var) {
 }
 
 /**
+ * Implements of hook_preprocess_HOOK().
+ */
+function ipe_preprocess_field(&$var) {
+  $entity_type = $var['element']['#entity_type'];
+  $entity      = $var['element']['#object'];
+  $field_name  = $var['element']['#field_name'];
+
+  // For now, we only support editing of nodes in the full view mode.
+  // TODO: investigate how to offer IPE in other view modes. Also: full view mode does not necessarily imply
+  // that content does not get shortened etc. We should consider each field individually.
+  $view_mode   = $var['element']['#view_mode'];
+  if ($view_mode != 'full') {
+    return;
+  }
+
+  if (entity_access('update', $entity_type, $entity) && field_access('edit', $field_name, $entity_type, $entity)) {
+    list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+    $ei = entity_get_info($entity_type);
+    $fi = field_info_instance($entity_type, $field_name, $bundle);
+
+    // Provide metadata through data-* attributes.
+    $data_attributes = array(
+      'data-ipe-field-label' => $fi['label'],
+    );
+    if (!array_key_exists('attributes_array', $var)) {
+      $var['attributes_array'] = array();
+    }
+    $var['attributes_array'] += $data_attributes;
+
+    // Mark this field as editable.
+    $var['classes_array'][] = 'ipe-field ipe-editable-allowed';
+  }
+}
+
+/**
  * Pre-render function for ipe.module; view/edit mode toggle.
 */
 function ipe_toolbar_pre_render($toolbar) {
