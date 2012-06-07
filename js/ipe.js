@@ -59,7 +59,7 @@ Drupal.ipe.renderToggle = function() {
 
 Drupal.ipe.findEditableEntities = function() {
   var $content = $('#content');
-  return $('.node', $content);
+  return $('.ipe-entity.ipe-editable-allowed', $content);
 };
 
 Drupal.ipe.findEditableFields = function() {
@@ -207,9 +207,11 @@ Drupal.ipe.removeModal = function() {
 Drupal.ipe.startHighlightEntity = function($e) {
   console.log('startHighlightEntity');
   if (Drupal.ipe.createToolbar($e)) {
+    var label = Drupal.t('Edit !entity-label', { '!entity-label' : $e.data('ipe-entity-label') });
+    var url = $e.data('ipe-entity-edit-url');
     Drupal.ipe.getToolbar($e)
     .find('.ipe-toolbar.primary:not(:has(.ipe-toolgroup.entity))')
-    .append('<div class="ipe-toolgroup entity"><a href="#" class="blue-button">Edit full node</a></div>');
+    .append('<div class="ipe-toolgroup entity"><a href="' + url + '" class="blue-button">' + label + '</a></div>');
   }
   $e.addClass('highlighted');
 

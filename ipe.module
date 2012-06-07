@@ -36,6 +36,29 @@ function ipe_module_implements_alter(&$implementations, $hook) {
 }
 
 /**
+ * Implements of hook_preprocess_HOOK().
+ */
+function ipe_preprocess_node(&$var) {
+  $entity_type = $var['elements']['#entity_type'];
+  $entity      = $var['elements']['#node'];
+
+  if (entity_access('update', $entity_type, $entity)) {
+    list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+    $i = entity_get_info($entity_type);
+
+    // Provide metadata through data-* attributes.
+    $data_attributes = array(
+      'data-ipe-entity-label'    => $i['bundles'][$bundle]['label'],
+      'data-ipe-entity-edit-url' => url("node/$id/edit"),
+    );
+    $var['attributes_array'] += $data_attributes;
+
+    // Mark this entity as editable.
+    $var['classes_array'][] = 'ipe-entity ipe-editable-allowed';
+  }
+}
+
+/**
  * Pre-render function for ipe.module; view/edit mode toggle.
 */
 function ipe_toolbar_pre_render($toolbar) {
