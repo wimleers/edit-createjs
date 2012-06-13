@@ -45,7 +45,7 @@ function ipe_preprocess_page(&$var) {
     $node_type = node_type_get_type($var['node']->type);
     if ($node_type->has_title) {
       $attributes = array(
-        'class' => 'field ipe-pseudofield ipe-field ipe-editable-allowed',
+        'class' => 'field ipe-pseudofield ipe-field ipe-allowed',
         'data-ipe-field-label' => $node_type->title_label,
       );
       $var['title_prefix']['ipe']['#markup'] = '<div ' . drupal_attributes($attributes) . '">';
@@ -73,13 +73,13 @@ function ipe_preprocess_node(&$var) {
     $var['attributes_array'] += $data_attributes;
 
     // Mark this entity as editable.
-    $var['classes_array'][] = 'ipe-entity ipe-editable-allowed';
+    $var['classes_array'][] = 'ipe-entity ipe-allowed';
 
 
     // Pseudofield: title.
     $node_type = node_type_get_type($bundle);
     if ($node_type->has_title) {
-      $var['title_attributes_array']['class'] = 'field ipe-pseudofield ipe-field ipe-editable-allowed';
+      $var['title_attributes_array']['class'] = 'field ipe-pseudofield ipe-field ipe-allowed';
       $var['title_attributes_array']['data-ipe-field-label'] = $node_type->title_label;
     }
   }
@@ -116,7 +116,7 @@ function ipe_preprocess_field(&$var) {
     $var['attributes_array'] += $data_attributes;
 
     // Mark this field as editable.
-    $var['classes_array'][] = 'ipe-field ipe-editable-allowed';
+    $var['classes_array'][] = 'ipe-field ipe-allowed';
   }
 }
 

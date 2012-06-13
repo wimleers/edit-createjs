@@ -59,16 +59,16 @@ Drupal.ipe.renderToggle = function() {
 
 Drupal.ipe.findEditableEntities = function() {
   var $content = $('#content');
-  return $('.ipe-entity.ipe-editable-allowed', $content);
+  return $('.ipe-entity.ipe-allowed', $content);
 };
 
 Drupal.ipe.findEditableFields = function() {
   var $content = $('#content');
-  var $f = $('.ipe-field.ipe-editable-allowed .field-item', $content);
+  var $f = $('.ipe-field.ipe-allowed .field-item', $content);
   // Edge case: "title" pseudofield on pages with lists of nodes.
-  $f = $f.add('h2.ipe-pseudofield.ipe-editable-allowed a', $content);
+  $f = $f.add('h2.ipe-pseudofield.ipe-allowed a', $content);
   // Edge case: "title" pseudofield on node pages.
-  $f = $f.add('.ipe-pseudofield.ipe-editable-allowed h1', $content);
+  $f = $f.add('.ipe-pseudofield.ipe-allowed h1', $content);
   return $f;
 };
 
@@ -78,7 +78,7 @@ Drupal.ipe.findEntityForField = function($f) {
 
 Drupal.ipe.startEditableEntities = function($e) {
   $e
-  .addClass('ipe-editable-candidate ipe-editable entity')
+  .addClass('ipe-candidate ipe-editable entity')
   .bind('mouseenter', function(e) {
     var $e = $(this);
     Drupal.ipe._ignoreToolbarMousing(e, function() {
@@ -97,14 +97,14 @@ Drupal.ipe.startEditableEntities = function($e) {
 
 Drupal.ipe.stopEditableEntities = function($e) {
   $e
-  .removeClass('ipe-editable-candidate ipe-editable entity highlighted')
+  .removeClass('ipe-candidate ipe-editable entity highlighted')
   .unbind('mouseenter')
   .unbind('mouseleave');
 };
 
 Drupal.ipe.startEditableFields = function($f) {
   $f
-  .addClass('ipe-editable-candidate ipe-editable field')
+  .addClass('ipe-candidate ipe-editable field')
   .bind('mouseenter', function(e) {
     var $f = $(this);
     Drupal.ipe._ignoreToolbarMousing(e, function() {
@@ -143,7 +143,7 @@ Drupal.ipe.startEditableFields = function($f) {
 
 Drupal.ipe.stopEditableFields = function($f) {
   $f
-  .removeClass('ipe-editable-candidate ipe-editable field highlighted editing belowoverlay')
+  .removeClass('ipe-candidate ipe-editable field highlighted editing belowoverlay')
   .unbind('mouseenter mouseleave click ipe-content-changed')
   .removeAttr('contenteditable')
   .removeData(['ipe-content-original', 'ipe-content-changed']);
@@ -290,7 +290,7 @@ Drupal.ipe.startEditField = function($f) {
   });
 
   // While editing, don't show *any* other field or entity as editable.
-  $('.ipe-editable-candidate').not('.editing').removeClass('ipe-editable');
+  $('.ipe-candidate').not('.editing').removeClass('ipe-editable');
 
   // Toolbar + toolbar event handlers.
   Drupal.ipe.getToolbar($f)
@@ -344,9 +344,9 @@ Drupal.ipe.stopEditField = function($f) {
   .removeData(['ipe-content-original', 'ipe-content-changed']);
 
   // Make the other fields and entities editable again.
-  $('.ipe-editable-candidate').addClass('ipe-editable');
+  $('.ipe-candidate').addClass('ipe-editable');
 
-  Drupal.ipe.getToolbar($f).remove()
+  Drupal.ipe.getToolbar($f).remove();
 
   Drupal.ipe.state.fieldBeingEdited = [];
 };
