@@ -373,7 +373,7 @@ Drupal.ipe.stopEditField = function($f) {
   $f
   .removeClass('ipe-highlighted ipe-editing')
   .removeAttr('contenteditable')
-  .unbind('blur keyup paste')
+  .unbind('blur keyup paste ipe-content-changed')
   .removeData(['ipe-content-original', 'ipe-content-changed']);
 
   // Make the other fields and entities editable again.
