@@ -1,6 +1,61 @@
 <?php
 
 /**
+ * Implements hook_menu()
+ */
+function ipe_menu() {
+  $items = array();
+  $items['admin/field/ipe/%/%/%'] = array(
+    // Access is controlled after we have inspected the entity which
+    // can't easily happen until the callback.
+    'access arguments' => array(TRUE),
+    'access callback'  => TRUE,
+    'page callback'    => 'ipe_field_edit',
+    'page arguments'   => array(3, 4, 5),
+    'file'             => 'includes/pages.inc',
+    'delivery callback'=> 'ajax_deliver',
+    'theme callback'   => 'ajax_base_page_theme',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function ipe_form_fape_field_edit_form_alter(&$form, &$form_state) {
+  if (!array_key_exists('ipe', $form_state)) {
+    return;
+  }
+
+  // Simplify simple field forms that contain only one form item.
+  // TODO: somehow make this less hacky.
+  $elements = element_children($form);
+  $defaults = array('actions', 'form_build_id', 'form_token', 'form_id');
+  $form_items = array_diff($elements, $defaults);
+  if (count($form_items) == 1) {
+    $k = $form_items[0];
+    if ($form[$k]['#type'] == 'container') {
+      $l = $form[$k]['#language'];
+      switch (count(element_children($form[$k][$l]))) {
+        case 0:
+          if ($form[$k][$l]['#type'] != 'checkbox') {
+            unset($form[$k][$l]['#title']);
+          }
+          break;
+        case 1:
+          unset($form[$k][$l][0]['value']['#title']);
+          break;
+        default:
+          // No changes.
+          break;
+      }
+    }
+  }
+
+  $form['actions']['submit']['#attributes'] = array('class' => array('ipe-form-submit'));
+}
+
+/**
  * Implements hook_page_alter().
  */
 function ipe_page_alter(&$page) {
@@ -156,7 +211,9 @@ function ipe_preprocess_field(&$var) {
 
     // Provide metadata through data-* attributes.
     $data_attributes = array(
-      'data-ipe-field-label' => $fi['label'],
+      'data-ipe-field-label'    => $fi['label'],
+      // TODO: remove this and calculate the URL from the data-ipe-id attribute.
+      'data-ipe-field-form-url' => url("admin/field/ipe/$entity_type/$id/$field_name"),
     );
     if (!array_key_exists('attributes_array', $var)) {
       $var['attributes_array'] = array();

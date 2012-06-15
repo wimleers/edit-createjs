@@ -3,3 +3,5 @@ description = UX++
 package = Spark
 core = 7.x
 
+dependencies[] = fape
+
