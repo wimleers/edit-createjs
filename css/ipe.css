@@ -136,7 +136,7 @@
 /* The toolbar; these are not necessarily visible. */
 .ipe-toolbar {
   position: absolute;
-  top: -31px;
+  top: -32px;
   height: 32px;
   z-index: 300;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
@@ -146,6 +146,9 @@
 }
 .ipe-toolbar.secondary {
   right: 0px; /* LTR */
+}
+.ipe-field .ipe-toolbar {
+  top: -31px; /* For some reason, we need different absolute positioning when the toolbar appears for a field. */
 }
 
 /* The toolbar contains toolgroups; these are visible. */
