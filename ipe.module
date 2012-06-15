@@ -269,6 +269,10 @@ require_once 'includes/form.inc';
   </div>
 </div>',
       '#attached' => array(
+        'library' => array(
+          array('system', 'jquery.form'),
+          array('system', 'drupal.ajax'),
+        ),
         'js' => array(
           $module_path . '/js/ipe.js',
         ),

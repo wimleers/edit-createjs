@@ -45,7 +45,8 @@
   min-width: 200px; /* TODO: we even need them to be at least fairly wide! */
 }
 
-.ipe-field.ipe-editable.ipe-highlighted {
+.ipe-field.ipe-editable.ipe-highlighted,
+.ipe-field.ipe-type-direct .ipe-editable.ipe-highlighted {
   box-shadow: 0 0 8px #666;
 }
 .ipe-editable.ipe-entity.ipe-highlighted {
@@ -94,6 +95,28 @@
 
 
 /**
+ * Edit mode: form.
+ */
+.ipe-form {
+  position: absolute;
+  z-index: 300;
+  /*padding: .5em; */
+}
+
+.ipe-form .loading {
+  min-height: 22px;
+}
+
+/* Default form styling overrides. */
+.ipe-form form { padding: 1em; }
+.ipe-form .form-item { margin: 0; }
+.ipe-form .form-wrapper { margin: .5em; }
+.ipe-form .form-actions { display: none; }
+
+
+
+
+/**
  * Edit mode: toolbars
  */
 
@@ -101,7 +124,8 @@
    without changing its location. This allows us to absolutely position the
    toolbar.
 */
-.ipe-toolbar-container {
+.ipe-toolbar-container,
+.ipe-form-container {
   position: relative;
   padding: 0;
   border: 0;

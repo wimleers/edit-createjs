@@ -237,8 +237,32 @@ Drupal.ipe.createToolbar = function($element) {
   }
 };
 
-Drupal.ipe.getToolbar = function($element) {
-  return $element.prev('.ipe-toolbar-container');
+Drupal.ipe.getToolbar = function($editable) {
+  // Default case.
+  var $t = $editable.prevAll('.ipe-toolbar-container');
+  // Currently editing a form, hence the toolbar is shifted around.
+  if ($t.length == 0) {
+    var $t2 = Drupal.ipe.findFieldForEditable($editable).filter('.ipe-type-form').prevAll('.ipe-form-container').find('.ipe-toolbar-container');
+    if ($t2.length > 0) {
+      return $t2;
+    }
+  }
+  return $t;
+};
+
+Drupal.ipe.createForm = function($element) {
+  if (Drupal.ipe.getForm($element).length > 0) {
+    return false;
+  }
+  else {
+    $('<div class="ipe-form-container"><div class="ipe-form"><div class="loading">Loading...</div></div></div>')
+    .insertBefore($element);
+    return true;
+  }
+};
+
+Drupal.ipe.getForm = function($element) {
+  return $element.prevAll('.ipe-form-container');
 };
 
 Drupal.ipe.createModal = function(message, $actions, $editable) {
@@ -359,7 +383,17 @@ Drupal.ipe.startEditField = function($editable) {
   .append('<div class="ipe-toolgroup ops"><a href="#" class="save gray-button">Save</a><a href="#" class="close gray-button"><span class="close"></span></a></div>')
   .find('a.save').bind('click', function() {
     console.log('TODO: save');
-    Drupal.ipe.stopEditField($f);
+    // type = form
+    if ($field.filter('.ipe-type-form').length > 0) {
+      $field.prevAll('.ipe-form-container').find('form')
+      .find('.ipe-form-submit').trigger('click').end();
+      //.find('input, select, textarea').attr('disabled', true);
+    }
+    // type = direct
+    else {
+      // TODO
+      Drupal.ipe.stopEditField($editable);
+    }
     return false;
   }).end()
   .find('a.close').bind('click', function() {
@@ -390,7 +424,35 @@ console.log('no changes -> closing immediately');
     return false;
   });
 
-  Drupal.ipe.state.fieldBeingEdited = $f;
+  if ($editable.hasClass('ipe-type-form') && Drupal.ipe.createForm($editable)) {
+    $editable.addClass('ipe-belowoverlay');
+
+    Drupal.ipe.getForm($editable)
+    .find('.ipe-form')
+    .addClass('ipe-editable ipe-highlighted ipe-editing')
+    .css('background-color', Drupal.ipe._getBgColor($editable))
+    .end()
+    .find('.loading')
+    .attr('id', 'this-is-a-filthy-hack');
+
+    var url = $field.data('ipe-field-form-url');
+    var ipe_id = Drupal.ipe.getID($field);
+    var element_settings = {
+      url: url,
+      event: 'ipe-internal',
+      $field : $field,
+      $editable : $editable,
+      wrapper: 'this-is-a-filthy-hack',
+    };
+    if (Drupal.ajax.hasOwnProperty(ipe_id)) {
+      delete Drupal.ajax[ipe_id];
+      $editable.unbind('ipe-internal');
+    }
+    Drupal.ajax[ipe_id] = new Drupal.ajax(ipe_id, $editable, element_settings);
+    $editable.trigger('ipe-internal');
+  }
+
+  Drupal.ipe.state.fieldBeingEdited = $editable;
   Drupal.ipe.state.editedEditable = Drupal.ipe.getID(Drupal.ipe.findFieldForEditable($editable));
 };
 
@@ -411,6 +473,7 @@ Drupal.ipe.stopEditField = function($editable) {
   $('.ipe-candidate').addClass('ipe-editable');
 
   Drupal.ipe.getToolbar($editable).remove();
+  Drupal.ipe.getForm($editable).remove();
 
   Drupal.ipe.state.fieldBeingEdited = [];
   Drupal.ipe.state.editedEditable = null;
@@ -441,6 +504,58 @@ Drupal.ipe._ignoreToolbarMousing = function(e, callback) {
     callback();
   }
 };
+
+$(function() {
+  Drupal.ajax.prototype.commands.ipe_field_form = function(ajax, response, status) {
+    console.log('ipe_field_form', ajax, response, status);
+
+    // Only apply the form immediately if this form is currently being edited.
+    if (Drupal.ipe.state.editedEditable == response.id) {
+      Drupal.ajax.prototype.commands.insert(ajax, {'data' : response.data});
+
+      // Detect changes in this form.
+      ajax.$field.prevAll('.ipe-form-container')
+      .find(':input').bind('formUpdated', function() {
+        ajax.$editable
+        .data('.ipe-content-changed', true)
+        .trigger('ipe-content-changed');
+      });
+
+      // Move  toolbar inside .ipe-form-container, to let it snap to the width
+      // of the form instead of the field formatter.
+      Drupal.ipe.getToolbar(ajax.$editable).detach().prependTo('.ipe-form')
+
+      var $submit = ajax.$field.prevAll('.ipe-form-container').find('.ipe-form-submit');
+      var element_settings = {
+        url : $submit.parents('form').attr('action'),
+        setClick : true,
+        event : 'click',
+        progress : { type : 'throbber' },
+        // IPE-specific settings.
+        $editable : ajax.$editable,
+        $field : ajax.$field,
+      };
+      var base = $submit.attr('id');
+      Drupal.ajax[base] = new Drupal.ajax(base, $submit[0], element_settings);
+
+      // Give focus to the first input in the form.
+      //$('.ipe-form').find('form :input:visible:enabled:first').focus()
+    }
+    else {
+      console.log('queueing', response);
+    }
+  };
+  Drupal.ajax.prototype.commands.ipe_field_form_saved = function(ajax, response, status) {
+    console.log('ipe_field_form_saved', ajax, response, status);
+
+    // Replace the old content with the new content.
+    $('[data-ipe-id=' + response.id  + ']').replaceWith(response.data);
+
+    // Stop the editing.
+    Drupal.ipe.stopEditField(ajax.$editable);
+    jQuery('.ipe-form-container').remove();
+  };
+});
 
 })(jQuery);
 
