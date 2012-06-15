@@ -135,9 +135,11 @@ function ipe_preprocess_page(&$var) {
     // Pseudofield: title.
     $node_type = node_type_get_type($var['node']->type);
     if ($node_type->has_title) {
+      $id = $var['node']->nid;
       $attributes = array(
         'class' => 'ipe-pseudofield ipe-field ipe-allowed ipe-type-direct',
         'data-ipe-field-label' => $node_type->title_label,
+        'data-ipe-id'          => "node:$id:title",
       );
       $var['title_prefix']['ipe']['#markup'] = '<div ' . drupal_attributes($attributes) . '">';
       $var['title_suffix']['ipe']['#markup'] = '</div>';
@@ -158,6 +160,7 @@ function ipe_preprocess_node(&$var) {
 
     // Provide metadata through data-* attributes.
     $data_attributes = array(
+      'data-ipe-id'              => "node:$id",
       'data-ipe-entity-label'    => $i['bundles'][$bundle]['label'],
       'data-ipe-entity-edit-url' => url("node/$id/edit"),
     );
@@ -172,6 +175,7 @@ function ipe_preprocess_node(&$var) {
     if ($node_type->has_title) {
       $var['title_attributes_array']['class'] = 'ipe-pseudofield ipe-field ipe-allowed ipe-type-direct';
       $var['title_attributes_array']['data-ipe-field-label'] = $node_type->title_label;
+      $var['title_attributes_array']['data-ipe-ipe'] = "node:$id:title";
     }
   }
 }
@@ -212,6 +216,7 @@ function ipe_preprocess_field(&$var) {
     // Provide metadata through data-* attributes.
     $data_attributes = array(
       'data-ipe-field-label'    => $fi['label'],
+      'data-ipe-id'             => "$entity_type:$id:$field_name",
       // TODO: remove this and calculate the URL from the data-ipe-id attribute.
       'data-ipe-field-form-url' => url("admin/field/ipe/$entity_type/$id/$field_name"),
     );

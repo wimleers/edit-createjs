@@ -24,6 +24,20 @@ Drupal.ipe.init = function() {
   Drupal.ipe.state.entityBeingHighlighted = [];
   Drupal.ipe.state.fieldBeingHighlighted = [];
   Drupal.ipe.state.fieldBeingEdited = [];
+  Drupal.ipe.state.higlightedEditable = null;
+  Drupal.ipe.state.editedEditable = null;
+  Drupal.ipe.state.queues = {};
+
+  // Build inventory.
+  var IDMapper = function() { return Drupal.ipe.getID($(this)); };
+  Drupal.ipe.state.entities = Drupal.ipe.findEditableEntities().map(IDMapper);
+  Drupal.ipe.state.fields = Drupal.ipe.findEditableFields().map(IDMapper);
+  console.log('Entities:', Drupal.ipe.state.entities.length, ';', Drupal.ipe.state.entities);
+  console.log('Fields:', Drupal.ipe.state.fields.length, ';', Drupal.ipe.state.fields);
+
+  // Form preloader.
+  Drupal.ipe.state.queues.preload = Drupal.ipe.findEditableFields().filter('.ipe-type-form').map(IDMapper);
+  console.log('Fields with (server-generated) forms:', Drupal.ipe.state.queues.preload);
 
   // Transition between view/edit states.
   $("#ipe-view-edit-toggle input").click(function() {
@@ -39,6 +53,10 @@ Drupal.ipe.init = function() {
       Drupal.ipe.startEditableFields($f);
       var $e = Drupal.ipe.findEditableEntities();
       Drupal.ipe.startEditableEntities($e);
+
+      // TODO: preload forms. We could do one request per form, but that's more
+      // RTTs than needed. Instead, the server should support batch requests.
+      console.log('Preloading forms that we might need!', Drupal.ipe.state.queues.preload);
     }
     else if (!wasViewing && isViewing) {
       $('#ipe-overlay, .ipe-toolbar-container, #ipe-modal').remove();
@@ -71,6 +89,16 @@ Drupal.ipe.findEditableFields = function() {
   $f = $f.add('.ipe-pseudofield.ipe-allowed h1', $content);
   return $f;
 };
+
+Drupal.ipe.getID = function($field) {
+  return $field.data('ipe-id');
+};
+
+Drupal.ipe.findFieldForID = function(id) {
+  var $content = $('#content');
+  return $('[data-ipe-id="' + id + '"]', $content);
+};
+
 
 Drupal.ipe.findEntityForField = function($f) {
   return $f.parents('.node');
@@ -246,6 +274,7 @@ Drupal.ipe.startHighlightField = function($f) {
   $editable.addClass('ipe-highlighted');
 
   Drupal.ipe.state.fieldBeingHighlighted = $f;
+  Drupal.ipe.state.higlightedEditable = Drupal.ipe.getID(Drupal.ipe.findFieldForEditable($editable));
 };
 
 Drupal.ipe.stopHighlightField = function($f) {
@@ -260,6 +289,9 @@ Drupal.ipe.stopHighlightField = function($f) {
   $f.removeClass('ipe-highlighted');
 
   Drupal.ipe.getToolbar($f).remove()
+
+  Drupal.ipe.state.fieldBeingHighlighted = [];
+  Drupal.ipe.state.highlightedEditable = null;
 };
 
 Drupal.ipe.startEditField = function($f) {
@@ -329,6 +361,7 @@ Drupal.ipe.startEditField = function($f) {
   });
 
   Drupal.ipe.state.fieldBeingEdited = $f;
+  Drupal.ipe.state.editedEditable = Drupal.ipe.getID(Drupal.ipe.findFieldForEditable($editable));
 };
 
 Drupal.ipe.stopEditField = function($f) {
@@ -349,6 +382,7 @@ Drupal.ipe.stopEditField = function($f) {
   Drupal.ipe.getToolbar($f).remove();
 
   Drupal.ipe.state.fieldBeingEdited = [];
+  Drupal.ipe.state.editedEditable = null;
 };
 
 Drupal.ipe._getBgColor = function($e) {
