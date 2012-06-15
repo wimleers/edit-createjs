@@ -82,12 +82,32 @@ Drupal.ipe.findEditableEntities = function() {
 
 Drupal.ipe.findEditableFields = function() {
   var $content = $('#content');
-  var $f = $('.ipe-field.ipe-allowed .field-item', $content);
+  return $('.ipe-field.ipe-allowed', $content);
+};
+
+/*
+ * findEditableFields() just looks for fields that are editable, i.e. for the
+ * field *wrappers*. Depending on the field, however, either the whole field wrapper
+ * will be marked as editable (in this case, an inline form will be used for editing),
+ * *or* a specific (field-specific even!) DOM element within that field wrapper will be
+ * marked as editable.
+ * This function is for finding the *editables* themselves, given the *editable fields*.
+ */
+Drupal.ipe.findEditablesForFields = function($fields) {
+  var $editables = $();
+
+  // type = form
+  $editables = $editables.add($fields.filter('.ipe-type-form'));
+
+  // type = direct
+  var $direct = $fields.filter('.ipe-type-direct');
+  $editables = $editables.add($direct.find('.field-item'));
   // Edge case: "title" pseudofield on pages with lists of nodes.
-  $f = $f.add('h2.ipe-pseudofield.ipe-allowed a', $content);
+  $editables = $editables.add($direct.filter('h2').find('a'));
   // Edge case: "title" pseudofield on node pages.
-  $f = $f.add('.ipe-pseudofield.ipe-allowed h1', $content);
-  return $f;
+  $editables = $editables.add($direct.find('h1'));
+
+  return $editables;
 };
 
 Drupal.ipe.getID = function($field) {
@@ -99,6 +119,9 @@ Drupal.ipe.findFieldForID = function(id) {
   return $('[data-ipe-id="' + id + '"]', $content);
 };
 
+Drupal.ipe.findFieldForEditable = function($editable) {
+  return $editable.filter('.ipe-type-form').length ? $editable : $editable.parents('.ipe-type-direct');
+};
 
 Drupal.ipe.findEntityForField = function($f) {
   return $f.parents('.node');
@@ -130,29 +153,31 @@ Drupal.ipe.stopEditableEntities = function($e) {
   .unbind('mouseleave');
 };
 
-Drupal.ipe.startEditableFields = function($f) {
-  $f
+Drupal.ipe.startEditableFields = function($fields) {
+  var $editables = Drupal.ipe.findEditablesForFields($fields);
+
+  $editables
   .addClass('ipe-candidate ipe-editable')
   .bind('mouseenter', function(e) {
-    var $f = $(this);
+    var $editable = $(this);
     Drupal.ipe._ignoreToolbarMousing(e, function() {
       console.log('field:mouseenter');
-      if (!$f.hasClass('ipe-editing')) {
-        Drupal.ipe.startHighlightField($f);
+      if (!$editable.hasClass('ipe-editing')) {
+        Drupal.ipe.startHighlightField($editable);
       }
       // Prevents the entity's mouse enter event from firing, in case their borders are one and the same.
       e.stopPropagation();
     });
   })
   .bind('mouseleave', function(e) {
-    var $f = $(this);
+    var $editable = $(this);
     Drupal.ipe._ignoreToolbarMousing(e, function() {
       console.log('field:mouseleave');
-      if (!$f.hasClass('ipe-editing')) {
-        Drupal.ipe.stopHighlightField($f);
+      if (!$editable.hasClass('ipe-editing')) {
+        Drupal.ipe.stopHighlightField($editable);
         // Leaving a field won't trigger the mouse enter event for the entity
         // because the entity contains the field. Hence, do it manually.
-        var $e = Drupal.ipe.findEntityForField($f);
+        var $e = Drupal.ipe.findEntityForField($editable);
         Drupal.ipe.startHighlightEntity($e);
       }
       // Prevent triggering the entity's mouse leave event.
@@ -169,8 +194,10 @@ Drupal.ipe.startEditableFields = function($f) {
   }); 
 };
 
-Drupal.ipe.stopEditableFields = function($f) {
-  $f
+Drupal.ipe.stopEditableFields = function($fields) {
+  var $editables = Drupal.ipe.findEditablesForFields($fields);
+
+  $editables
   .removeClass('ipe-candidate ipe-editable ipe-highlighted ipe-editing ipe-belowoverlay')
   .unbind('mouseenter mouseleave click ipe-content-changed')
   .removeAttr('contenteditable')
@@ -214,10 +241,10 @@ Drupal.ipe.getToolbar = function($element) {
   return $element.prev('.ipe-toolbar-container');
 };
 
-Drupal.ipe.createModal = function(message, $actions, $field) {
+Drupal.ipe.createModal = function(message, $actions, $editable) {
   // The modal should be the only interaction element now.
-  $field.addClass('ipe-belowoverlay');
-  Drupal.ipe.getToolbar($field).addClass('ipe-belowoverlay');
+  $editable.addClass('ipe-belowoverlay');
+  Drupal.ipe.getToolbar($editable).addClass('ipe-belowoverlay');
 
   $('<div id="ipe-modal"><div class="main"><p></p></div><div class="actions"></div></div>')
   .appendTo('body')
@@ -259,65 +286,67 @@ Drupal.ipe.stopHighlightEntity = function($e) {
   Drupal.ipe.state.entityBeingHiglighted = [];
 };
 
-Drupal.ipe.startHighlightField = function($f) {
+Drupal.ipe.startHighlightField = function($editable) {
   console.log('startHighlightField');
   if (Drupal.ipe.state.entityBeingHighlighted.length > 0) {
-    var $e = Drupal.ipe.findEntityForField($f);
+    var $e = Drupal.ipe.findEntityForField($editable);
     Drupal.ipe.stopHighlightEntity($e);
   }
-  if (Drupal.ipe.createToolbar($f)) {
-    var label = $f.parents('.field').data('ipe-field-label');
-    Drupal.ipe.getToolbar($f)
+  if (Drupal.ipe.createToolbar($editable)) {
+    var label = $editable.filter('.ipe-type-form').data('ipe-field-label') || $editable.parents('.ipe-type-direct').data('ipe-field-label');
+    Drupal.ipe.getToolbar($editable)
     .find('.ipe-toolbar.primary:not(:has(.ipe-toolgroup.info))')
     .append('<div class="ipe-toolgroup info"><a href="#" class="blank-button">' + label + ' </a></div>');
   }
   $editable.addClass('ipe-highlighted');
 
-  Drupal.ipe.state.fieldBeingHighlighted = $f;
+  Drupal.ipe.state.fieldBeingHighlighted = $editable;
   Drupal.ipe.state.higlightedEditable = Drupal.ipe.getID(Drupal.ipe.findFieldForEditable($editable));
 };
 
-Drupal.ipe.stopHighlightField = function($f) {
+Drupal.ipe.stopHighlightField = function($editable) {
   console.log('stopHighlightField');
-  if ($f.length == 0) {
+  if ($editable.length == 0) {
     return;
   }
-  else if (Drupal.ipe.state.fieldBeingEdited.length > 0 && $f[0] == Drupal.ipe.state.fieldBeingEdited[0]) {
+  else if (Drupal.ipe.state.fieldBeingEdited.length > 0 && $editable[0] == Drupal.ipe.state.fieldBeingEdited[0]) {
     return;
   }
 
-  $f.removeClass('ipe-highlighted');
+  $editable.removeClass('ipe-highlighted');
 
-  Drupal.ipe.getToolbar($f).remove()
+  Drupal.ipe.getToolbar($editable).remove();
 
   Drupal.ipe.state.fieldBeingHighlighted = [];
   Drupal.ipe.state.highlightedEditable = null;
 };
 
-Drupal.ipe.startEditField = function($f) {
-  if (Drupal.ipe.state.fieldBeingEdited.length > 0 && Drupal.ipe.state.fieldBeingEdited[0] == $f[0]) {
+Drupal.ipe.startEditField = function($editable) {
+  if (Drupal.ipe.state.fieldBeingEdited.length > 0 && Drupal.ipe.state.fieldBeingEdited[0] == $editable[0]) {
     return;
   }
 
-  console.log('startEditField: ', $f);
-  if (Drupal.ipe.state.fieldBeingHighlighted[0] != $f[0]) {
-    Drupal.ipe.startHighlightField($f);
+  console.log('startEditField: ', $editable);
+  if (Drupal.ipe.state.fieldBeingHighlighted[0] != $editable[0]) {
+    Drupal.ipe.startHighlightField($editable);
   }
 
-  $f
-  .data('ipe-content-original', $f.html())
+  var $field = Drupal.ipe.findFieldForEditable($editable);
+
+  $editable
+  .data('ipe-content-original', $editable.html())
   .data('ipe-content-changed', false)
   .addClass('ipe-editing')
   .attr('contenteditable', true)
   .bind('blur keyup paste', function() {
-    if ($f.html() != $f.data('ipe-content-original')) {
-      $f.data('ipe-content-changed', true);
-      $f.trigger('ipe-content-changed');
+    if ($editable.html() != $editable.data('ipe-content-original')) {
+      $editable.data('ipe-content-changed', true);
+      $editable.trigger('ipe-content-changed');
       console.log('changed!');
     }
   })
   .bind('ipe-content-changed', function() {
-    Drupal.ipe.getToolbar($f)
+    Drupal.ipe.getToolbar($editable)
     .find('a.save').addClass('blue-button').removeClass('gray-button');
   });
 
@@ -325,7 +354,7 @@ Drupal.ipe.startEditField = function($f) {
   $('.ipe-candidate').not('.ipe-editing').removeClass('ipe-editable');
 
   // Toolbar + toolbar event handlers.
-  Drupal.ipe.getToolbar($f)
+  Drupal.ipe.getToolbar($editable)
   .find('.ipe-toolbar.secondary:not(:has(.ipe-toolgroup.ops))')
   .append('<div class="ipe-toolgroup ops"><a href="#" class="save gray-button">Save</a><a href="#" class="close gray-button"><span class="close"></span></a></div>')
   .find('a.save').bind('click', function() {
@@ -335,26 +364,27 @@ Drupal.ipe.startEditField = function($f) {
   }).end()
   .find('a.close').bind('click', function() {
     // Content not changed: stop editing field.
-    if (!$f.data('ipe-content-changed')) {
-      Drupal.ipe.stopEditField($f);
+    if (!$editable.data('ipe-content-changed')) {
+console.log('no changes -> closing immediately');
+      Drupal.ipe.stopEditField($editable);
     }
     // Content changed: show modal.
     else {
      var $actions = $('<a href="#" class="gray-button discard">Discard changes</a><a href="#" class="blue-button save">Save</a>');
-     Drupal.ipe.createModal(Drupal.t('You have unsaved changes'), $actions, $f);
+     Drupal.ipe.createModal(Drupal.t('You have unsaved changes'), $actions, $editable);
   
      Drupal.ipe.getModal()
      .find('a.discard').bind('click', function() {
        // Restore to original state.
-       $f.html($f.data('ipe-content-original'));
-       $f.data('ipe-content-changed', false);
+       $editable.html($editable.data('ipe-content-original'));
+       $editable.data('ipe-content-changed', false);
 
        Drupal.ipe.removeModal();
-       Drupal.ipe.getToolbar($f).find('a.close').trigger('click');
+       Drupal.ipe.getToolbar($editable).find('a.close').trigger('click');
      }).end()
      .find('a.save').bind('click', function() {
        Drupal.ipe.removeModal();
-       Drupal.ipe.getToolbar($f).find('a.save').trigger('click');
+       Drupal.ipe.getToolbar($editable).find('a.save').trigger('click');
      });
     }
     return false;
@@ -364,13 +394,14 @@ Drupal.ipe.startEditField = function($f) {
   Drupal.ipe.state.editedEditable = Drupal.ipe.getID(Drupal.ipe.findFieldForEditable($editable));
 };
 
-Drupal.ipe.stopEditField = function($f) {
-  console.log('stopEditField: ', $f);
-  if ($f.length == 0) {
+
+Drupal.ipe.stopEditField = function($editable) {
+  console.log('stopEditField: ', $editable);
+  if ($editable.length == 0) {
     return;
   }
 
-  $f
+  $editable
   .removeClass('ipe-highlighted ipe-editing')
   .removeAttr('contenteditable')
   .unbind('blur keyup paste ipe-content-changed')
@@ -379,7 +410,7 @@ Drupal.ipe.stopEditField = function($f) {
   // Make the other fields and entities editable again.
   $('.ipe-candidate').addClass('ipe-editable');
 
-  Drupal.ipe.getToolbar($f).remove();
+  Drupal.ipe.getToolbar($editable).remove();
 
   Drupal.ipe.state.fieldBeingEdited = [];
   Drupal.ipe.state.editedEditable = null;
