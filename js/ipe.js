@@ -78,7 +78,7 @@ Drupal.ipe.findEntityForField = function($f) {
 
 Drupal.ipe.startEditableEntities = function($e) {
   $e
-  .addClass('ipe-candidate ipe-editable entity')
+  .addClass('ipe-candidate ipe-editable')
   .bind('mouseenter', function(e) {
     var $e = $(this);
     Drupal.ipe._ignoreToolbarMousing(e, function() {
@@ -97,19 +97,19 @@ Drupal.ipe.startEditableEntities = function($e) {
 
 Drupal.ipe.stopEditableEntities = function($e) {
   $e
-  .removeClass('ipe-candidate ipe-editable entity highlighted')
+  .removeClass('ipe-candidate ipe-editable ipe-highlighted')
   .unbind('mouseenter')
   .unbind('mouseleave');
 };
 
 Drupal.ipe.startEditableFields = function($f) {
   $f
-  .addClass('ipe-candidate ipe-editable field')
+  .addClass('ipe-candidate ipe-editable')
   .bind('mouseenter', function(e) {
     var $f = $(this);
     Drupal.ipe._ignoreToolbarMousing(e, function() {
       console.log('field:mouseenter');
-      if (!$f.hasClass('editing')) {
+      if (!$f.hasClass('ipe-editing')) {
         Drupal.ipe.startHighlightField($f);
       }
       // Prevents the entity's mouse enter event from firing, in case their borders are one and the same.
@@ -120,7 +120,7 @@ Drupal.ipe.startEditableFields = function($f) {
     var $f = $(this);
     Drupal.ipe._ignoreToolbarMousing(e, function() {
       console.log('field:mouseleave');
-      if (!$f.hasClass('editing')) {
+      if (!$f.hasClass('ipe-editing')) {
         Drupal.ipe.stopHighlightField($f);
         // Leaving a field won't trigger the mouse enter event for the entity
         // because the entity contains the field. Hence, do it manually.
@@ -143,7 +143,7 @@ Drupal.ipe.startEditableFields = function($f) {
 
 Drupal.ipe.stopEditableFields = function($f) {
   $f
-  .removeClass('ipe-candidate ipe-editable field highlighted editing belowoverlay')
+  .removeClass('ipe-candidate ipe-editable ipe-highlighted ipe-editing ipe-belowoverlay')
   .unbind('mouseenter mouseleave click ipe-content-changed')
   .removeAttr('contenteditable')
   .removeData(['ipe-content-original', 'ipe-content-changed']);
@@ -188,8 +188,8 @@ Drupal.ipe.getToolbar = function($element) {
 
 Drupal.ipe.createModal = function(message, $actions, $field) {
   // The modal should be the only interaction element now.
-  $field.addClass('belowoverlay');
-  Drupal.ipe.getToolbar($field).addClass('belowoverlay');
+  $field.addClass('ipe-belowoverlay');
+  Drupal.ipe.getToolbar($field).addClass('ipe-belowoverlay');
 
   $('<div id="ipe-modal"><div class="main"><p></p></div><div class="actions"></div></div>')
   .appendTo('body')
@@ -205,7 +205,7 @@ Drupal.ipe.removeModal = function() {
   Drupal.ipe.getModal().remove();
 
   // Make the other interaction elements available again.
-  $('.belowoverlay').removeClass('belowoverlay');
+  $('.ipe-belowoverlay').removeClass('ipe-belowoverlay');
 };
 
 Drupal.ipe.startHighlightEntity = function($e) {
@@ -217,14 +217,14 @@ Drupal.ipe.startHighlightEntity = function($e) {
     .find('.ipe-toolbar.primary:not(:has(.ipe-toolgroup.entity))')
     .append('<div class="ipe-toolgroup entity"><a href="' + url + '" class="blue-button">' + label + '</a></div>');
   }
-  $e.addClass('highlighted');
+  $e.addClass('ipe-highlighted');
 
   Drupal.ipe.state.entityBeingHighlighted = $e;
 };
 
 Drupal.ipe.stopHighlightEntity = function($e) {
   console.log('stopHighlightEntity');
-  $e.removeClass('highlighted');
+  $e.removeClass('ipe-highlighted');
 
   Drupal.ipe.getToolbar($e).remove();
 
@@ -243,7 +243,7 @@ Drupal.ipe.startHighlightField = function($f) {
     .find('.ipe-toolbar.primary:not(:has(.ipe-toolgroup.info))')
     .append('<div class="ipe-toolgroup info"><a href="#" class="blank-button">' + label + ' </a></div>');
   }
-  $f.addClass('highlighted');
+  $editable.addClass('ipe-highlighted');
 
   Drupal.ipe.state.fieldBeingHighlighted = $f;
 };
@@ -257,7 +257,7 @@ Drupal.ipe.stopHighlightField = function($f) {
     return;
   }
 
-  $f.removeClass('highlighted');
+  $f.removeClass('ipe-highlighted');
 
   Drupal.ipe.getToolbar($f).remove()
 };
@@ -275,7 +275,7 @@ Drupal.ipe.startEditField = function($f) {
   $f
   .data('ipe-content-original', $f.html())
   .data('ipe-content-changed', false)
-  .addClass('editing')
+  .addClass('ipe-editing')
   .attr('contenteditable', true)
   .bind('blur keyup paste', function() {
     if ($f.html() != $f.data('ipe-content-original')) {
@@ -290,7 +290,7 @@ Drupal.ipe.startEditField = function($f) {
   });
 
   // While editing, don't show *any* other field or entity as editable.
-  $('.ipe-candidate').not('.editing').removeClass('ipe-editable');
+  $('.ipe-candidate').not('.ipe-editing').removeClass('ipe-editable');
 
   // Toolbar + toolbar event handlers.
   Drupal.ipe.getToolbar($f)
@@ -338,7 +338,7 @@ Drupal.ipe.stopEditField = function($f) {
   }
 
   $f
-  .removeClass('highlighted editing')
+  .removeClass('ipe-highlighted ipe-editing')
   .removeAttr('contenteditable')
   .unbind('blur keyup paste')
   .removeData(['ipe-content-original', 'ipe-content-changed']);

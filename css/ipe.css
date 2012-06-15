@@ -14,6 +14,9 @@
 
 /**
  * Edit mode: overlay + candidate editables + editables being edited.
+ *
+ * Note: every class is prefixed with "ipe-" to prevent collisions with modules
+ * or themes. In IPE-specific DOM subtrees, this is not necessary.
  */
 
 #ipe-overlay {
@@ -30,27 +33,22 @@
 .ipe-editable {
   z-index: 300;
   position: relative;
-}
-.ipe-editable.field {
   outline: 1px solid #999;
 }
-.ipe-editable.entity {
+
+.ipe-editable.ipe-entity {
   outline: 1px solid white;
 }
 
-.ipe-editable.highlighted {
-  display: block;   /* TODO: currently, we cannot yet deal well with inline elements. */
+.ipe-editable.ipe-highlighted {
+  outline: 1px solid #0199FF;
   min-width: 200px; /* TODO: we even need them to be at least fairly wide! */
 }
 
-.ipe-editable.entity.highlighted,
-.ipe-editable.field.highlighted {
-  outline: 1px solid #0199FF;
-}
-.ipe-editable.field.highlighted {
+.ipe-field.ipe-editable.ipe-highlighted {
   box-shadow: 0 0 8px #666;
 }
-.ipe-editable.entity.highlighted {
+.ipe-editable.ipe-entity.ipe-highlighted {
   box-shadow: 0 0 5px #666;
 }
 
@@ -87,8 +85,8 @@
 }
 
 /* Modal active: prevent user from interacting with toolbar & editables. */
-.ipe-toolbar-container.belowoverlay,
-.ipe-editable.belowoverlay {
+.ipe-toolbar-container.ipe-belowoverlay,
+.ipe-editable.ipe-belowoverlay {
   z-index: 200;
 }
 
