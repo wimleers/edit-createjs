@@ -36,6 +36,42 @@ function ipe_module_implements_alter(&$implementations, $hook) {
 }
 
 /**
+ * Implements hook_field_formatter_info_alter().
+ */
+function ipe_field_formatter_info_alter(&$info) {
+  // TODO: create a UI that allows users to override these defaults.
+
+  // Add a new 'ipe' key to each formatter, with either of these values:
+  //  - 'editable', i.e. these fields will be immediately editable;
+  //  - 'form', i.e. these fields will load the field's form through AJAX;
+  //  - 'disabled', i.e. these fields will not be editable inline.
+  $a = array(
+    // TODO: file/image
+    'file_default'   => 'disabled',
+    'file_table'     => 'disabled',
+    'file_url_plain' => 'disabled',
+    'image'          => 'disabled',
+    'list_default'   => 'form',
+    'list_key'       => 'form',
+    'number_integer'     => 'form',
+    'number_decimal'     => 'form',
+    'number_unformatted' => 'form',
+    'taxonomy_term_reference_link'         => 'form',
+    'taxonomy_term_reference_plain'        => 'form',
+    'taxonomy_term_reference_rss_category' => 'disabled',
+    'text_default'            => 'direct',
+    'text_plain'              => 'form',
+    'text_trimmed'            => 'disabled',
+    'text_summary_or_trimmed' => 'disabled',
+  );
+  foreach ($a as $k => $v) {
+    if (array_key_exists($k, $info)) {
+      $info[$k]['ipe'] = $v;
+    }
+  }
+}
+
+/**
  * Implements of hook_preprocess_HOOK().
  */
 function ipe_preprocess_page(&$var) {
@@ -45,7 +81,7 @@ function ipe_preprocess_page(&$var) {
     $node_type = node_type_get_type($var['node']->type);
     if ($node_type->has_title) {
       $attributes = array(
-        'class' => 'ipe-pseudofield ipe-field ipe-allowed',
+        'class' => 'ipe-pseudofield ipe-field ipe-allowed ipe-type-direct',
         'data-ipe-field-label' => $node_type->title_label,
       );
       $var['title_prefix']['ipe']['#markup'] = '<div ' . drupal_attributes($attributes) . '">';
@@ -79,7 +115,7 @@ function ipe_preprocess_node(&$var) {
     // Pseudofield: title.
     $node_type = node_type_get_type($bundle);
     if ($node_type->has_title) {
-      $var['title_attributes_array']['class'] = 'ipe-pseudofield ipe-field ipe-allowed';
+      $var['title_attributes_array']['class'] = 'ipe-pseudofield ipe-field ipe-allowed ipe-type-direct';
       $var['title_attributes_array']['data-ipe-field-label'] = $node_type->title_label;
     }
   }
@@ -92,13 +128,25 @@ function ipe_preprocess_field(&$var) {
   $entity_type = $var['element']['#entity_type'];
   $entity      = $var['element']['#object'];
   $field_name  = $var['element']['#field_name'];
+  $formatter   = $var['element']['#formatter'];
 
-  // For now, we only support editing of nodes in the full view mode.
-  // TODO: investigate how to offer IPE in other view modes. Also: full view mode does not necessarily imply
-  // that content does not get shortened etc. We should consider each field individually.
-  $view_mode   = $var['element']['#view_mode'];
-  if ($view_mode != 'full') {
+  $formatter_info = field_info_formatter_types($formatter);
+  if (!array_key_exists('ipe', $formatter_info)) {
+    watchdog('ipe', '%formatter not yet compatible with IPE.', array('%formatter' => $formatter));
     return;
+  }
+  $ipe_ability = $formatter_info['ipe'];
+  if ($ipe_ability == 'disabled') {
+    return;
+  }
+
+  // If directly editable, check cardinality; if cardinality >1, then use a form
+  // anyway.
+  if ($ipe_ability == 'direct') {
+    $field_info = field_info_field($field_name);
+    if ($field_info['cardinality'] != 1) {
+      $ipe_ability = 'form';
+    }
   }
 
   if (entity_access('update', $entity_type, $entity) && field_access('edit', $field_name, $entity_type, $entity)) {
@@ -116,7 +164,12 @@ function ipe_preprocess_field(&$var) {
     $var['attributes_array'] += $data_attributes;
 
     // Mark this field as editable.
-    $var['classes_array'][] = 'ipe-field ipe-allowed';
+    if ($ipe_ability == 'direct') {
+      $var['classes_array'][] = 'ipe-field ipe-allowed ipe-type-direct';
+    }
+    else if ($ipe_ability == 'form') {
+      $var['classes_array'][] = 'ipe-field ipe-allowed ipe-type-form';
+    }
   }
 }
 
