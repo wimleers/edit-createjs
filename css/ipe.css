@@ -64,8 +64,6 @@
   position: fixed;
   top: 40%;
   left: 40%;
-  width: 20%;
-  min-width: 330px;
   box-shadow: 3px 3px 5px #333;
   background-color: white;
   border: 1px solid #0199FF;
