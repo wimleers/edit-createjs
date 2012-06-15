@@ -177,6 +177,19 @@ function ipe_preprocess_node(&$var) {
       $var['title_attributes_array']['data-ipe-field-label'] = $node_type->title_label;
       $var['title_attributes_array']['data-ipe-ipe'] = "node:$id:title";
     }
+
+    // Pseudofields: author and authoring date.
+    $var['submitted'] = t(
+      'Submitted by <span class="ipe-pseudofield ipe-field ipe-allowed ipe-type-form" data-ipe-id="!author-ipe-id" data-ipe-field-label="!author-label">!author-value</span> on <span class="ipe-pseudofield ipe-field ipe-allowed ipe-type-form" data-ipe-id="!datetime-ipe-id" data-ipe-field-label="!datetime-label">!datetime-value</span>',
+      array(
+        '!author-value'    => $var['name'],
+        '!author-label'    => t('Author'),
+        '!author-ipe-id'   => "node:$id:uid",
+        '!datetime-value'  => $var['date'],
+        '!datetime-label'  => t('Authoring date'),
+        '!datetime-ipe-id' => "node:$id:created",
+      )
+    );
   }
 }
 
