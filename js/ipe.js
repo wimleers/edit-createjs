@@ -126,6 +126,7 @@ Drupal.ipe.findEntityForField = function($f) {
 
 Drupal.ipe.startEditableEntities = function($e) {
   $e
+  .once('ipe')
   .addClass('ipe-candidate ipe-editable')
   .bind('mouseenter.ipe', function(e) {
     var $e = $(this);
@@ -145,11 +146,12 @@ Drupal.ipe.startEditableEntities = function($e) {
 
 Drupal.ipe.stopEditableEntities = function($e) {
   $e
-  .removeClass('ipe-candidate ipe-editable ipe-highlighted')
+  .removeClass('ipe-processed ipe-candidate ipe-editable ipe-highlighted')
   .unbind('mouseenter.ipe mouseleave.ipe');
 };
 
 Drupal.ipe.startEditableFields = function($fields) {
+  var $fields = $fields.once('ipe');
   var $editables = Drupal.ipe.findEditablesForFields($fields);
 
   $editables
@@ -192,6 +194,9 @@ Drupal.ipe.startEditableFields = function($fields) {
 
 Drupal.ipe.stopEditableFields = function($fields) {
   var $editables = Drupal.ipe.findEditablesForFields($fields);
+
+  $fields
+  .removeClass('ipe-processed');
 
   $editables
   .removeClass('ipe-candidate ipe-editable ipe-highlighted ipe-editing ipe-belowoverlay')
