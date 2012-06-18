@@ -400,7 +400,6 @@ Drupal.ipe.startEditField = function($editable) {
   .find('a.close').bind('click.ipe', function() {
     // Content not changed: stop editing field.
     if (!$editable.data('ipe-content-changed')) {
-console.log('no changes -> closing immediately');
       Drupal.ipe.stopEditField($editable);
     }
     // Content changed: show modal.
@@ -518,7 +517,7 @@ $(function() {
       ajax.$field.prevAll('.ipe-form-container')
       .find(':input').bind('formUpdated.ipe', function() {
         ajax.$editable
-        .data('.ipe-content-changed', true)
+        .data('ipe-content-changed', true)
         .trigger('ipe-content-changed.ipe');
       });
 
