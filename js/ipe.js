@@ -75,14 +75,12 @@ Drupal.ipe.renderToggle = function() {
   // TODO: fancy, "physical toggle" to switch from view to edit mode and back.
 };
 
-Drupal.ipe.findEditableEntities = function() {
-  var $content = $('#content');
-  return $('.ipe-entity.ipe-allowed', $content);
+Drupal.ipe.findEditableEntities = function(context) {
+  return $('.ipe-entity.ipe-allowed', context || $('#content'));
 };
 
-Drupal.ipe.findEditableFields = function() {
-  var $content = $('#content');
-  return $('.ipe-field.ipe-allowed', $content);
+Drupal.ipe.findEditableFields = function(context) {
+  return $('.ipe-field.ipe-allowed', context || $('#content'));
 };
 
 /*
@@ -114,9 +112,8 @@ Drupal.ipe.getID = function($field) {
   return $field.data('ipe-id');
 };
 
-Drupal.ipe.findFieldForID = function(id) {
-  var $content = $('#content');
-  return $('[data-ipe-id="' + id + '"]', $content);
+Drupal.ipe.findFieldForID = function(id, context) {
+  return $('[data-ipe-id="' + id + '"]', context || $('#content'));
 };
 
 Drupal.ipe.findFieldForEditable = function($editable) {
