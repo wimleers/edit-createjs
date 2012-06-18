@@ -442,7 +442,7 @@ console.log('no changes -> closing immediately');
       event: 'ipe-internal',
       $field : $field,
       $editable : $editable,
-      wrapper: 'this-is-a-filthy-hack',
+      wrapper: 'this-is-a-filthy-hack'
     };
     if (Drupal.ajax.hasOwnProperty(ipe_id)) {
       delete Drupal.ajax[ipe_id];
@@ -533,7 +533,7 @@ $(function() {
         progress : { type : 'throbber' },
         // IPE-specific settings.
         $editable : ajax.$editable,
-        $field : ajax.$field,
+        $field : ajax.$field
       };
       var base = $submit.attr('id');
       Drupal.ajax[base] = new Drupal.ajax(base, $submit[0], element_settings);
