@@ -12,7 +12,7 @@ Drupal.behaviors.ipe = {
 
     // TODO: remove this; this is to make the current prototype somewhat usable.
     $('#ipe-view-edit-toggle label').click(function() {
-      $(this).prevUntil(null, ':radio').trigger('click');
+      $(this).prevUntil(null, ':radio').trigger('click.ipe');
     });
   }
 };
@@ -47,7 +47,7 @@ Drupal.ipe.init = function() {
     if (wasViewing && !isViewing) {
       $('<div id="ipe-overlay"></div>')
       .appendTo('body')
-      .bind('click', Drupal.ipe.clickOverlay);;
+      .bind('click.ipe', Drupal.ipe.clickOverlay);;
 
       var $f = Drupal.ipe.findEditableFields();
       Drupal.ipe.startEditableFields($f);
@@ -130,14 +130,14 @@ Drupal.ipe.findEntityForField = function($f) {
 Drupal.ipe.startEditableEntities = function($e) {
   $e
   .addClass('ipe-candidate ipe-editable')
-  .bind('mouseenter', function(e) {
+  .bind('mouseenter.ipe', function(e) {
     var $e = $(this);
     Drupal.ipe._ignoreToolbarMousing(e, function() {
       console.log('entity:mouseenter');
       Drupal.ipe.startHighlightEntity($e);
     });
   })
-  .bind('mouseleave', function(e) {
+  .bind('mouseleave.ipe', function(e) {
     var $e = $(this);
     Drupal.ipe._ignoreToolbarMousing(e, function() {
       console.log('entity:mouseleave');
@@ -149,8 +149,7 @@ Drupal.ipe.startEditableEntities = function($e) {
 Drupal.ipe.stopEditableEntities = function($e) {
   $e
   .removeClass('ipe-candidate ipe-editable ipe-highlighted')
-  .unbind('mouseenter')
-  .unbind('mouseleave');
+  .unbind('mouseenter.ipe mouseleave.ipe');
 };
 
 Drupal.ipe.startEditableFields = function($fields) {
@@ -158,7 +157,7 @@ Drupal.ipe.startEditableFields = function($fields) {
 
   $editables
   .addClass('ipe-candidate ipe-editable')
-  .bind('mouseenter', function(e) {
+  .bind('mouseenter.ipe', function(e) {
     var $editable = $(this);
     Drupal.ipe._ignoreToolbarMousing(e, function() {
       console.log('field:mouseenter');
@@ -169,7 +168,7 @@ Drupal.ipe.startEditableFields = function($fields) {
       e.stopPropagation();
     });
   })
-  .bind('mouseleave', function(e) {
+  .bind('mouseleave.ipe', function(e) {
     var $editable = $(this);
     Drupal.ipe._ignoreToolbarMousing(e, function() {
       console.log('field:mouseleave');
@@ -184,7 +183,7 @@ Drupal.ipe.startEditableFields = function($fields) {
       e.stopPropagation();
     });
   })
-  .bind('click', function() { Drupal.ipe.startEditField($(this)); return false; })
+  .bind('click.ipe', function() { Drupal.ipe.startEditField($(this)); return false; })
   // Some transformations are field-specific.
   .map(function() {
     // This does not get stripped when going back to view mode. The only way
@@ -199,7 +198,7 @@ Drupal.ipe.stopEditableFields = function($fields) {
 
   $editables
   .removeClass('ipe-candidate ipe-editable ipe-highlighted ipe-editing ipe-belowoverlay')
-  .unbind('mouseenter mouseleave click ipe-content-changed')
+  .unbind('mouseenter.ipe mouseleave.ipe click.ipe ipe-content-changed.ipe')
   .removeAttr('contenteditable')
   .removeData(['ipe-content-original', 'ipe-content-changed']);
 };
@@ -209,7 +208,7 @@ Drupal.ipe.clickOverlay = function(e) {
 
   if (Drupal.ipe.getModal().length == 0) {
     Drupal.ipe.getToolbar(Drupal.ipe.state.fieldBeingEdited)
-    .find('a.close').trigger('click');
+    .find('a.close').trigger('click.ipe');
   }
 };
 
@@ -220,15 +219,15 @@ Drupal.ipe.createToolbar = function($element) {
   else {
     $('<div class="ipe-toolbar-container"><div class="ipe-toolbar primary" /><div class="ipe-toolbar secondary" /></div>')
     .insertBefore($element)
-    .bind('mouseenter', function(e) {
+    .bind('mouseenter.ipe', function(e) {
       // Prevent triggering the entity's mouse enter event.
       e.stopPropagation();
     })
-    .bind('mouseleave', function(e) {
+    .bind('mouseleave.ipe', function(e) {
       var el = $element[0];
       if (e.relatedTarget != el && !jQuery.contains(el, e.relatedTarget)) {
         console.log('triggering mouseleave on ', $element);
-        $element.trigger('mouseleave');
+        $element.trigger('mouseleave.ipe');
       }
       // Prevent triggering the entity's mouse leave event.
       e.stopPropagation();
@@ -362,14 +361,16 @@ Drupal.ipe.startEditField = function($editable) {
   .data('ipe-content-changed', false)
   .addClass('ipe-editing')
   .attr('contenteditable', true)
-  .bind('blur keyup paste', function() {
+  // We cannot use Drupal.behaviors.formUpdated here because we're not dealing
+  // with a form!
+  .bind('blur.ipe keyup.ipe paste.ipe', function() {
     if ($editable.html() != $editable.data('ipe-content-original')) {
       $editable.data('ipe-content-changed', true);
-      $editable.trigger('ipe-content-changed');
+      $editable.trigger('ipe-content-changed.ipe');
       console.log('changed!');
     }
   })
-  .bind('ipe-content-changed', function() {
+  .bind('ipe-content-changed.ipe', function() {
     Drupal.ipe.getToolbar($editable)
     .find('a.save').addClass('blue-button').removeClass('gray-button');
   });
@@ -381,12 +382,12 @@ Drupal.ipe.startEditField = function($editable) {
   Drupal.ipe.getToolbar($editable)
   .find('.ipe-toolbar.secondary:not(:has(.ipe-toolgroup.ops))')
   .append('<div class="ipe-toolgroup ops"><a href="#" class="save gray-button">Save</a><a href="#" class="close gray-button"><span class="close"></span></a></div>')
-  .find('a.save').bind('click', function() {
+  .find('a.save').bind('click.ipe', function() {
     console.log('TODO: save');
     // type = form
     if ($field.filter('.ipe-type-form').length > 0) {
       $field.prevAll('.ipe-form-container').find('form')
-      .find('.ipe-form-submit').trigger('click').end();
+      .find('.ipe-form-submit').trigger('click.ipe').end();
       //.find('input, select, textarea').attr('disabled', true);
     }
     // type = direct
@@ -396,7 +397,7 @@ Drupal.ipe.startEditField = function($editable) {
     }
     return false;
   }).end()
-  .find('a.close').bind('click', function() {
+  .find('a.close').bind('click.ipe', function() {
     // Content not changed: stop editing field.
     if (!$editable.data('ipe-content-changed')) {
 console.log('no changes -> closing immediately');
@@ -408,17 +409,17 @@ console.log('no changes -> closing immediately');
      Drupal.ipe.createModal(Drupal.t('You have unsaved changes'), $actions, $editable);
   
      Drupal.ipe.getModal()
-     .find('a.discard').bind('click', function() {
+     .find('a.discard').bind('click.ipe', function() {
        // Restore to original state.
        $editable.html($editable.data('ipe-content-original'));
        $editable.data('ipe-content-changed', false);
 
        Drupal.ipe.removeModal();
-       Drupal.ipe.getToolbar($editable).find('a.close').trigger('click');
+       Drupal.ipe.getToolbar($editable).find('a.close').trigger('click.ipe');
      }).end()
-     .find('a.save').bind('click', function() {
+     .find('a.save').bind('click.ipe', function() {
        Drupal.ipe.removeModal();
-       Drupal.ipe.getToolbar($editable).find('a.save').trigger('click');
+       Drupal.ipe.getToolbar($editable).find('a.save').trigger('click.ipe');
      });
     }
     return false;
@@ -439,17 +440,17 @@ console.log('no changes -> closing immediately');
     var ipe_id = Drupal.ipe.getID($field);
     var element_settings = {
       url: url,
-      event: 'ipe-internal',
+      event: 'ipe-internal.ipe',
       $field : $field,
       $editable : $editable,
       wrapper: 'this-is-a-filthy-hack'
     };
     if (Drupal.ajax.hasOwnProperty(ipe_id)) {
       delete Drupal.ajax[ipe_id];
-      $editable.unbind('ipe-internal');
+      $editable.unbind('ipe-internal.ipe');
     }
     Drupal.ajax[ipe_id] = new Drupal.ajax(ipe_id, $editable, element_settings);
-    $editable.trigger('ipe-internal');
+    $editable.trigger('ipe-internal.ipe');
   }
 
   Drupal.ipe.state.fieldBeingEdited = $editable;
@@ -466,7 +467,7 @@ Drupal.ipe.stopEditField = function($editable) {
   $editable
   .removeClass('ipe-highlighted ipe-editing')
   .removeAttr('contenteditable')
-  .unbind('blur keyup paste ipe-content-changed')
+  .unbind('blur.ipe keyup.ipe paste.ipe ipe-content-changed')
   .removeData(['ipe-content-original', 'ipe-content-changed']);
 
   // Make the other fields and entities editable again.
@@ -515,10 +516,10 @@ $(function() {
 
       // Detect changes in this form.
       ajax.$field.prevAll('.ipe-form-container')
-      .find(':input').bind('formUpdated', function() {
+      .find(':input').bind('formUpdated.ipe', function() {
         ajax.$editable
         .data('.ipe-content-changed', true)
-        .trigger('ipe-content-changed');
+        .trigger('ipe-content-changed.ipe');
       });
 
       // Move  toolbar inside .ipe-form-container, to let it snap to the width
