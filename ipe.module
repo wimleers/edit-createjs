@@ -230,8 +230,6 @@ function ipe_preprocess_field(&$var) {
     $data_attributes = array(
       'data-ipe-field-label'    => $fi['label'],
       'data-ipe-id'             => "$entity_type:$id:$field_name",
-      // TODO: remove this and calculate the URL from the data-ipe-id attribute.
-      'data-ipe-field-form-url' => url("admin/field/ipe/$entity_type/$id/$field_name"),
     );
     if (!array_key_exists('attributes_array', $var)) {
       $var['attributes_array'] = array();
@@ -275,6 +273,10 @@ require_once 'includes/form.inc';
         ),
         'js' => array(
           $module_path . '/js/ipe.js',
+          array(
+            'data' => array('ipe' => array('fieldFormURL' => url('admin/field/ipe/!entity_type/!id/!field_name'))),
+            'type' => 'setting',
+          ),
         ),
         'css' => array(
           $module_path . '/css/ipe.css',

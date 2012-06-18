@@ -112,6 +112,16 @@ Drupal.ipe.getID = function($field) {
   return $field.data('ipe-id');
 };
 
+Drupal.ipe.calcFormURLForField = function(id) {
+  var parts = id.split(':');
+  var urlFormat = decodeURIComponent(Drupal.settings.ipe.fieldFormURL);
+  return Drupal.t(urlFormat, {
+    '!entity_type': parts[0],
+    '!id'         : parts[1],
+    '!field_name' : parts[2]
+  });
+};
+
 Drupal.ipe.findFieldForID = function(id, context) {
   return $('[data-ipe-id="' + id + '"]', context || $('#content'));
 };
@@ -357,6 +367,7 @@ Drupal.ipe.startEditField = function($editable) {
   }
 
   var $field = Drupal.ipe.findFieldForEditable($editable);
+  var ipe_id = Drupal.ipe.getID($field);
 
   $editable
   .data('ipe-content-original', $editable.html())
@@ -437,8 +448,7 @@ Drupal.ipe.startEditField = function($editable) {
     .find('.loading')
     .attr('id', 'this-is-a-filthy-hack');
 
-    var url = $field.data('ipe-field-form-url');
-    var ipe_id = Drupal.ipe.getID($field);
+    var url = Drupal.ipe.calcFormURLForField(ipe_id);
     var element_settings = {
       url: url,
       event: 'ipe-internal.ipe',
@@ -455,7 +465,7 @@ Drupal.ipe.startEditField = function($editable) {
   }
 
   Drupal.ipe.state.fieldBeingEdited = $editable;
-  Drupal.ipe.state.editedEditable = Drupal.ipe.getID(Drupal.ipe.findFieldForEditable($editable));
+  Drupal.ipe.state.editedEditable = ipe_id;
 };
 
 
