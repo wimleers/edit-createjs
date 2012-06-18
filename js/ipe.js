@@ -120,11 +120,11 @@ Drupal.ipe.findFieldForID = function(id) {
 };
 
 Drupal.ipe.findFieldForEditable = function($editable) {
-  return $editable.filter('.ipe-type-form').length ? $editable : $editable.parents('.ipe-type-direct');
+  return $editable.filter('.ipe-type-form').length ? $editable : $editable.closest('.ipe-type-direct');
 };
 
 Drupal.ipe.findEntityForField = function($f) {
-  return $f.parents('.node');
+  return $f.closest('.node');
 };
 
 Drupal.ipe.startEditableEntities = function($e) {
@@ -317,7 +317,7 @@ Drupal.ipe.startHighlightField = function($editable) {
     Drupal.ipe.stopHighlightEntity($e);
   }
   if (Drupal.ipe.createToolbar($editable)) {
-    var label = $editable.filter('.ipe-type-form').data('ipe-field-label') || $editable.parents('.ipe-type-direct').data('ipe-field-label');
+    var label = $editable.filter('.ipe-type-form').data('ipe-field-label') || $editable.closest('.ipe-type-direct').data('ipe-field-label');
     Drupal.ipe.getToolbar($editable)
     .find('.ipe-toolbar.primary:not(:has(.ipe-toolgroup.info))')
     .append('<div class="ipe-toolgroup info"><a href="#" class="blank-button">' + label + ' </a></div>');
@@ -497,7 +497,7 @@ Drupal.ipe._getBgColor = function($e) {
 };
 
 Drupal.ipe._ignoreToolbarMousing = function(e, callback) {
-  if ($(e.relatedTarget).parents(".ipe-toolbar-container").length > 0) {
+  if ($(e.relatedTarget).closest(".ipe-toolbar-container").length > 0) {
     e.stopPropagation();
   }
   else {
@@ -527,7 +527,7 @@ $(function() {
 
       var $submit = ajax.$field.prevAll('.ipe-form-container').find('.ipe-form-submit');
       var element_settings = {
-        url : $submit.parents('form').attr('action'),
+        url : $submit.closest('form').attr('action'),
         setClick : true,
         event : 'click',
         progress : { type : 'throbber' },
