@@ -551,11 +551,16 @@ $(function() {
     console.log('ipe_field_form_saved', ajax, response, status);
 
     // Replace the old content with the new content.
-    $('[data-ipe-id=' + response.id  + ']').replaceWith(response.data);
+    var $field = $('.ipe-field[data-ipe-id=' + response.id  + ']');
+    var $parent = $field.parent();
+    $field.replaceWith(response.data);
 
     // Stop the editing.
     Drupal.ipe.stopEditField(ajax.$editable);
     jQuery('.ipe-form-container').remove();
+
+    // Make the freshly rendered field in-place-editable again.
+    Drupal.ipe.startEditableFields($('.ipe-field[data-ipe-id=' + response.id + ']', $parent));
   };
 });
 
