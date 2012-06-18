@@ -530,7 +530,7 @@ $(function() {
       var element_settings = {
         url : $submit.closest('form').attr('action'),
         setClick : true,
-        event : 'click',
+        event : 'click.ipe',
         progress : { type : 'throbber' },
         // IPE-specific settings.
         $editable : ajax.$editable,
