@@ -39,6 +39,9 @@ Drupal.ipe.init = function() {
   Drupal.ipe.state.queues.preload = Drupal.ipe.findEditableFields().filter('.ipe-type-form').map(IDMapper);
   console.log('Fields with (server-generated) forms:', Drupal.ipe.state.queues.preload);
 
+  // Create a backstage area.
+  $('<div id="ipe-backstage" />').appendTo('body');
+
   // Transition between view/edit states.
   $("#ipe-view-edit-toggle input").click(function() {
     var wasViewing = Drupal.ipe.state.isViewing;
@@ -396,7 +399,6 @@ Drupal.ipe.startEditField = function($editable) {
   .find('.ipe-toolbar.secondary:not(:has(.ipe-toolgroup.ops))')
   .append('<div class="ipe-toolgroup ops"><a href="#" class="save gray-button">Save</a><a href="#" class="close gray-button"><span class="close"></span></a></div>')
   .find('a.save').bind('click.ipe', function() {
-    console.log('TODO: save');
     // type = form
     if ($field.filter('.ipe-type-form').length > 0) {
       $field.prevAll('.ipe-form-container').find('form')
@@ -405,8 +407,18 @@ Drupal.ipe.startEditField = function($editable) {
     }
     // type = direct
     else {
-      // TODO
-      Drupal.ipe.stopEditField($editable);
+      // Pseudofields (title, author, authoring date).
+      var parts = ipe_id.split(':');
+      if (parts[2] == 'title') {
+        $('#ipe-backstage form')
+        .find(':input:visible:first').val($editable.text()).end()
+        .find(':input[type=submit]').trigger('click.ipe');
+      }
+      // Fields.
+      else {
+        console.log('TODO: save');
+        Drupal.ipe.stopEditField($editable);
+      }
     }
     return false;
   }).end()
@@ -437,6 +449,7 @@ Drupal.ipe.startEditField = function($editable) {
     return false;
   });
 
+  // If we're going to show a form, then prepare for it.
   if ($editable.hasClass('ipe-type-form') && Drupal.ipe.createForm($editable)) {
     $editable.addClass('ipe-belowoverlay');
 
@@ -447,22 +460,24 @@ Drupal.ipe.startEditField = function($editable) {
     .end()
     .find('.loading')
     .attr('id', 'this-is-a-filthy-hack');
-
-    var url = Drupal.ipe.calcFormURLForField(ipe_id);
-    var element_settings = {
-      url: url,
-      event: 'ipe-internal.ipe',
-      $field : $field,
-      $editable : $editable,
-      wrapper: 'this-is-a-filthy-hack'
-    };
-    if (Drupal.ajax.hasOwnProperty(ipe_id)) {
-      delete Drupal.ajax[ipe_id];
-      $editable.unbind('ipe-internal.ipe');
-    }
-    Drupal.ajax[ipe_id] = new Drupal.ajax(ipe_id, $editable, element_settings);
-    $editable.trigger('ipe-internal.ipe');
   }
+
+  // Regardless of the type, load the form for this field. We always use forms to
+  // submit the changes.
+  var url = Drupal.ipe.calcFormURLForField(ipe_id);
+  var element_settings = {
+    url: url,
+    event: 'ipe-internal.ipe',
+    $field : $field,
+    $editable : $editable,
+    wrapper: 'this-is-a-filthy-hack'
+  };
+  if (Drupal.ajax.hasOwnProperty(ipe_id)) {
+    delete Drupal.ajax[ipe_id];
+    $editable.unbind('ipe-internal.ipe');
+  }
+  Drupal.ajax[ipe_id] = new Drupal.ajax(ipe_id, $editable, element_settings);
+  $editable.trigger('ipe-internal.ipe');
 
   Drupal.ipe.state.fieldBeingEdited = $editable;
   Drupal.ipe.state.editedEditable = ipe_id;
@@ -486,6 +501,11 @@ Drupal.ipe.stopEditField = function($editable) {
 
   Drupal.ipe.getToolbar($editable).remove();
   Drupal.ipe.getForm($editable).remove();
+
+  // Even for type=direct IPE, we use forms to send the changes to the server.
+  if (Drupal.ipe.findFieldForEditable($editable).hasClass('ipe-type-direct')) {
+    $('#ipe-backstage form').remove();
+  }
 
   Drupal.ipe.state.fieldBeingEdited = [];
   Drupal.ipe.state.editedEditable = null;
@@ -522,7 +542,7 @@ $(function() {
     console.log('ipe_field_form', ajax, response, status);
 
     // Only apply the form immediately if this form is currently being edited.
-    if (Drupal.ipe.state.editedEditable == response.id) {
+    if (Drupal.ipe.state.editedEditable == response.id && ajax.$field.hasClass('ipe-type-form')) {
       Drupal.ajax.prototype.commands.insert(ajax, {'data' : response.data});
 
       // Detect changes in this form.
@@ -537,7 +557,7 @@ $(function() {
       // of the form instead of the field formatter.
       Drupal.ipe.getToolbar(ajax.$editable).detach().prependTo('.ipe-form')
 
-      var $submit = ajax.$field.prevAll('.ipe-form-container').find('.ipe-form-submit');
+      var $submit = Drupal.ipe.getForm(ajax.$editable).find('.ipe-form-submit');
       var element_settings = {
         url : $submit.closest('form').attr('action'),
         setClick : true,
@@ -553,6 +573,24 @@ $(function() {
       // Give focus to the first input in the form.
       //$('.ipe-form').find('form :input:visible:enabled:first').focus()
     }
+    else if (Drupal.ipe.state.editedEditable == response.id && ajax.$field.hasClass('ipe-type-direct')) {
+      Drupal.ipe.state.directEditableFormResponse = response;
+      $('#ipe-backstage').append(response.data);
+
+      var $submit = $('#ipe-backstage form input[type=submit]');
+      var element_settings = {
+        url : $submit.closest('form').attr('action'),
+        setClick : true,
+        event : 'click.ipe',
+        progress : { type : 'throbber' },
+        // IPE-specific settings.
+        $editable : ajax.$editable,
+        $field : ajax.$field
+      };
+      var base = $submit.attr('id');
+      Drupal.ajax[base] = new Drupal.ajax(base, $submit[0], element_settings);
+
+    }
     else {
       console.log('queueing', response);
     }
@@ -563,13 +601,16 @@ $(function() {
     // Stop the editing.
     Drupal.ipe.stopEditField(ajax.$editable);
 
-    // Replace the old content with the new content.
-    var $field = $('.ipe-field[data-ipe-id=' + response.id  + ']');
-    var $parent = $field.parent();
-    $field.replaceWith(response.data);
+    // Response.data contains the updated rendering of the field, if any.
+    if (response.data) {
+      // Replace the old content with the new content.
+      var $field = $('.ipe-field[data-ipe-id=' + response.id  + ']');
+      var $parent = $field.parent();
+      $field.replaceWith(response.data);
 
-    // Make the freshly rendered field in-place-editable again.
-    Drupal.ipe.startEditableFields($('.ipe-field[data-ipe-id=' + response.id + ']', $parent));
+      // Make the freshly rendered field in-place-editable again.
+      Drupal.ipe.startEditableFields($('.ipe-field[data-ipe-id=' + response.id + ']', $parent));
+    }
   };
 });
 

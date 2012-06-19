@@ -74,11 +74,20 @@ function ipe_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL)
     // Reload the entity. This is necessary for some fields; otherwise we'd
     // render the field without the updated values.
     $entity = reset(entity_load($entity_type, array($entity_id)));
-    $commands[] = array(
-      'command' => 'ipe_field_form_saved',
-      'id'      => "$entity_type:$id:$field_name",
-      'data'    => drupal_render(field_view_field($entity_type, $entity, $field_name)),
-    );
+
+    if ($entity_type == 'node' && $field_name == 'title') {
+      $commands[] = array(
+        'command' => 'ipe_field_form_saved',
+        'id'      => "$entity_type:$id:$field_name",
+      );
+    }
+    else {
+      $commands[] = array(
+        'command' => 'ipe_field_form_saved',
+        'id'      => "$entity_type:$id:$field_name",
+        'data'    => drupal_render(field_view_field($entity_type, $entity, $field_name)),
+      );
+    }
   }
   else {
     $commands[] = array(

@@ -95,6 +95,10 @@
 /**
  * Edit mode: form.
  */
+#ipe-backstage {
+ display: none;
+}
+
 .ipe-form {
   position: absolute;
   z-index: 300;
