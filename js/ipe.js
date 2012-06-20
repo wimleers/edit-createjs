@@ -432,7 +432,7 @@ Drupal.ipe.startEditField = function($editable) {
     if ($field.filter('.ipe-type-form').length > 0) {
       Drupal.ipe.getForm($field).find('form')
       .find('.ipe-form-submit').trigger('click.ipe').end();
-      //.find('input, select, textarea').attr('disabled', true);
+      //.find(':input:not('.ipe-form-submit').attr('disabled', true);
     }
     // type = direct
     else {
