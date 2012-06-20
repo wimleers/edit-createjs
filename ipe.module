@@ -50,6 +50,10 @@ function ipe_form_fape_field_edit_form_alter(&$form, &$form_state) {
           break;
       }
     }
+    // Pseudofields that are language-independent, such as title, name and date.
+    else if (!array_key_exists('#language', $form[$k])) {
+      unset($form[$k]['#title']);
+    }
   }
 
   $form['actions']['submit']['#attributes'] = array('class' => array('ipe-form-submit'));
@@ -178,19 +182,28 @@ function ipe_preprocess_node(&$var) {
       $var['title_attributes_array']['data-ipe-ipe'] = "node:$id:title";
     }
 
-    // Pseudofields: author and authoring date.
-    $var['submitted'] = t(
-      'Submitted by <span class="ipe-pseudofield ipe-field ipe-allowed ipe-type-form" data-ipe-id="!author-ipe-id" data-ipe-field-label="!author-label">!author-value</span> on <span class="ipe-pseudofield ipe-field ipe-allowed ipe-type-form" data-ipe-id="!datetime-ipe-id" data-ipe-field-label="!datetime-label">!datetime-value</span>',
-      array(
-        '!author-value'    => $var['name'],
-        '!author-label'    => t('Author'),
-        '!author-ipe-id'   => "node:$id:uid",
-        '!datetime-value'  => $var['date'],
-        '!datetime-label'  => t('Authoring date'),
-        '!datetime-ipe-id' => "node:$id:created",
-      )
-    );
+    if ($var['display_submitted']) {
+      // Pseudofields: name (author) and date (authoring date).
+      $var['submitted'] = ipe_node_render_submitted($var['name'], $var['date'], $id);
+    }
   }
+}
+
+/**
+ * Render pseudofields: name (author) and date (authoring date).
+ */
+function ipe_node_render_submitted($name, $date, $node_id) {
+  return t(
+    'Submitted by <span class="ipe-pseudofield ipe-field ipe-allowed ipe-type-form" data-ipe-id="!name-ipe-id" data-ipe-field-label="!name-label">!name-value</span> on <span class="ipe-pseudofield ipe-field ipe-allowed ipe-type-form" data-ipe-id="!date-ipe-id" data-ipe-field-label="!date-label">!date-value</span>',
+    array(
+      '!name-value'  => $name,
+      '!name-label'  => t('Author'),
+      '!name-ipe-id' => "node:$node_id:name",
+      '!date-value'  => $date,
+      '!date-label'  => t('Authoring date'),
+      '!date-ipe-id' => "node:$node_id:date",
+    )
+  );
 }
 
 /**

@@ -36,10 +36,20 @@ function ipe_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL)
   list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
 
   // This allows us to have limited support for non-field API fields.
-  // Currently we support only node:title.
-  if ($entity_type == 'node' && $field_name == 'title') {
+  // Currently we support only node:title, node:name and node:date.
+  if ($entity_type == 'node' && in_array($field_name, array('title', 'name', 'date'))) {
     $field_instance = TRUE;
-    $subform_id = 'fape_field_edit_node_title_form';
+    switch ($field_name) {
+      case 'title':
+        $subform_id = 'fape_field_edit_node_title_form';
+        break;
+      case 'name':
+        $subform_id = 'ipefape_field_edit_node_name_form';
+        break;
+      case 'date':
+        $subform_id = 'ipefape_field_edit_node_date_form';
+        break;
+    }
     if (!node_access('update', $entity)) {
       return MENU_ACCESS_DENIED;
     }
@@ -67,6 +77,12 @@ function ipe_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL)
     'ipe' => TRUE,
   );
 
+  if (in_array($field_name, array('name', 'date'))) {
+    // TODO: for some unknown, weird reason, form_load_include() breaks the code.
+    //form_load_include($form_state, 'inc', 'ipe', 'includes/fape');
+    module_load_include('inc', 'ipe', 'includes/fape');
+  }
+
   $commands = array();
   $form = drupal_build_form('fape_field_edit_form', $form_state);
   if (!empty($form_state['executed'])) {
@@ -75,12 +91,26 @@ function ipe_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL)
     // render the field without the updated values.
     $entity = reset(entity_load($entity_type, array($entity_id)));
 
+    // Pseudofield: title.
     if ($entity_type == 'node' && $field_name == 'title') {
       $commands[] = array(
         'command' => 'ipe_field_form_saved',
         'id'      => "$entity_type:$id:$field_name",
       );
     }
+    // Pseudofields: name and date.
+    elseif ($entity_type == 'node' && in_array($field_name, array('name', 'date'))) {
+      $commands[] = array(
+        'command' => 'ipe_field_form_saved',
+        'id'      => "$entity_type:$id:$field_name",
+        'data'    => ipe_node_render_submitted(
+          theme('username', array('account' => $entity)), // name
+          format_date($entity->created), // date
+          $entity_id
+        ),
+      );
+    }
+    // All other fields.
     else {
       $commands[] = array(
         'command' => 'ipe_field_form_saved',
