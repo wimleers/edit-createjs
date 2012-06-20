@@ -3,14 +3,14 @@
 /**
  * Implements hook_menu()
  */
-function ipe_menu() {
+function edit_menu() {
   $items = array();
-  $items['admin/field/ipe/%/%/%'] = array(
+  $items['admin/field/edit/%/%/%'] = array(
     // Access is controlled after we have inspected the entity which
     // can't easily happen until the callback.
     'access arguments' => array(TRUE),
     'access callback'  => TRUE,
-    'page callback'    => 'ipe_field_edit',
+    'page callback'    => 'edit_field_edit',
     'page arguments'   => array(3, 4, 5),
     'file'             => 'includes/pages.inc',
     'delivery callback'=> 'ajax_deliver',
@@ -22,8 +22,8 @@ function ipe_menu() {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function ipe_form_fape_field_edit_form_alter(&$form, &$form_state) {
-  if (!array_key_exists('ipe', $form_state)) {
+function edit_form_fape_field_edit_form_alter(&$form, &$form_state) {
+  if (!array_key_exists('edit', $form_state)) {
     return;
   }
 
@@ -56,51 +56,51 @@ function ipe_form_fape_field_edit_form_alter(&$form, &$form_state) {
     }
   }
 
-  $form['actions']['submit']['#attributes'] = array('class' => array('ipe-form-submit'));
+  $form['actions']['submit']['#attributes'] = array('class' => array('edit-form-submit'));
 }
 
 /**
  * Implements hook_page_alter().
  */
-function ipe_page_alter(&$page) {
+function edit_page_alter(&$page) {
   if (isset($page['page_top']['toolbar'])) {
     // Remove the toolbar drawer toggle by overriding toolbar.module's pre-render
     // function with our own.
     if (isset($page['page_top']['toolbar']['#pre_render'][0]) && $page['page_top']['toolbar']['#pre_render'][0] == 'toolbar_pre_render') {
-      $page['page_top']['toolbar']['#pre_render'][0] = 'ipe_override_toolbar_pre_render';
+      $page['page_top']['toolbar']['#pre_render'][0] = 'edit_override_toolbar_pre_render';
     }
     // Replace the shortcut.module's toolbar pre-render function with our own.
     if (isset($page['page_top']['toolbar']['#pre_render'][1]) && $page['page_top']['toolbar']['#pre_render'][1] == 'shortcut_toolbar_pre_render') {
-      $page['page_top']['toolbar']['#pre_render'][1] = 'ipe_override_shortcut_toolbar_pre_render';
+      $page['page_top']['toolbar']['#pre_render'][1] = 'edit_override_shortcut_toolbar_pre_render';
     }
 
     // If the toolbar is available, add a pre-render function to display the
     // view/edit mode toggle.
-    $page['page_top']['toolbar']['#pre_render'][] = 'ipe_toolbar_pre_render';
+    $page['page_top']['toolbar']['#pre_render'][] = 'edit_toolbar_pre_render';
   }
 }
 
 /**
  * Implements hook_module_implements_alter().
  */
-function ipe_module_implements_alter(&$implementations, $hook) {
-  // Run ipe's hook_page_alter() after shortcut's, but retain the ordering.
+function edit_module_implements_alter(&$implementations, $hook) {
+  // Run edit's hook_page_alter() after shortcut's, but retain the ordering.
   // We need this to be able to override shortcut's #pre_render callback for
   // rendering the shortcuts into the toolbar.
   if ($hook == 'page_alter') {
-    unset($implementations['ipe']);
+    unset($implementations['edit']);
     $index = array_search('shortcut', array_keys($implementations));
-    $implementations = array_slice($implementations, 0, $index + 1) + array('ipe' => FALSE) + array_slice($implementations, $index + 1);
+    $implementations = array_slice($implementations, 0, $index + 1) + array('edit' => FALSE) + array_slice($implementations, $index + 1);
   }
 }
 
 /**
  * Implements hook_field_formatter_info_alter().
  */
-function ipe_field_formatter_info_alter(&$info) {
+function edit_field_formatter_info_alter(&$info) {
   // TODO: create a UI that allows users to override these defaults.
 
-  // Add a new 'ipe' key to each formatter, with either of these values:
+  // Add a new 'edit' key to each formatter, with either of these values:
   //  - 'editable', i.e. these fields will be immediately editable;
   //  - 'form', i.e. these fields will load the field's form through AJAX;
   //  - 'disabled', i.e. these fields will not be editable inline.
@@ -125,7 +125,7 @@ function ipe_field_formatter_info_alter(&$info) {
   );
   foreach ($a as $k => $v) {
     if (array_key_exists($k, $info)) {
-      $info[$k]['ipe'] = $v;
+      $info[$k]['edit'] = $v;
     }
   }
 }
@@ -133,7 +133,7 @@ function ipe_field_formatter_info_alter(&$info) {
 /**
  * Implements of hook_preprocess_HOOK().
  */
-function ipe_preprocess_page(&$var) {
+function edit_preprocess_page(&$var) {
   // Special case: on node pages, the title of the node becomes the page title.
   if (array_key_exists('node', $var) && entity_access('update', 'node', $var['node'])) {
     // Pseudofield: title.
@@ -141,12 +141,12 @@ function ipe_preprocess_page(&$var) {
     if ($node_type->has_title) {
       $id = $var['node']->nid;
       $attributes = array(
-        'class' => 'ipe-pseudofield ipe-field ipe-allowed ipe-type-direct',
-        'data-ipe-field-label' => $node_type->title_label,
-        'data-ipe-id'          => "node:$id:title",
+        'class' => 'edit-pseudofield edit-field edit-allowed edit-type-direct',
+        'data-edit-field-label' => $node_type->title_label,
+        'data-edit-id'          => "node:$id:title",
       );
-      $var['title_prefix']['ipe']['#markup'] = '<div ' . drupal_attributes($attributes) . '">';
-      $var['title_suffix']['ipe']['#markup'] = '</div>';
+      $var['title_prefix']['edit']['#markup'] = '<div ' . drupal_attributes($attributes) . '">';
+      $var['title_suffix']['edit']['#markup'] = '</div>';
     }
   }
 }
@@ -154,7 +154,7 @@ function ipe_preprocess_page(&$var) {
 /**
  * Implements of hook_preprocess_HOOK().
  */
-function ipe_preprocess_node(&$var) {
+function edit_preprocess_node(&$var) {
   $entity_type = $var['elements']['#entity_type'];
   $entity      = $var['elements']['#node'];
 
@@ -164,27 +164,27 @@ function ipe_preprocess_node(&$var) {
 
     // Provide metadata through data-* attributes.
     $data_attributes = array(
-      'data-ipe-id'              => "node:$id",
-      'data-ipe-entity-label'    => $i['bundles'][$bundle]['label'],
-      'data-ipe-entity-edit-url' => url("node/$id/edit"),
+      'data-edit-id'              => "node:$id",
+      'data-edit-entity-label'    => $i['bundles'][$bundle]['label'],
+      'data-edit-entity-edit-url' => url("node/$id/edit"),
     );
     $var['attributes_array'] += $data_attributes;
 
     // Mark this entity as editable.
-    $var['classes_array'][] = 'ipe-entity ipe-allowed';
+    $var['classes_array'][] = 'edit-entity edit-allowed';
 
 
     // Pseudofield: title.
     $node_type = node_type_get_type($bundle);
     if ($node_type->has_title) {
-      $var['title_attributes_array']['class'] = 'ipe-pseudofield ipe-field ipe-allowed ipe-type-direct';
-      $var['title_attributes_array']['data-ipe-field-label'] = $node_type->title_label;
-      $var['title_attributes_array']['data-ipe-ipe'] = "node:$id:title";
+      $var['title_attributes_array']['class'] = 'edit-pseudofield edit-field edit-allowed edit-type-direct';
+      $var['title_attributes_array']['data-edit-field-label'] = $node_type->title_label;
+      $var['title_attributes_array']['data-edit-edit'] = "node:$id:title";
     }
 
     if ($var['display_submitted']) {
       // Pseudofields: name (author) and date (authoring date).
-      $var['submitted'] = ipe_node_render_submitted($var['name'], $var['date'], $id);
+      $var['submitted'] = edit_node_render_submitted($var['name'], $var['date'], $id);
     }
   }
 }
@@ -192,16 +192,16 @@ function ipe_preprocess_node(&$var) {
 /**
  * Render pseudofields: name (author) and date (authoring date).
  */
-function ipe_node_render_submitted($name, $date, $node_id) {
+function edit_node_render_submitted($name, $date, $node_id) {
   return t(
-    'Submitted by <span class="ipe-pseudofield ipe-field ipe-allowed ipe-type-form" data-ipe-id="!name-ipe-id" data-ipe-field-label="!name-label">!name-value</span> on <span class="ipe-pseudofield ipe-field ipe-allowed ipe-type-form" data-ipe-id="!date-ipe-id" data-ipe-field-label="!date-label">!date-value</span>',
+    'Submitted by <span class="edit-pseudofield edit-field edit-allowed edit-type-form" data-edit-id="!name-edit-id" data-edit-field-label="!name-label">!name-value</span> on <span class="edit-pseudofield edit-field edit-allowed edit-type-form" data-edit-id="!date-edit-id" data-edit-field-label="!date-label">!date-value</span>',
     array(
       '!name-value'  => $name,
       '!name-label'  => t('Author'),
-      '!name-ipe-id' => "node:$node_id:name",
+      '!name-edit-id' => "node:$node_id:name",
       '!date-value'  => $date,
       '!date-label'  => t('Authoring date'),
-      '!date-ipe-id' => "node:$node_id:date",
+      '!date-edit-id' => "node:$node_id:date",
     )
   );
 }
@@ -209,28 +209,28 @@ function ipe_node_render_submitted($name, $date, $node_id) {
 /**
  * Implements of hook_preprocess_HOOK().
  */
-function ipe_preprocess_field(&$var) {
+function edit_preprocess_field(&$var) {
   $entity_type = $var['element']['#entity_type'];
   $entity      = $var['element']['#object'];
   $field_name  = $var['element']['#field_name'];
   $formatter   = $var['element']['#formatter'];
 
   $formatter_info = field_info_formatter_types($formatter);
-  if (!array_key_exists('ipe', $formatter_info)) {
-    watchdog('ipe', '%formatter not yet compatible with IPE.', array('%formatter' => $formatter));
+  if (!array_key_exists('edit', $formatter_info)) {
+    watchdog('edit', '%formatter not yet compatible with IPE.', array('%formatter' => $formatter));
     return;
   }
-  $ipe_ability = $formatter_info['ipe'];
-  if ($ipe_ability == 'disabled') {
+  $edit_ability = $formatter_info['edit'];
+  if ($edit_ability == 'disabled') {
     return;
   }
 
   // If directly editable, check cardinality; if cardinality >1, then use a form
   // anyway.
-  if ($ipe_ability == 'direct') {
+  if ($edit_ability == 'direct') {
     $field_info = field_info_field($field_name);
     if ($field_info['cardinality'] != 1) {
-      $ipe_ability = 'form';
+      $edit_ability = 'form';
     }
   }
 
@@ -241,8 +241,8 @@ function ipe_preprocess_field(&$var) {
 
     // Provide metadata through data-* attributes.
     $data_attributes = array(
-      'data-ipe-field-label'    => $fi['label'],
-      'data-ipe-id'             => "$entity_type:$id:$field_name",
+      'data-edit-field-label'    => $fi['label'],
+      'data-edit-id'             => "$entity_type:$id:$field_name",
     );
     if (!array_key_exists('attributes_array', $var)) {
       $var['attributes_array'] = array();
@@ -250,33 +250,33 @@ function ipe_preprocess_field(&$var) {
     $var['attributes_array'] += $data_attributes;
 
     // Mark this field as editable.
-    if ($ipe_ability == 'direct') {
-      $var['classes_array'][] = 'ipe-field ipe-allowed ipe-type-direct';
+    if ($edit_ability == 'direct') {
+      $var['classes_array'][] = 'edit-field edit-allowed edit-type-direct';
     }
-    else if ($ipe_ability == 'form') {
-      $var['classes_array'][] = 'ipe-field ipe-allowed ipe-type-form';
+    else if ($edit_ability == 'form') {
+      $var['classes_array'][] = 'edit-field edit-allowed edit-type-form';
     }
   }
 }
 
 /**
- * Pre-render function for ipe.module; view/edit mode toggle.
+ * Pre-render function for edit.module; view/edit mode toggle.
 */
-function ipe_toolbar_pre_render($toolbar) {
-  $module_path = drupal_get_path('module', 'ipe');
+function edit_toolbar_pre_render($toolbar) {
+  $module_path = drupal_get_path('module', 'edit');
 require_once 'includes/form.inc';
   $toolbar['toolbar_drawer'][] = array(
     'view_edit_toggle' => array(
       // TODO: make this less hacky; but we might move to something else than radios!
       '#markup' => '
-<div id="ipe-view-edit-toggle" class="form-radios">
+<div id="edit-view-edit-toggle" class="form-radios">
   <div class="form-item form-type-radio">
-    <input type="radio" id="ipe-view-edit-toggle--view" value="view" class="form-radio" name="ipe_view_edit_toggle" checked="checked">
-    <label class="option" for="ipe-view-edit-toggle--view">' . t('View') . '</label>
+    <input type="radio" id="edit-view-edit-toggle--view" value="view" class="form-radio" name="edit_view_edit_toggle" checked="checked">
+    <label class="option" for="edit-view-edit-toggle--view">' . t('View') . '</label>
   </div>
   <div class="form-item form-type-radio">
-    <input type="radio" id="ipe-view-edit-toggle--edit" value="edit" class="form-radio" name="ipe_view_edit_toggle">
-    <label class="option" for="ipe-view-edit-toggle--edit">' . t('Edit') . '</label>
+    <input type="radio" id="edit-view-edit-toggle--edit" value="edit" class="form-radio" name="edit_view_edit_toggle">
+    <label class="option" for="edit-view-edit-toggle--edit">' . t('Edit') . '</label>
   </div>
 </div>',
       '#attached' => array(
@@ -285,14 +285,14 @@ require_once 'includes/form.inc';
           array('system', 'drupal.ajax'),
         ),
         'js' => array(
-          $module_path . '/js/ipe.js',
+          $module_path . '/js/edit.js',
           array(
-            'data' => array('ipe' => array('fieldFormURL' => url('admin/field/ipe/!entity_type/!id/!field_name'))),
+            'data' => array('edit' => array('fieldFormURL' => url('admin/field/edit/!entity_type/!id/!field_name'))),
             'type' => 'setting',
           ),
         ),
         'css' => array(
-          $module_path . '/css/ipe.css',
+          $module_path . '/css/edit.css',
         ),
       ),
     ),
@@ -304,7 +304,7 @@ require_once 'includes/form.inc';
 /**
  * Override of pre-render function for toolbar.module.
  */
-function ipe_override_toolbar_pre_render($toolbar) {
+function edit_override_toolbar_pre_render($toolbar) {
   // The original.
   $toolbar = toolbar_pre_render($toolbar);
 
@@ -314,7 +314,7 @@ function ipe_override_toolbar_pre_render($toolbar) {
   // Now we remove the toolbar drawer toggle.
   unset($toolbar['toolbar_toggle']);
 
-  $toolbar['#attached']['css'][] = drupal_get_path('module', 'ipe') . '/overrides.css';
+  $toolbar['#attached']['css'][] = drupal_get_path('module', 'edit') . '/overrides.css';
 
   return $toolbar;
 }
@@ -322,7 +322,7 @@ function ipe_override_toolbar_pre_render($toolbar) {
 /**
  * Override of pre-render function for shortcut.module.
  */
-function ipe_override_shortcut_toolbar_pre_render($toolbar) {
+function edit_override_shortcut_toolbar_pre_render($toolbar) {
   // The original.
   $toolbar = shortcut_toolbar_pre_render($toolbar);
 
@@ -331,7 +331,7 @@ function ipe_override_shortcut_toolbar_pre_render($toolbar) {
   $shortcuts = array_shift($toolbar['toolbar_drawer'][0]);
   array_push($toolbar['toolbar_drawer'][0], $shortcuts);
 
-  $toolbar['#attached']['css'][] = drupal_get_path('module', 'ipe') . '/overrides.css';
+  $toolbar['#attached']['css'][] = drupal_get_path('module', 'edit') . '/overrides.css';
 
   return $toolbar;
 }

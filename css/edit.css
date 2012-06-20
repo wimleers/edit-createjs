@@ -3,7 +3,7 @@
  */
 
 /* TODO: replace this with a "physical toggle" instead of the current radios.*/
-#ipe-view-edit-toggle .form-item { 
+#edit-view-edit-toggle .form-item { 
   float: left;
   margin-right: 1em;
   margin-top: .5em;
@@ -15,11 +15,11 @@
 /**
  * Edit mode: overlay + candidate editables + editables being edited.
  *
- * Note: every class is prefixed with "ipe-" to prevent collisions with modules
+ * Note: every class is prefixed with "edit-" to prevent collisions with modules
  * or themes. In IPE-specific DOM subtrees, this is not necessary.
  */
 
-#ipe-overlay {
+#edit-overlay {
   position: fixed;
   z-index: 250;
   width: 100%;
@@ -30,26 +30,26 @@
   left: 0px;
 }
 
-.ipe-editable {
+.edit-editable {
   z-index: 300;
   position: relative;
   outline: 1px solid #999;
 }
 
-.ipe-editable.ipe-entity {
+.edit-editable.edit-entity {
   outline: 1px solid white;
 }
 
-.ipe-editable.ipe-highlighted {
+.edit-editable.edit-highlighted {
   outline: 1px solid #0199FF;
   min-width: 200px; /* TODO: we even need them to be at least fairly wide! */
 }
 
-.ipe-field.ipe-editable.ipe-highlighted,
-.ipe-field.ipe-type-direct .ipe-editable.ipe-highlighted {
+.edit-field.edit-editable.edit-highlighted,
+.edit-field.edit-type-direct .edit-editable.edit-highlighted {
   box-shadow: 0 0 8px #666;
 }
-.ipe-editable.ipe-entity.ipe-highlighted {
+.edit-editable.edit-entity.edit-highlighted {
   box-shadow: 0 0 5px #666;
 }
 
@@ -59,7 +59,7 @@
 /**
  * Edit mode: modal.
  */
-#ipe-modal {
+#edit-modal {
   z-index: 350;
   position: fixed;
   top: 40%;
@@ -70,22 +70,22 @@
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
 }
 
-#ipe-modal .main {
+#edit-modal .main {
   font-size: 130%;
   margin: 25px;
   padding-left: 40px;
   background: transparent url('../images/attention.png') no-repeat;
 }
 
-#ipe-modal .actions {
+#edit-modal .actions {
   border-top: 1px solid #CCC;
   padding: 3px inherit;
   text-align: center;
 }
 
 /* Modal active: prevent user from interacting with toolbar & editables. */
-.ipe-toolbar-container.ipe-belowoverlay,
-.ipe-editable.ipe-belowoverlay {
+.edit-toolbar-container.edit-belowoverlay,
+.edit-editable.edit-belowoverlay {
   z-index: 200;
 }
 
@@ -95,25 +95,25 @@
 /**
  * Edit mode: form.
  */
-#ipe-backstage {
+#edit-backstage {
   display: none;
 }
 
-.ipe-form {
+.edit-form {
   position: absolute;
   z-index: 300;
   /*padding: .5em; */
 }
 
-.ipe-form .loading {
+.edit-form .loading {
   min-height: 22px;
 }
 
 /* Default form styling overrides. */
-.ipe-form form { padding: 1em; }
-.ipe-form .form-item { margin: 0; }
-.ipe-form .form-wrapper { margin: .5em; }
-.ipe-form .form-actions { display: none; }
+.edit-form form { padding: 1em; }
+.edit-form .form-item { margin: 0; }
+.edit-form .form-wrapper { margin: .5em; }
+.edit-form .form-actions { display: none; }
 
 
 
@@ -126,8 +126,8 @@
    without changing its location. This allows us to absolutely position the
    toolbar.
 */
-.ipe-toolbar-container,
-.ipe-form-container {
+.edit-toolbar-container,
+.edit-form-container {
   position: relative;
   padding: 0;
   border: 0;
@@ -136,25 +136,25 @@
 }
 
 /* The toolbar; these are not necessarily visible. */
-.ipe-toolbar {
+.edit-toolbar {
   position: absolute;
   top: -32px;
   height: 32px;
   z-index: 300;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
 }
-.ipe-toolbar.primary {
+.edit-toolbar.primary {
   left: 0px; /* LTR */
 }
-.ipe-toolbar.secondary {
+.edit-toolbar.secondary {
   right: 0px; /* LTR */
 }
-.ipe-field .ipe-toolbar {
+.edit-field .edit-toolbar {
   top: -31px; /* For some reason, we need different absolute positioning when the toolbar appears for a field. */
 }
 
 /* The toolbar contains toolgroups; these are visible. */
-.ipe-toolgroup {
+.edit-toolgroup {
   float: left; /* LTR */
   padding-left: 5px; /* LTR */
   outline: 1px solid #999;
@@ -163,15 +163,15 @@
 }
 
 /* Entity toolgroup. */
-.ipe-toolgroup.entity,
-.ipe-toolgroup.info {
+.edit-toolgroup.entity,
+.edit-toolgroup.info {
   float: left; /* LTR */
   box-shadow: 0 -3px 8px #666;
   outline: 1px solid #0199FF;
 }
 
 /* Operations toolgroup. */
-.ipe-toolgroup.ops {
+.edit-toolgroup.ops {
   float: right; /* LTR */
   box-shadow: 0 -2px 8px #777;
 }
@@ -180,8 +180,8 @@
 /**
  * Edit mode: buttons (in both modal and toolbar).
  */
-#ipe-modal a,
-.ipe-toolbar a {
+#edit-modal a,
+.edit-toolbar a {
   float: left; /* LTR */
   display: block;
   height: 21px;
@@ -194,45 +194,45 @@
   text-decoration: none;
   font-size: 13px;
 }
-#ipe-modal a {
+#edit-modal a {
   float: none;
   display: inline-block;
 }
 
-#ipe-modal a:link,
-#ipe-modal a:visited,
-#ipe-modal a:hover,
-#ipe-modal a:active,
-.ipe-toolbar a:link,
-.ipe-toolbar a:visited,
-.ipe-toolbar a:hover,
-.ipe-toolbar a:active {
+#edit-modal a:link,
+#edit-modal a:visited,
+#edit-modal a:hover,
+#edit-modal a:active,
+.edit-toolbar a:link,
+.edit-toolbar a:visited,
+.edit-toolbar a:hover,
+.edit-toolbar a:active {
   text-decoration: none;
 }
 
 /* Button with icons. */
-#ipe-modal a span,
-.ipe-toolbar a span {
+#edit-modal a span,
+.edit-toolbar a span {
   width: 22px;
   height: 19px;
   display: block;
   float: left;
 }
-.ipe-toolbar a span.close {
+.edit-toolbar a span.close {
   background: url('../images/close.png') no-repeat 2px 2px;
 }
 
-.ipe-toolbar a span.close:hover {
+.edit-toolbar a span.close:hover {
   /* TODO: use a different "close" image */
 }
 
 
-.ipe-toolbar a.blank-button {
+.edit-toolbar a.blank-button {
   color: black;
 }
 
-#ipe-modal a.blue-button,
-.ipe-toolbar a.blue-button {
+#edit-modal a.blue-button,
+.edit-toolbar a.blue-button {
   color: white;
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%); 
@@ -255,8 +255,8 @@
   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#ff6fc2f2,endColorstr=#ff4e97c0,GradientType=0);
 }
 
-#ipe-modal a.gray-button,
-.ipe-toolbar a.gray-button {
+#edit-modal a.gray-button,
+.edit-toolbar a.gray-button {
   color: #666;
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%); 
@@ -279,8 +279,8 @@
   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#fff5f5f5,endColorstr=#ffcccccc,GradientType=0);
 }
 
-#ipe-modal a img.gray-button.close img, .gray-button.save img, .blue-button.save img,
-.ipe-toolbar a img.gray-button.close img, .gray-button.save img, .blue-button.save img {
+#edit-modal a img.gray-button.close img, .gray-button.save img, .blue-button.save img,
+.edit-toolbar a img.gray-button.close img, .gray-button.save img, .blue-button.save img {
   padding: 0;
 }
 
@@ -289,8 +289,8 @@
   padding-right: 5px;
 }
 
-#ipe-modal a.blue-button:hover,
-.ipe-toolbar a.blue-button:hover {
+#edit-modal a.blue-button:hover,
+.edit-toolbar a.blue-button:hover {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%); 
   /* safari v4.0+ and by Chrome v3.0+ */
@@ -323,8 +323,8 @@
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#33000000,Positive=true);
 }
 
-#ipe-modal a.gray-button:hover,
-.ipe-toolbar a.gray-button:hover {
+#edit-modal a.gray-button:hover,
+.edit-toolbar a.gray-button:hover {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%); 
   /* safari v4.0+ and by Chrome v3.0+ */
@@ -357,8 +357,8 @@
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#1a000000,Positive=true);
 }
 
-#ipe-modal a.blue-button:active,
-.ipe-toolbar a.blue-button:active {
+#edit-modal a.blue-button:active,
+.edit-toolbar a.blue-button:active {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%); 
   /* safari v4.0+ and by Chrome v3.0+ */
@@ -393,8 +393,8 @@
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#33000000,Positive=true);
 }
 
-#ipe-modal a.gray-button:active,
-.ipe-toolbar a.gray-button:active {
+#edit-modal a.gray-button:active,
+.edit-toolbar a.gray-button:active {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%); 
   /* safari v4.0+ and by Chrome v3.0+ */

@@ -8,7 +8,7 @@
  *
  * This isn't a true form. As such it modifies the $form by reference.
  */
-function ipefape_field_edit_node_name_form(&$form, &$form_state) {
+function editfape_field_edit_node_name_form(&$form, &$form_state) {
   $node = $form_state['entity'];
 
   $form['name'] = array(
@@ -21,10 +21,10 @@ function ipefape_field_edit_node_name_form(&$form, &$form_state) {
     '#description' => t('Leave blank for %anonymous.', array('%anonymous' => variable_get('anonymous', t('Anonymous')))),
   );
 
-  $form['#submit'][] = 'ipefape_field_edit_node_name_form_submit';
+  $form['#submit'][] = 'editfape_field_edit_node_name_form_submit';
 }
 
-function ipefape_field_edit_node_name_form_submit($form, &$form_state) {
+function editfape_field_edit_node_name_form_submit($form, &$form_state) {
   $form_state['entity']->name = $form_state['values']['name'];
 }
 
@@ -33,7 +33,7 @@ function ipefape_field_edit_node_name_form_submit($form, &$form_state) {
  *
  * This isn't a true form. As such it modifies the $form by reference.
  */
-function ipefape_field_edit_node_date_form(&$form, &$form_state) {
+function editfape_field_edit_node_date_form(&$form, &$form_state) {
   $node = $form_state['entity'];
   // node_object_prepare() is necessary to calculate node->date!
   node_object_prepare($node);
@@ -46,9 +46,9 @@ function ipefape_field_edit_node_date_form(&$form, &$form_state) {
     '#default_value' => !empty($node->date) ? $node->date : '',
   );
 
-  $form['#submit'][] = 'ipefape_field_edit_node_date_form_submit';
+  $form['#submit'][] = 'editfape_field_edit_node_date_form_submit';
 }
 
-function ipefape_field_edit_node_date_form_submit($form, &$form_state) {
+function editfape_field_edit_node_date_form_submit($form, &$form_state) {
   $form_state['entity']->date = $form_state['values']['date'];
 }

@@ -3,7 +3,7 @@
 /**
  * Page callback to edit an entity field with IPE.
  */
-function ipe_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL) {
+function edit_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL) {
   // Ensure the entity type is valid:
   if (empty($entity_type)) {
     return MENU_NOT_FOUND;
@@ -44,10 +44,10 @@ function ipe_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL)
         $subform_id = 'fape_field_edit_node_title_form';
         break;
       case 'name':
-        $subform_id = 'ipefape_field_edit_node_name_form';
+        $subform_id = 'editfape_field_edit_node_name_form';
         break;
       case 'date':
-        $subform_id = 'ipefape_field_edit_node_date_form';
+        $subform_id = 'editfape_field_edit_node_date_form';
         break;
     }
     if (!node_access('update', $entity)) {
@@ -74,13 +74,13 @@ function ipe_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL)
     'subform_id' => $subform_id,
     // We use this in our hook_form_alter() implementation so that we don't
     // alter FAPE's forms when it's used by FAPE itself.
-    'ipe' => TRUE,
+    'edit' => TRUE,
   );
 
   if (in_array($field_name, array('name', 'date'))) {
     // TODO: for some unknown, weird reason, form_load_include() breaks the code.
-    //form_load_include($form_state, 'inc', 'ipe', 'includes/fape');
-    module_load_include('inc', 'ipe', 'includes/fape');
+    //form_load_include($form_state, 'inc', 'edit', 'includes/fape');
+    module_load_include('inc', 'edit', 'includes/fape');
   }
 
   $commands = array();
@@ -94,16 +94,16 @@ function ipe_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL)
     // Pseudofield: title.
     if ($entity_type == 'node' && $field_name == 'title') {
       $commands[] = array(
-        'command' => 'ipe_field_form_saved',
+        'command' => 'edit_field_form_saved',
         'id'      => "$entity_type:$id:$field_name",
       );
     }
     // Pseudofields: name and date.
     elseif ($entity_type == 'node' && in_array($field_name, array('name', 'date'))) {
       $commands[] = array(
-        'command' => 'ipe_field_form_saved',
+        'command' => 'edit_field_form_saved',
         'id'      => "$entity_type:$id:$field_name",
-        'data'    => ipe_node_render_submitted(
+        'data'    => edit_node_render_submitted(
           theme('username', array('account' => $entity)), // name
           format_date($entity->created), // date
           $entity_id
@@ -113,7 +113,7 @@ function ipe_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL)
     // All other fields.
     else {
       $commands[] = array(
-        'command' => 'ipe_field_form_saved',
+        'command' => 'edit_field_form_saved',
         'id'      => "$entity_type:$id:$field_name",
         'data'    => drupal_render(field_view_field($entity_type, $entity, $field_name)),
       );
@@ -121,7 +121,7 @@ function ipe_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL)
   }
   else {
     $commands[] = array(
-      'command' => 'ipe_field_form',
+      'command' => 'edit_field_form',
       'id'      => "$entity_type:$id:$field_name",
       'data'    => drupal_render($form),
     );

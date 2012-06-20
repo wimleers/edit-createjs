@@ -1,5 +1,5 @@
-name = In-Place Editing
-description = UX++
+name = Edit
+description = In-place content editing.
 package = Spark
 core = 7.x
 
