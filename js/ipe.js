@@ -232,8 +232,9 @@ Drupal.ipe.createToolbar = function($element) {
     return false;
   }
   else {
+    var $blockOfElement = Drupal.ipe._getParentBlock($element);
     $('<div class="ipe-toolbar-container"><div class="ipe-toolbar primary" /><div class="ipe-toolbar secondary" /></div>')
-    .insertBefore($element)
+    .insertBefore($blockOfElement)
     .bind('mouseenter.ipe', function(e) {
       // Prevent triggering the entity's mouse enter event.
       e.stopPropagation();
@@ -247,16 +248,33 @@ Drupal.ipe.createToolbar = function($element) {
       // Prevent triggering the entity's mouse leave event.
       e.stopPropagation();
     });
+
+    // Work-around for inline elements.
+    if ($element.css('display') == 'inline') {
+      var pos = $element.position();
+      Drupal.ipe.getToolbar($element).css('left', pos.left).css('top', pos.top);
+    }
+
     return true;
   }
 };
 
+Drupal.ipe._getParentBlock = function($element) {
+  var $block = $element;
+  while ($block.css('display') == 'inline') {
+    $block = $block.parent();
+  }
+  return $block;
+};
+
 Drupal.ipe.getToolbar = function($editable) {
   // Default case.
-  var $t = $editable.prevAll('.ipe-toolbar-container');
+  var $blockOfEditable = Drupal.ipe._getParentBlock($editable);
+  var $t = $blockOfEditable.prevAll('.ipe-toolbar-container');
   // Currently editing a form, hence the toolbar is shifted around.
   if ($t.length == 0) {
-    var $t2 = Drupal.ipe.findFieldForEditable($editable).filter('.ipe-type-form').prevAll('.ipe-form-container').find('.ipe-toolbar-container');
+    var $formFields = Drupal.ipe.findFieldForEditable($editable).filter('.ipe-type-form');
+    var $t2 = Drupal.ipe.getForm($formFields).find('.ipe-toolbar-container');
     if ($t2.length > 0) {
       return $t2;
     }
@@ -269,14 +287,25 @@ Drupal.ipe.createForm = function($element) {
     return false;
   }
   else {
+    var $blockOfElement = Drupal.ipe._getParentBlock($element);
     $('<div class="ipe-form-container"><div class="ipe-form"><div class="loading">Loading...</div></div></div>')
-    .insertBefore($element);
+    .insertBefore($blockOfElement);
+
+    if ($element.css('display') == 'inline') {
+      var $toolbar = Drupal.ipe.getToolbar($element);
+      Drupal.ipe.getForm($element)
+      .css('left', $toolbar.css('left'))
+      .css('top', $toolbar.css('top'));
+      $toolbar.css('left', '').css('top', '');
+    }
+
     return true;
   }
 };
 
 Drupal.ipe.getForm = function($element) {
-  return $element.prevAll('.ipe-form-container');
+  var $blockOfElement = Drupal.ipe._getParentBlock($element);
+  return $blockOfElement.prevAll('.ipe-form-container');
 };
 
 Drupal.ipe.createModal = function(message, $actions, $editable) {
@@ -401,7 +430,7 @@ Drupal.ipe.startEditField = function($editable) {
   .find('a.save').bind('click.ipe', function() {
     // type = form
     if ($field.filter('.ipe-type-form').length > 0) {
-      $field.prevAll('.ipe-form-container').find('form')
+      Drupal.ipe.getForm($field).find('form')
       .find('.ipe-form-submit').trigger('click.ipe').end();
       //.find('input, select, textarea').attr('disabled', true);
     }
@@ -546,7 +575,7 @@ $(function() {
       Drupal.ajax.prototype.commands.insert(ajax, {'data' : response.data});
 
       // Detect changes in this form.
-      ajax.$field.prevAll('.ipe-form-container')
+      Drupal.ipe.getForm(ajax.$editable)
       .find(':input').bind('formUpdated.ipe', function() {
         ajax.$editable
         .data('ipe-content-changed', true)
@@ -577,7 +606,7 @@ $(function() {
       Drupal.ipe.state.directEditableFormResponse = response;
       $('#ipe-backstage').append(response.data);
 
-      var $submit = $('#ipe-backstage form input[type=submit]');
+      var $submit = $('#ipe-backstage form .ipe-form-submit');
       var element_settings = {
         url : $submit.closest('form').attr('action'),
         setClick : true,
@@ -589,7 +618,6 @@ $(function() {
       };
       var base = $submit.attr('id');
       Drupal.ajax[base] = new Drupal.ajax(base, $submit[0], element_settings);
-
     }
     else {
       console.log('queueing', response);
@@ -606,10 +634,15 @@ $(function() {
       // Replace the old content with the new content.
       var $field = $('.ipe-field[data-ipe-id=' + response.id  + ']');
       var $parent = $field.parent();
-      $field.replaceWith(response.data);
+      if ($field.css('display') == 'inline') {
+        $parent.html(response.data);
+      }
+      else {
+        $field.replaceWith(response.data);
+      }
 
-      // Make the freshly rendered field in-place-editable again.
-      Drupal.ipe.startEditableFields($('.ipe-field[data-ipe-id=' + response.id + ']', $parent));
+      // Make the freshly rendered field(s) in-place-editable again.
+      Drupal.ipe.startEditableFields(Drupal.ipe.findEditableFields($parent));
     }
   };
 });
