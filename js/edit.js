@@ -440,8 +440,8 @@ Drupal.edit.startEditField = function($editable) {
       var parts = edit_id.split(':');
       if (parts[2] == 'title') {
         $('#edit-backstage form')
-        .find(':input:visible:first').val($editable.text()).end()
-        .find(':input[type=submit]').trigger('click.edit');
+        .find(':input:first').val($editable.text()).end()
+        .find('.edit-form-submit').trigger('click.edit');
       }
       // Fields.
       else {
