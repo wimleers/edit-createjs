@@ -268,6 +268,9 @@ Drupal.edit._getParentBlock = function($element) {
 };
 
 Drupal.edit.getToolbar = function($editable) {
+  if ($editable.length == 0) {
+    return $([]);
+  }
   // Default case.
   var $blockOfEditable = Drupal.edit._getParentBlock($editable);
   var $t = $blockOfEditable.prevAll('.edit-toolbar-container');
