@@ -5,7 +5,7 @@
  */
 function edit_menu() {
   $items = array();
-  $items['admin/field/edit/%/%/%'] = array(
+  $items['admin/edit/field/%/%/%'] = array(
     // Access is controlled after we have inspected the entity which
     // can't easily happen until the callback.
     'access arguments' => array(TRUE),
@@ -287,7 +287,7 @@ require_once 'includes/form.inc';
         'js' => array(
           $module_path . '/js/edit.js',
           array(
-            'data' => array('edit' => array('fieldFormURL' => url('admin/field/edit/!entity_type/!id/!field_name'))),
+            'data' => array('edit' => array('fieldFormURL' => url('admin/edit/field/!entity_type/!id/!field_name'))),
             'type' => 'setting',
           ),
         ),
