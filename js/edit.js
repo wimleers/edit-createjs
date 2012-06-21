@@ -439,8 +439,13 @@ Drupal.edit.startEditField = function($editable) {
       // Pseudofields (title, author, authoring date).
       var parts = edit_id.split(':');
       if (parts[2] == 'title') {
+        // We trim the title because otherwise whitespace in the raw HTML ends
+        // up in the title as well.
+        // TRICKY: Drupal core does not trim the title, so in theory this is
+        // out of line with Drupal core's behavior.
+        var title = $.trim($editable.text());
         $('#edit-backstage form')
-        .find(':input:first').val($editable.text()).end()
+        .find(':input:first').val(title).end()
         .find('.edit-form-submit').trigger('click.edit');
       }
       // Fields.
