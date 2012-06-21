@@ -217,7 +217,7 @@ function edit_preprocess_field(&$var) {
 
   $formatter_info = field_info_formatter_types($formatter);
   if (!array_key_exists('edit', $formatter_info)) {
-    watchdog('edit', '%formatter not yet compatible with IPE.', array('%formatter' => $formatter));
+    watchdog('edit', '%formatter not yet compatible with Edit.', array('%formatter' => $formatter));
     return;
   }
   $edit_ability = $formatter_info['edit'];
