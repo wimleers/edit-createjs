@@ -163,7 +163,10 @@ Drupal.edit.startEditableEntities = function($e) {
   // Hang a curtain over the comments if they're inside the entity.
   .find('.comment-wrapper').prepend('<div class="edit-curtain" />')
   .map(function() {
-    $(this).find('.edit-curtain').css('height', $(this).height());
+    var height = $(this).height();
+    $(this).find('.edit-curtain')
+    .css('height', height)
+    .data('edit-curtain-height', height);
   });
 };
 
@@ -436,6 +439,7 @@ Drupal.edit.startEditField = function($editable) {
 
   // While editing, don't show *any* other field or entity as editable.
   $('.edit-candidate').not('.edit-editing').removeClass('edit-editable');
+  Drupal.edit.findEntityForField($field).find('.comment-wrapper .edit-curtain').height(0);
 
   // Toolbar + toolbar event handlers.
   Drupal.edit.getToolbar($editable)
@@ -547,6 +551,9 @@ Drupal.edit.stopEditField = function($editable) {
 
   // Make the other fields and entities editable again.
   $('.edit-candidate').addClass('edit-editable');
+  var $curtain = Drupal.edit.findEntityForField(Drupal.edit.findFieldForEditable($editable))
+  .find('.comment-wrapper .edit-curtain');
+  $curtain.height($curtain.data('edit-curtain-height'));
 
   Drupal.edit.getToolbar($editable).remove();
   Drupal.edit.getForm($editable).remove();
