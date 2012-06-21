@@ -134,7 +134,12 @@ Drupal.edit.findFieldForEditable = function($editable) {
 };
 
 Drupal.edit.findEntityForField = function($f) {
-  return $f.closest('.node');
+  var $e = $f.closest('.ipe-entity');
+  if ($e.length == 0) {
+    var entity_edit_id = $f.data('edit-id').split(':').slice(0,2).join(':');
+    $e = $('.edit-entity[data-edit-id=' + entity_edit_id + ']');
+  }
+  return $e;
 };
 
 Drupal.edit.startEditableEntities = function($e) {
