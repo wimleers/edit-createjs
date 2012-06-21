@@ -504,6 +504,7 @@ Drupal.edit.startEditField = function($editable) {
     event: 'edit-internal.edit',
     $field : $field,
     $editable : $editable,
+    progress: { type : null }, // No progress indicator.
     wrapper: 'this-is-a-filthy-hack'
   };
   if (Drupal.ajax.hasOwnProperty(edit_id)) {
