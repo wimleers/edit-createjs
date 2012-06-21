@@ -142,6 +142,10 @@ Drupal.edit.findEntityForField = function($f) {
   return $e;
 };
 
+Drupal.edit.findEntityForEditable = function($editable) {
+  return Drupal.edit.findEntityForField(Drupal.edit.findFieldForEditable($editable));
+};
+
 Drupal.edit.startEditableEntities = function($e) {
   $e
   .once('edit')
@@ -202,7 +206,7 @@ Drupal.edit.startEditableFields = function($fields) {
         Drupal.edit.stopHighlightField($editable);
         // Leaving a field won't trigger the mouse enter event for the entity
         // because the entity contains the field. Hence, do it manually.
-        var $e = Drupal.edit.findEntityForField($editable);
+        var $e = Drupal.edit.findEntityForEditable($editable);
         Drupal.edit.startHighlightEntity($e);
       }
       // Prevent triggering the entity's mouse leave event.
@@ -373,7 +377,7 @@ Drupal.edit.stopHighlightEntity = function($e) {
 Drupal.edit.startHighlightField = function($editable) {
   console.log('startHighlightField');
   if (Drupal.edit.state.entityBeingHighlighted.length > 0) {
-    var $e = Drupal.edit.findEntityForField($editable);
+    var $e = Drupal.edit.findEntityForEditable($editable);
     Drupal.edit.stopHighlightEntity($e);
   }
   if (Drupal.edit.createToolbar($editable)) {
@@ -551,7 +555,7 @@ Drupal.edit.stopEditField = function($editable) {
 
   // Make the other fields and entities editable again.
   $('.edit-candidate').addClass('edit-editable');
-  var $curtain = Drupal.edit.findEntityForField(Drupal.edit.findFieldForEditable($editable))
+  var $curtain = Drupal.edit.findEntityForEditable($editable)
   .find('.comment-wrapper .edit-curtain');
   $curtain.height($curtain.data('edit-curtain-height'));
 
