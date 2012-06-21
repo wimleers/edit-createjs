@@ -154,13 +154,19 @@ Drupal.edit.startEditableEntities = function($e) {
       console.log('entity:mouseleave');
       Drupal.edit.stopHighlightEntity($e);
     });
+  })
+  // Hang a curtain over the comments if they're inside the entity.
+  .find('.comment-wrapper').prepend('<div class="edit-curtain" />')
+  .map(function() {
+    $(this).find('.edit-curtain').css('height', $(this).height());
   });
 };
 
 Drupal.edit.stopEditableEntities = function($e) {
   $e
   .removeClass('edit-processed edit-candidate edit-editable edit-highlighted')
-  .unbind('mouseenter.edit mouseleave.edit');
+  .unbind('mouseenter.edit mouseleave.edit')
+  .find('.comment-wrapper .edit-curtain').remove();
 };
 
 Drupal.edit.startEditableFields = function($fields) {
