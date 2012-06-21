@@ -36,18 +36,18 @@ function edit_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL
   list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
 
   // This allows us to have limited support for non-field API fields.
-  // Currently we support only node:title, node:name and node:date.
-  if ($entity_type == 'node' && in_array($field_name, array('title', 'name', 'date'))) {
+  // Currently we support only node:title, node:author and node:created.
+  if ($entity_type == 'node' && in_array($field_name, array('title', 'author', 'created'))) {
     $field_instance = TRUE;
     switch ($field_name) {
       case 'title':
         $subform_id = 'fape_field_edit_node_title_form';
         break;
-      case 'name':
-        $subform_id = 'editfape_field_edit_node_name_form';
+      case 'author':
+        $subform_id = 'editfape_field_edit_node_author_form';
         break;
-      case 'date':
-        $subform_id = 'editfape_field_edit_node_date_form';
+      case 'created':
+        $subform_id = 'editfape_field_edit_node_created_form';
         break;
     }
     if (!node_access('update', $entity)) {
@@ -77,7 +77,7 @@ function edit_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL
     'edit' => TRUE,
   );
 
-  if (in_array($field_name, array('name', 'date'))) {
+  if (in_array($field_name, array('author', 'created'))) {
     // TODO: for some unknown, weird reason, form_load_include() breaks the code.
     //form_load_include($form_state, 'inc', 'edit', 'includes/fape');
     module_load_include('inc', 'edit', 'includes/fape');
@@ -99,13 +99,13 @@ function edit_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL
       );
     }
     // Pseudofields: name and date.
-    elseif ($entity_type == 'node' && in_array($field_name, array('name', 'date'))) {
+    elseif ($entity_type == 'node' && in_array($field_name, array('author', 'created'))) {
       $commands[] = array(
         'command' => 'edit_field_form_saved',
         'id'      => "$entity_type:$id:$field_name",
         'data'    => edit_node_render_submitted(
-          theme('username', array('account' => $entity)), // name
-          format_date($entity->created), // date
+          theme('username', array('account' => $entity)), // author
+          format_date($entity->created), // created
           $entity_id
         ),
       );

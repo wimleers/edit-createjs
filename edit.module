@@ -198,10 +198,10 @@ function edit_node_render_submitted($name, $date, $node_id) {
     array(
       '!name-value'  => $name,
       '!name-label'  => t('Author'),
-      '!name-edit-id' => "node:$node_id:name",
+      '!name-edit-id' => "node:$node_id:author",
       '!date-value'  => $date,
       '!date-label'  => t('Authoring date'),
-      '!date-edit-id' => "node:$node_id:date",
+      '!date-edit-id' => "node:$node_id:created",
     )
   );
 }
