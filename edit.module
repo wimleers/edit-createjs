@@ -58,6 +58,9 @@ function edit_library() {
       $path . '/js/edit.js' => array(
         'defer' => TRUE, // TODO: make sure that a subset of the JS is loaded ASAP, so that the view/edit mode toggle works immediately.
       ),
+      $path . '/js/ajax.js' => array(
+        'defer' => TRUE,
+      ),
       // Basic settings.
       array(
         'data' => array('edit' => array(
