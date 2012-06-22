@@ -49,6 +49,7 @@ function edit_theme() {
  * Implements hook_form_FORM_ID_alter().
  */
 function edit_form_fape_field_edit_form_alter(&$form, &$form_state) {
+  // Only alter this form when it's being built by the Edit module.
   if (!array_key_exists('edit', $form_state)) {
     return;
   }
@@ -82,6 +83,7 @@ function edit_form_fape_field_edit_form_alter(&$form, &$form_state) {
     }
   }
 
+  // Make it easy for the JS to identify the submit button.
   $form['actions']['submit']['#attributes'] = array('class' => array('edit-form-submit'));
 }
 
@@ -153,7 +155,7 @@ function edit_preprocess_node(&$var) {
     list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
     $i = entity_get_info($entity_type);
 
-    // Provide metadata through data-* attributes.
+    // Provide metadata through data- attributes.
     $data_attributes = array(
       'data-edit-id'              => "node:$id",
       'data-edit-entity-label'    => $i['bundles'][$bundle]['label'],
@@ -163,7 +165,6 @@ function edit_preprocess_node(&$var) {
 
     // Mark this entity as editable.
     $var['classes_array'][] = 'edit-entity edit-allowed';
-
 
     // Pseudofield: title.
     $node_type = node_type_get_type($bundle);
@@ -238,7 +239,7 @@ function edit_preprocess_field(&$var) {
     $ei = entity_get_info($entity_type);
     $fi = field_info_instance($entity_type, $field_name, $bundle);
 
-    // Provide metadata through data-* attributes.
+    // Provide metadata through data- attributes.
     $data_attributes = array(
       'data-edit-field-label'    => $fi['label'],
       'data-edit-id'             => "$entity_type:$id:$field_name",

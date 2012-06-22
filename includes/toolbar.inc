@@ -117,4 +117,3 @@ function edit_override_shortcut_toolbar_pre_render($toolbar) {
 
   return $toolbar;
 }
-
