@@ -29,6 +29,23 @@ function edit_menu() {
 }
 
 /**
+ * Implements hook_theme().
+ */
+function edit_theme() {
+  return array(
+    'edit_spanned_field' => array(
+      'file'      => 'includes/theme.inc',
+      'variables' => array(
+        'value'   => NULL,
+        'edit_id' => NULL,
+        'label'   => NULL,
+        'classes' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function edit_form_fape_field_edit_form_alter(&$form, &$form_state) {
@@ -156,26 +173,34 @@ function edit_preprocess_node(&$var) {
       $var['title_attributes_array']['data-edit-edit'] = "node:$id:title";
     }
 
+    // Pseudofields: author ("name") & created (authoring date, "date").
     if ($var['display_submitted']) {
-      // Pseudofields: name (author) and date (authoring date).
       $var['submitted'] = edit_node_render_submitted($var['name'], $var['date'], $id);
     }
   }
 }
 
 /**
- * Render pseudofields: name (author) and date (authoring date).
+ * Render pseudofields: author and created (authoring date).
  */
-function edit_node_render_submitted($name, $date, $node_id) {
+function edit_node_render_submitted($author, $created, $node_id) {
+  $classes = 'edit-pseudofield edit-field edit-allowed edit-type-form';
+
   return t(
-    'Submitted by <span class="edit-pseudofield edit-field edit-allowed edit-type-form" data-edit-id="!name-edit-id" data-edit-field-label="!name-label">!name-value</span> on <span class="edit-pseudofield edit-field edit-allowed edit-type-form" data-edit-id="!date-edit-id" data-edit-field-label="!date-label">!date-value</span>',
+    'Submitted by !username on !datetime',
     array(
-      '!name-value'  => $name,
-      '!name-label'  => t('Author'),
-      '!name-edit-id' => "node:$node_id:author",
-      '!date-value'  => $date,
-      '!date-label'  => t('Authoring date'),
-      '!date-edit-id' => "node:$node_id:created",
+      '!username' => theme('edit_spanned_field', array(
+        'value' => $author,
+        'label' => t('Author'),
+        'edit_id' => "node:$node_id:author",
+        'classes' => $classes,
+      )),
+      '!datetime' => theme('edit_spanned_field', array(
+        'value' => $created,
+        'label' => t('Authoring date'),
+        'edit_id' => "node:$node_id:created",
+        'classes' => $classes,
+      )),
     )
   );
 }
