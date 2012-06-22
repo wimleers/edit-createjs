@@ -3,6 +3,7 @@ description = In-place content editing.
 package = Spark
 core = 7.x
 
+dependencies[] = toolbar
+dependencies[] = shortcut
 dependencies[] = entity
 dependencies[] = fape
-
