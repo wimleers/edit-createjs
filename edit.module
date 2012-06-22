@@ -46,6 +46,39 @@ function edit_theme() {
 }
 
 /**
+ * Implements hook_library().
+ */
+function edit_library() {
+  $path = drupal_get_path('module', 'edit');
+  $libraries['edit'] = array(
+    'title' => 'Edit',
+    'website' => 'http://drupal.org/project/edit',
+    'version' => NULL, // TODO: figure out what the correct way to do this is.
+    'js' => array(
+      $path . '/js/edit.js' => array(
+        'defer' => TRUE, // TODO: make sure that a subset of the JS is loaded ASAP, so that the view/edit mode toggle works immediately.
+      ),
+      // Basic settings.
+      array(
+        'data' => array('edit' => array(
+          'fieldFormURL' => url('admin/edit/field/!entity_type/!id/!field_name'),
+        )),
+        'type' => 'setting',
+      ),
+    ),
+    'css' => array(
+      $path . '/css/edit.css',
+    ),
+    'dependencies' => array(
+      array('system', 'jquery.form'),
+      array('system', 'drupal.ajax'),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function edit_form_fape_field_edit_form_alter(&$form, &$form_state) {

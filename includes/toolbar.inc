@@ -63,18 +63,7 @@ require_once 'includes/form.inc';
 </div>',
       '#attached' => array(
         'library' => array(
-          array('system', 'jquery.form'),
-          array('system', 'drupal.ajax'),
-        ),
-        'js' => array(
-          $module_path . '/js/edit.js',
-          array(
-            'data' => array('edit' => array('fieldFormURL' => url('admin/edit/field/!entity_type/!id/!field_name'))),
-            'type' => 'setting',
-          ),
-        ),
-        'css' => array(
-          $module_path . '/css/edit.css',
+          array('edit', 'edit'),
         ),
       ),
     ),
