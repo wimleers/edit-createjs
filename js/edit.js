@@ -115,16 +115,6 @@ Drupal.edit.getID = function($field) {
   return $field.data('edit-id');
 };
 
-Drupal.edit.calcFormURLForField = function(id) {
-  var parts = id.split(':');
-  var urlFormat = decodeURIComponent(Drupal.settings.edit.fieldFormURL);
-  return Drupal.t(urlFormat, {
-    '!entity_type': parts[0],
-    '!id'         : parts[1],
-    '!field_name' : parts[2]
-  });
-};
-
 Drupal.edit.findFieldForID = function(id, context) {
   return $('[data-edit-id="' + id + '"]', context || $('#content'));
 };
@@ -152,14 +142,14 @@ Drupal.edit.startEditableEntities = function($e) {
   .addClass('edit-candidate edit-editable')
   .bind('mouseenter.edit', function(e) {
     var $e = $(this);
-    Drupal.edit._ignoreToolbarMousing(e, function() {
+    Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
       console.log('entity:mouseenter');
       Drupal.edit.startHighlightEntity($e);
     });
   })
   .bind('mouseleave.edit', function(e) {
     var $e = $(this);
-    Drupal.edit._ignoreToolbarMousing(e, function() {
+    Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
       console.log('entity:mouseleave');
       Drupal.edit.stopHighlightEntity($e);
     });
@@ -189,7 +179,7 @@ Drupal.edit.startEditableFields = function($fields) {
   .addClass('edit-candidate edit-editable')
   .bind('mouseenter.edit', function(e) {
     var $editable = $(this);
-    Drupal.edit._ignoreToolbarMousing(e, function() {
+    Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
       console.log('field:mouseenter');
       if (!$editable.hasClass('edit-editing')) {
         Drupal.edit.startHighlightField($editable);
@@ -200,7 +190,7 @@ Drupal.edit.startEditableFields = function($fields) {
   })
   .bind('mouseleave.edit', function(e) {
     var $editable = $(this);
-    Drupal.edit._ignoreToolbarMousing(e, function() {
+    Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
       console.log('field:mouseleave');
       if (!$editable.hasClass('edit-editing')) {
         Drupal.edit.stopHighlightField($editable);
@@ -219,8 +209,8 @@ Drupal.edit.startEditableFields = function($fields) {
     // This does not get stripped when going back to view mode. The only way
     // this could possibly break, is when fields' background colors can change
     // on-the-fly, while a visitor is reading the page.
-    $(this).css('background-color', Drupal.edit._getBgColor($(this)));
-  }); 
+    $(this).css('background-color', Drupal.edit.util.getBgColor($(this)));
+  });
 };
 
 Drupal.edit.stopEditableFields = function($fields) {
@@ -250,7 +240,7 @@ Drupal.edit.createToolbar = function($element) {
     return false;
   }
   else {
-    var $blockOfElement = Drupal.edit._getParentBlock($element);
+    var $blockOfElement = Drupal.edit.util.getParentBlock($element);
     $('<div class="edit-toolbar-container"><div class="edit-toolbar primary" /><div class="edit-toolbar secondary" /></div>')
     .insertBefore($blockOfElement)
     .bind('mouseenter.edit', function(e) {
@@ -277,20 +267,12 @@ Drupal.edit.createToolbar = function($element) {
   }
 };
 
-Drupal.edit._getParentBlock = function($element) {
-  var $block = $element;
-  while ($block.css('display') == 'inline') {
-    $block = $block.parent();
-  }
-  return $block;
-};
-
 Drupal.edit.getToolbar = function($editable) {
   if ($editable.length == 0) {
     return $([]);
   }
   // Default case.
-  var $blockOfEditable = Drupal.edit._getParentBlock($editable);
+  var $blockOfEditable = Drupal.edit.util.getParentBlock($editable);
   var $t = $blockOfEditable.prevAll('.edit-toolbar-container');
   // Currently editing a form, hence the toolbar is shifted around.
   if ($t.length == 0) {
@@ -308,7 +290,7 @@ Drupal.edit.createForm = function($element) {
     return false;
   }
   else {
-    var $blockOfElement = Drupal.edit._getParentBlock($element);
+    var $blockOfElement = Drupal.edit.util.getParentBlock($element);
     $('<div class="edit-form-container"><div class="edit-form"><div class="loading">Loading...</div></div></div>')
     .insertBefore($blockOfElement);
 
@@ -325,7 +307,7 @@ Drupal.edit.createForm = function($element) {
 };
 
 Drupal.edit.getForm = function($element) {
-  var $blockOfElement = Drupal.edit._getParentBlock($element);
+  var $blockOfElement = Drupal.edit.util.getParentBlock($element);
   return $blockOfElement.prevAll('.edit-form-container');
 };
 
@@ -487,7 +469,7 @@ Drupal.edit.startEditField = function($editable) {
     else {
      var $actions = $('<a href="#" class="gray-button discard">Discard changes</a><a href="#" class="blue-button save">Save</a>');
      Drupal.edit.createModal(Drupal.t('You have unsaved changes'), $actions, $editable);
-  
+
      Drupal.edit.getModal()
      .find('a.discard').bind('click.edit', function() {
        // Restore to original state.
@@ -512,7 +494,7 @@ Drupal.edit.startEditField = function($editable) {
     Drupal.edit.getForm($editable)
     .find('.edit-form')
     .addClass('edit-editable edit-highlighted edit-editing')
-    .css('background-color', Drupal.edit._getBgColor($editable))
+    .css('background-color', Drupal.edit.util.getBgColor($editable))
     .end()
     .find('.loading')
     .attr('id', 'this-is-a-filthy-hack');
@@ -520,7 +502,7 @@ Drupal.edit.startEditField = function($editable) {
 
   // Regardless of the type, load the form for this field. We always use forms to
   // submit the changes.
-  var url = Drupal.edit.calcFormURLForField(edit_id);
+  var url = Drupal.edit.util.calcFormURLForField(edit_id);
   var element_settings = {
     url: url,
     event: 'edit-internal.edit',
@@ -539,7 +521,6 @@ Drupal.edit.startEditField = function($editable) {
   Drupal.edit.state.fieldBeingEdited = $editable;
   Drupal.edit.state.editedEditable = edit_id;
 };
-
 
 Drupal.edit.stopEditField = function($editable) {
   console.log('stopEditField: ', $editable);
@@ -569,32 +550,6 @@ Drupal.edit.stopEditField = function($editable) {
 
   Drupal.edit.state.fieldBeingEdited = [];
   Drupal.edit.state.editedEditable = null;
-};
-
-Drupal.edit._getBgColor = function($e) {
-  var c;
-
-  if ($e == null) {
-    // Fallback to white.
-    return 'white';
-  }
-  c = $e.css('background-color');
-  if (c == 'rgba(0, 0, 0, 0)') {
-    // TODO: add edge case for Firefox' "transparent" here; this is a
-    // browser bug: https://bugzilla.mozilla.org/show_bug.cgi?id=635724
-    // TODO: test in all browsers
-    return Drupal.edit._getBgColor($e.parent());
-  }
-  return c;
-};
-
-Drupal.edit._ignoreToolbarMousing = function(e, callback) {
-  if ($(e.relatedTarget).closest(".edit-toolbar-container").length > 0) {
-    e.stopPropagation();
-  }
-  else {
-    callback();
-  }
 };
 
 })(jQuery);
