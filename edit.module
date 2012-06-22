@@ -249,11 +249,6 @@ function edit_preprocess_field(&$var) {
     $var['attributes_array'] += $data_attributes;
 
     // Mark this field as editable.
-    if ($edit_ability == 'direct') {
-      $var['classes_array'][] = 'edit-field edit-allowed edit-type-direct';
-    }
-    else if ($edit_ability == 'form') {
-      $var['classes_array'][] = 'edit-field edit-allowed edit-type-form';
-    }
+    $var['classes_array'][] = "edit-field edit-allowed edit-type-$edit_ability";
   }
 }
