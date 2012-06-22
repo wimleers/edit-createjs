@@ -314,7 +314,7 @@ function edit_override_toolbar_pre_render($toolbar) {
   // Now we remove the toolbar drawer toggle.
   unset($toolbar['toolbar_toggle']);
 
-  $toolbar['#attached']['css'][] = drupal_get_path('module', 'edit') . '/overrides.css';
+  $toolbar['#attached']['css'][] = drupal_get_path('module', 'edit') . '/css/toolbar-overrides.css';
 
   return $toolbar;
 }
@@ -331,7 +331,7 @@ function edit_override_shortcut_toolbar_pre_render($toolbar) {
   $shortcuts = array_shift($toolbar['toolbar_drawer'][0]);
   array_push($toolbar['toolbar_drawer'][0], $shortcuts);
 
-  $toolbar['#attached']['css'][] = drupal_get_path('module', 'edit') . '/overrides.css';
+  $toolbar['#attached']['css'][] = drupal_get_path('module', 'edit') . '/css/toolbar-overrides.css';
 
   return $toolbar;
 }
