@@ -25,7 +25,19 @@ Drupal.edit.modal = {
     $(Drupal.theme('editModal', {}))
     .appendTo('body')
     .find('.main p').text(message).end()
-    .find('.actions').append($(actions));
+    .find('.actions').append($(actions))
+    .delegate('a.discard', 'click.edit', function() {
+      // Restore to original state.
+      $editable.html($editable.data('edit-content-original'));
+      $editable.data('edit-content-changed', false);
+
+      Drupal.edit.modal.remove();
+      Drupal.edit.toolbar.get($editable).find('a.close').trigger('click.edit');
+    })
+    .delegate('a.save', 'click.edit', function() {
+      Drupal.edit.modal.remove();
+      Drupal.edit.toolbar.get($editable).find('a.save').trigger('click.edit');
+    });
   },
 
   get: function() {
@@ -34,6 +46,8 @@ Drupal.edit.modal = {
 
   remove: function() {
     Drupal.edit.modal.get().remove();
+
+    // The modal's HTML was removed, hence no need to undelegate it.
 
     // Make the other interaction elements available again.
     $('.edit-belowoverlay').removeClass('edit-belowoverlay');

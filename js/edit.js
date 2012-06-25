@@ -404,20 +404,6 @@ Drupal.edit.startEditField = function($editable) {
         ]}),
         $editable
       );
-
-     Drupal.edit.modal.get()
-     .find('a.discard').bind('click.edit', function() {
-       // Restore to original state.
-       $editable.html($editable.data('edit-content-original'));
-       $editable.data('edit-content-changed', false);
-
-       Drupal.edit.modal.remove();
-       Drupal.edit.toolbar.get($editable).find('a.close').trigger('click.edit');
-     }).end()
-     .find('a.save').bind('click.edit', function() {
-       Drupal.edit.modal.remove();
-       Drupal.edit.toolbar.get($editable).find('a.save').trigger('click.edit');
-     });
     }
     return false;
   });
