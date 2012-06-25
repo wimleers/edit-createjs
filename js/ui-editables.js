@@ -71,18 +71,18 @@ Drupal.edit.toolbar = {
 
 Drupal.edit.form = {
 
-  create: function($element) {
-    if (Drupal.edit.form.get($element).length > 0) {
+  create: function($editable) {
+    if (Drupal.edit.form.get($editable).length > 0) {
       return false;
     }
     else {
-      var $blockOfElement = Drupal.edit.util.getParentBlock($element);
+      var $blockOfEditable = Drupal.edit.util.getParentBlock($editable);
       $(Drupal.theme('editFormContainer', { loadingMsg: Drupal.t('Loading…')}))
-      .insertBefore($blockOfElement);
+      .insertBefore($blockOfEditable);
 
-      if ($element.css('display') == 'inline') {
-        var $toolbar = Drupal.edit.toolbar.get($element);
-        Drupal.edit.form.get($element)
+      if ($editable.css('display') == 'inline') {
+        var $toolbar = Drupal.edit.toolbar.get($editable);
+        Drupal.edit.form.get($editable)
         .css('left', $toolbar.css('left'))
         .css('top', $toolbar.css('top'));
         $toolbar.css('left', '').css('top', '');
@@ -92,16 +92,15 @@ Drupal.edit.form = {
     }
   },
 
-  get: function($element) {
-    var $blockOfElement = Drupal.edit.util.getParentBlock($element);
-    return $blockOfElement.prevAll('.edit-form-container');
+  get: function($editable) {
+    var $blockOfEditable = Drupal.edit.util.getParentBlock($editable);
+    return $blockOfEditable.prevAll('.edit-form-container');
   },
 
-  remove: function($element) {
-    Drupal.edit.form.get($element).remove();
+  remove: function($editable) {
+    Drupal.edit.form.get($editable).remove();
   }
 
 };
-
 
 })(jQuery);
