@@ -8,7 +8,7 @@ Drupal.edit = Drupal.edit || {};
 Drupal.behaviors.edit = {
   attach: function(context) {
     $('#edit-view-edit-toggle').once('edit-init', Drupal.edit.init);
-    $('#edit-view-edit-toggle').once('edit-toggle', Drupal.edit.renderToggle);
+    $('#edit-view-edit-toggle').once('edit-toggle', Drupal.edit.toggle.render);
 
     // TODO: remove this; this is to make the current prototype somewhat usable.
     $('#edit-view-edit-toggle label').click(function() {
@@ -74,11 +74,21 @@ Drupal.edit.init = function() {
   });
 };
 
-Drupal.edit.renderToggle = function() {
-  // TODO: fancy, "physical toggle" to switch from view to edit mode and back.
-};
+
+/*
+
+1. Editable Entities
+2. Editable Fields (are associated with Editable Entities, but are not
+   necessarily *inside* Editable Entities — e.g. title)
+    -> contains exactly one Editable, in which the editing itself occurs, this
+       can be either:
+         a. type=direct, here some child element of the Field element is marked as editable
+         b. type=form, here the field itself is marked as editable, upon edit, a form is used
+
+ */
 
 Drupal.edit.findEditableEntities = function(context) {
+  console.log('finding editable entities');
   return $('.edit-entity.edit-allowed', context || $('#content'));
 };
 
@@ -229,116 +239,18 @@ Drupal.edit.stopEditableFields = function($fields) {
 Drupal.edit.clickOverlay = function(e) {
   console.log('clicked overlay');
 
-  if (Drupal.edit.getModal().length == 0) {
-    Drupal.edit.getToolbar(Drupal.edit.state.fieldBeingEdited)
+  if (Drupal.edit.modal.get().length == 0) {
+    Drupal.edit.toolbar.get(Drupal.edit.state.fieldBeingEdited)
     .find('a.close').trigger('click.edit');
   }
 };
 
-Drupal.edit.createToolbar = function($element) {
-  if (Drupal.edit.getToolbar($element).length > 0) {
-    return false;
-  }
-  else {
-    var $blockOfElement = Drupal.edit.util.getParentBlock($element);
-    $('<div class="edit-toolbar-container"><div class="edit-toolbar primary" /><div class="edit-toolbar secondary" /></div>')
-    .insertBefore($blockOfElement)
-    .bind('mouseenter.edit', function(e) {
-      // Prevent triggering the entity's mouse enter event.
-      e.stopPropagation();
-    })
-    .bind('mouseleave.edit', function(e) {
-      var el = $element[0];
-      if (e.relatedTarget != el && !jQuery.contains(el, e.relatedTarget)) {
-        console.log('triggering mouseleave on ', $element);
-        $element.trigger('mouseleave.edit');
-      }
-      // Prevent triggering the entity's mouse leave event.
-      e.stopPropagation();
-    });
-
-    // Work-around for inline elements.
-    if ($element.css('display') == 'inline') {
-      var pos = $element.position();
-      Drupal.edit.getToolbar($element).css('left', pos.left).css('top', pos.top);
-    }
-
-    return true;
-  }
-};
-
-Drupal.edit.getToolbar = function($editable) {
-  if ($editable.length == 0) {
-    return $([]);
-  }
-  // Default case.
-  var $blockOfEditable = Drupal.edit.util.getParentBlock($editable);
-  var $t = $blockOfEditable.prevAll('.edit-toolbar-container');
-  // Currently editing a form, hence the toolbar is shifted around.
-  if ($t.length == 0) {
-    var $formFields = Drupal.edit.findFieldForEditable($editable).filter('.edit-type-form');
-    var $t2 = Drupal.edit.getForm($formFields).find('.edit-toolbar-container');
-    if ($t2.length > 0) {
-      return $t2;
-    }
-  }
-  return $t;
-};
-
-Drupal.edit.createForm = function($element) {
-  if (Drupal.edit.getForm($element).length > 0) {
-    return false;
-  }
-  else {
-    var $blockOfElement = Drupal.edit.util.getParentBlock($element);
-    $('<div class="edit-form-container"><div class="edit-form"><div class="loading">Loading...</div></div></div>')
-    .insertBefore($blockOfElement);
-
-    if ($element.css('display') == 'inline') {
-      var $toolbar = Drupal.edit.getToolbar($element);
-      Drupal.edit.getForm($element)
-      .css('left', $toolbar.css('left'))
-      .css('top', $toolbar.css('top'));
-      $toolbar.css('left', '').css('top', '');
-    }
-
-    return true;
-  }
-};
-
-Drupal.edit.getForm = function($element) {
-  var $blockOfElement = Drupal.edit.util.getParentBlock($element);
-  return $blockOfElement.prevAll('.edit-form-container');
-};
-
-Drupal.edit.createModal = function(message, $actions, $editable) {
-  // The modal should be the only interaction element now.
-  $editable.addClass('edit-belowoverlay');
-  Drupal.edit.getToolbar($editable).addClass('edit-belowoverlay');
-
-  $('<div id="edit-modal"><div class="main"><p></p></div><div class="actions"></div></div>')
-  .appendTo('body')
-  .find('.main p').text(message).end()
-  .find('.actions').append($actions);
-};
-
-Drupal.edit.getModal = function() {
-  return $('#edit-modal');
-};
-
-Drupal.edit.removeModal = function() {
-  Drupal.edit.getModal().remove();
-
-  // Make the other interaction elements available again.
-  $('.edit-belowoverlay').removeClass('edit-belowoverlay');
-};
-
 Drupal.edit.startHighlightEntity = function($e) {
   console.log('startHighlightEntity');
-  if (Drupal.edit.createToolbar($e)) {
+  if (Drupal.edit.toolbar.create($e)) {
     var label = Drupal.t('Edit !entity-label', { '!entity-label' : $e.data('edit-entity-label') });
     var url = $e.data('edit-entity-edit-url');
-    Drupal.edit.getToolbar($e)
+    Drupal.edit.toolbar.get($e)
     .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.entity))')
     .append('<div class="edit-toolgroup entity"><a href="' + url + '" class="blue-button">' + label + '</a></div>');
   }
@@ -351,7 +263,7 @@ Drupal.edit.stopHighlightEntity = function($e) {
   console.log('stopHighlightEntity');
   $e.removeClass('edit-highlighted');
 
-  Drupal.edit.getToolbar($e).remove();
+  Drupal.edit.toolbar.remove($e);
 
   Drupal.edit.state.entityBeingHiglighted = [];
 };
@@ -362,9 +274,9 @@ Drupal.edit.startHighlightField = function($editable) {
     var $e = Drupal.edit.findEntityForEditable($editable);
     Drupal.edit.stopHighlightEntity($e);
   }
-  if (Drupal.edit.createToolbar($editable)) {
+  if (Drupal.edit.toolbar.create($editable)) {
     var label = $editable.filter('.edit-type-form').data('edit-field-label') || $editable.closest('.edit-type-direct').data('edit-field-label');
-    Drupal.edit.getToolbar($editable)
+    Drupal.edit.toolbar.get($editable)
     .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.info))')
     .append('<div class="edit-toolgroup info"><a href="#" class="blank-button">' + label + ' </a></div>');
   }
@@ -385,7 +297,7 @@ Drupal.edit.stopHighlightField = function($editable) {
 
   $editable.removeClass('edit-highlighted');
 
-  Drupal.edit.getToolbar($editable).remove();
+  Drupal.edit.toolbar.remove($editable);
 
   Drupal.edit.state.fieldBeingHighlighted = [];
   Drupal.edit.state.highlightedEditable = null;
@@ -419,7 +331,7 @@ Drupal.edit.startEditField = function($editable) {
     }
   })
   .bind('edit-content-changed.edit', function() {
-    Drupal.edit.getToolbar($editable)
+    Drupal.edit.toolbar.get($editable)
     .find('a.save').addClass('blue-button').removeClass('gray-button');
   });
 
@@ -428,13 +340,13 @@ Drupal.edit.startEditField = function($editable) {
   Drupal.edit.findEntityForField($field).find('.comment-wrapper .edit-curtain').height(0);
 
   // Toolbar + toolbar event handlers.
-  Drupal.edit.getToolbar($editable)
+  Drupal.edit.toolbar.get($editable)
   .find('.edit-toolbar.secondary:not(:has(.edit-toolgroup.ops))')
   .append('<div class="edit-toolgroup ops"><a href="#" class="save gray-button">Save</a><a href="#" class="close gray-button"><span class="close"></span></a></div>')
   .find('a.save').bind('click.edit', function() {
     // type = form
     if ($field.filter('.edit-type-form').length > 0) {
-      Drupal.edit.getForm($field).find('form')
+      Drupal.edit.form.get($field).find('form')
       .find('.edit-form-submit').trigger('click.edit').end();
       //.find(':input:not('.edit-form-submit').attr('disabled', true);
     }
@@ -468,30 +380,30 @@ Drupal.edit.startEditField = function($editable) {
     // Content changed: show modal.
     else {
      var $actions = $('<a href="#" class="gray-button discard">Discard changes</a><a href="#" class="blue-button save">Save</a>');
-     Drupal.edit.createModal(Drupal.t('You have unsaved changes'), $actions, $editable);
+     Drupal.edit.modal.create(Drupal.t('You have unsaved changes'), $actions, $editable);
 
-     Drupal.edit.getModal()
+     Drupal.edit.modal.get()
      .find('a.discard').bind('click.edit', function() {
        // Restore to original state.
        $editable.html($editable.data('edit-content-original'));
        $editable.data('edit-content-changed', false);
 
-       Drupal.edit.removeModal();
-       Drupal.edit.getToolbar($editable).find('a.close').trigger('click.edit');
+       Drupal.edit.modal.remove();
+       Drupal.edit.toolbar.get($editable).find('a.close').trigger('click.edit');
      }).end()
      .find('a.save').bind('click.edit', function() {
-       Drupal.edit.removeModal();
-       Drupal.edit.getToolbar($editable).find('a.save').trigger('click.edit');
+       Drupal.edit.modal.remove();
+       Drupal.edit.toolbar.get($editable).find('a.save').trigger('click.edit');
      });
     }
     return false;
   });
 
   // If we're going to show a form, then prepare for it.
-  if ($editable.hasClass('edit-type-form') && Drupal.edit.createForm($editable)) {
+  if ($editable.hasClass('edit-type-form') && Drupal.edit.form.create($editable)) {
     $editable.addClass('edit-belowoverlay');
 
-    Drupal.edit.getForm($editable)
+    Drupal.edit.form.get($editable)
     .find('.edit-form')
     .addClass('edit-editable edit-highlighted edit-editing')
     .css('background-color', Drupal.edit.util.getBgColor($editable))
@@ -540,8 +452,8 @@ Drupal.edit.stopEditField = function($editable) {
   .find('.comment-wrapper .edit-curtain');
   $curtain.height($curtain.data('edit-curtain-height'));
 
-  Drupal.edit.getToolbar($editable).remove();
-  Drupal.edit.getForm($editable).remove();
+  Drupal.edit.toolbar.remove($editable);
+  Drupal.edit.form.remove($editable);
 
   // Even for type=direct IPE, we use forms to send the changes to the server.
   if (Drupal.edit.findFieldForEditable($editable).hasClass('edit-type-direct')) {

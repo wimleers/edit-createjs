@@ -16,7 +16,7 @@ $(function() {
       Drupal.ajax.prototype.commands.insert(ajax, {'data' : response.data});
 
       // Detect changes in this form.
-      Drupal.edit.getForm(ajax.$editable)
+      Drupal.edit.form.get(ajax.$editable)
       .find(':input').bind('formUpdated.edit', function() {
         ajax.$editable
         .data('edit-content-changed', true)
@@ -25,9 +25,9 @@ $(function() {
 
       // Move  toolbar inside .edit-form-container, to let it snap to the width
       // of the form instead of the field formatter.
-      Drupal.edit.getToolbar(ajax.$editable).detach().prependTo('.edit-form')
+      Drupal.edit.toolbar.get(ajax.$editable).detach().prependTo('.edit-form')
 
-      var $submit = Drupal.edit.getForm(ajax.$editable).find('.edit-form-submit');
+      var $submit = Drupal.edit.form.get(ajax.$editable).find('.edit-form-submit');
       var element_settings = {
         url : $submit.closest('form').attr('action'),
         setClick : true,
