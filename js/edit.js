@@ -88,7 +88,6 @@ Drupal.edit.init = function() {
  */
 
 Drupal.edit.findEditableEntities = function(context) {
-  console.log('finding editable entities');
   return $('.edit-entity.edit-allowed', context || $('#content'));
 };
 
