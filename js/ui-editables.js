@@ -11,12 +11,12 @@ Drupal.edit = Drupal.edit || {};
 
 Drupal.edit.toolbar = {
 
-  create: function($element) {
-    if (Drupal.edit.toolbar.get($element).length > 0) {
+  create: function($editable) {
+    if (Drupal.edit.toolbar.get($editable).length > 0) {
       return false;
     }
     else {
-      var $blockOfElement = Drupal.edit.util.getParentBlock($element);
+      var $blockOfElement = Drupal.edit.util.getParentBlock($editable);
       $('<div class="edit-toolbar-container"><div class="edit-toolbar primary" /><div class="edit-toolbar secondary" /></div>')
       .insertBefore($blockOfElement)
       .bind('mouseenter.edit', function(e) {
@@ -24,19 +24,20 @@ Drupal.edit.toolbar = {
         e.stopPropagation();
       })
       .bind('mouseleave.edit', function(e) {
-        var el = $element[0];
+        var el = $editable[0];
         if (e.relatedTarget != el && !jQuery.contains(el, e.relatedTarget)) {
-          console.log('triggering mouseleave on ', $element);
-          $element.trigger('mouseleave.edit');
+          console.log('triggering mouseleave on ', $editable);
+          $editable.trigger('mouseleave.edit');
         }
         // Prevent triggering the entity's mouse leave event.
         e.stopPropagation();
       });
 
       // Work-around for inline elements.
-      if ($element.css('display') == 'inline') {
-        var pos = $element.position();
-        Drupal.edit.toolbar.get($element).css('left', pos.left).css('top', pos.top);
+      if ($editable.css('display') == 'inline') {
+        var pos = $editable.position();
+        Drupal.edit.toolbar.get($editable)
+        .css('left', pos.left).css('top', pos.top);
       }
 
       return true;
@@ -52,8 +53,8 @@ Drupal.edit.toolbar = {
     var $t = $blockOfEditable.prevAll('.edit-toolbar-container');
     // Currently editing a form, hence the toolbar is shifted around.
     if ($t.length == 0) {
-      var $formFields = Drupal.edit.findFieldForEditable($editable).filter('.edit-type-form');
-      var $t2 = Drupal.edit.form.get($formFields).find('.edit-toolbar-container');
+      var $field = Drupal.edit.findFieldForEditable($editable).filter('.edit-type-form');
+      var $t2 = Drupal.edit.form.get($field).find('.edit-toolbar-container');
       if ($t2.length > 0) {
         return $t2;
       }
