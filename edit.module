@@ -67,6 +67,9 @@ function edit_library() {
       $path . '/js/ui-editables.js' => array(
         'defer' => TRUE,
       ),
+      $path . '/js/theme.js' => array(
+        'defer' => TRUE,
+      ),
       $path . '/js/ajax.js' => array(
         'defer' => TRUE,
       ),

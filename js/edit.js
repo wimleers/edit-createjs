@@ -40,7 +40,7 @@ Drupal.edit.init = function() {
   console.log('Fields with (server-generated) forms:', Drupal.edit.state.queues.preload);
 
   // Create a backstage area.
-  $('<div id="edit-backstage" />').appendTo('body');
+  $(Drupal.theme('editBackstage', {})).appendTo('body');
 
   // Transition between view/edit states.
   $("#edit-view-edit-toggle input").click(function() {
@@ -48,7 +48,7 @@ Drupal.edit.init = function() {
     var isViewing  = Drupal.edit.state.isViewing = (this.value == "view");
 
     if (wasViewing && !isViewing) {
-      $('<div id="edit-overlay"></div>')
+      $(Drupal.theme('editOverlay', {}))
       .appendTo('body')
       .bind('click.edit', Drupal.edit.clickOverlay);;
 
@@ -164,7 +164,7 @@ Drupal.edit.startEditableEntities = function($e) {
     });
   })
   // Hang a curtain over the comments if they're inside the entity.
-  .find('.comment-wrapper').prepend('<div class="edit-curtain" />')
+  .find('.comment-wrapper').prepend(Drupal.theme('editCurtain', {}))
   .map(function() {
     var height = $(this).height();
     $(this).find('.edit-curtain')
@@ -247,11 +247,15 @@ Drupal.edit.clickOverlay = function(e) {
 Drupal.edit.startHighlightEntity = function($e) {
   console.log('startHighlightEntity');
   if (Drupal.edit.toolbar.create($e)) {
-    var label = Drupal.t('Edit !entity-label', { '!entity-label' : $e.data('edit-entity-label') });
-    var url = $e.data('edit-entity-edit-url');
+    var label = Drupal.t('Edit !entity', { '!entity': $e.data('edit-entity-label') });
     Drupal.edit.toolbar.get($e)
     .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.entity))')
-    .append('<div class="edit-toolgroup entity"><a href="' + url + '" class="blue-button">' + label + '</a></div>');
+    .append(Drupal.theme('editToolgroup', {
+      classes: 'entity',
+      buttons: [
+        { url: $e.data('edit-entity-edit-url'), label: label, classes: 'blue-button' },
+      ]
+    }));
   }
   $e.addClass('edit-highlighted');
 
@@ -274,10 +278,18 @@ Drupal.edit.startHighlightField = function($editable) {
     Drupal.edit.stopHighlightEntity($e);
   }
   if (Drupal.edit.toolbar.create($editable)) {
-    var label = $editable.filter('.edit-type-form').data('edit-field-label') || $editable.closest('.edit-type-direct').data('edit-field-label');
+    var label = $editable.filter('.edit-type-form').data('edit-field-label')
+      || $editable.closest('.edit-type-direct').data('edit-field-label');
+
     Drupal.edit.toolbar.get($editable)
     .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.info))')
-    .append('<div class="edit-toolgroup info"><a href="#" class="blank-button">' + label + ' </a></div>');
+    .append(Drupal.theme('editToolgroup', {
+      classes: 'info',
+      buttons: [
+        { url: '#', label: label, classes: 'blank-button' },
+      ]
+    }));
+
   }
   $editable.addClass('edit-highlighted');
 
@@ -341,7 +353,13 @@ Drupal.edit.startEditField = function($editable) {
   // Toolbar + toolbar event handlers.
   Drupal.edit.toolbar.get($editable)
   .find('.edit-toolbar.secondary:not(:has(.edit-toolgroup.ops))')
-  .append('<div class="edit-toolgroup ops"><a href="#" class="save gray-button">Save</a><a href="#" class="close gray-button"><span class="close"></span></a></div>')
+  .append(Drupal.theme('editToolgroup', {
+    classes: 'ops',
+    buttons: [
+      { url: '#', label: Drupal.t('Save'), classes: 'save gray-button' },
+      { url: '#', label: '<span class="close"></span>', classes: 'close gray-button' }
+    ]
+  }))
   .find('a.save').bind('click.edit', function() {
     // type = form
     if ($field.filter('.edit-type-form').length > 0) {
@@ -378,8 +396,14 @@ Drupal.edit.startEditField = function($editable) {
     }
     // Content changed: show modal.
     else {
-     var $actions = $('<a href="#" class="gray-button discard">Discard changes</a><a href="#" class="blue-button save">Save</a>');
-     Drupal.edit.modal.create(Drupal.t('You have unsaved changes'), $actions, $editable);
+      Drupal.edit.modal.create(
+        Drupal.t('You have unsaved changes'),
+        Drupal.theme('editButtons', { 'buttons' : [
+          { url: '#', classes: 'gray-button discard', label: Drupal.t('Discard changes') },
+          { url: '#', classes: 'blue-button save', label: Drupal.t('Save') }
+        ]}),
+        $editable
+      );
 
      Drupal.edit.modal.get()
      .find('a.discard').bind('click.edit', function() {

@@ -17,15 +17,15 @@ Drupal.edit.toggle = {
 
 
 Drupal.edit.modal = {
-  create: function(message, $actions, $editable) {
+  create: function(message, actions, $editable) {
     // The modal should be the only interaction element now.
     $editable.addClass('edit-belowoverlay');
     Drupal.edit.toolbar.get($editable).addClass('edit-belowoverlay');
 
-    $('<div id="edit-modal"><div class="main"><p></p></div><div class="actions"></div></div>')
+    $(Drupal.theme('editModal', {}))
     .appendTo('body')
     .find('.main p').text(message).end()
-    .find('.actions').append($actions);
+    .find('.actions').append($(actions));
   },
 
   get: function() {
@@ -40,6 +40,5 @@ Drupal.edit.modal = {
   }
 
 };
-
 
 })(jQuery);

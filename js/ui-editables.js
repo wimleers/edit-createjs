@@ -17,7 +17,7 @@ Drupal.edit.toolbar = {
     }
     else {
       var $blockOfElement = Drupal.edit.util.getParentBlock($editable);
-      $('<div class="edit-toolbar-container"><div class="edit-toolbar primary" /><div class="edit-toolbar secondary" /></div>')
+      $(Drupal.theme('editToolbarContainer', {}))
       .insertBefore($blockOfElement)
       .bind('mouseenter.edit', function(e) {
         // Prevent triggering the entity's mouse enter event.
@@ -77,7 +77,7 @@ Drupal.edit.form = {
     }
     else {
       var $blockOfElement = Drupal.edit.util.getParentBlock($element);
-      $('<div class="edit-form-container"><div class="edit-form"><div class="loading">Loading...</div></div></div>')
+      $(Drupal.theme('editFormContainer', { loadingMsg: Drupal.t('Loading…')}))
       .insertBefore($blockOfElement);
 
       if ($element.css('display') == 'inline') {
