@@ -71,7 +71,7 @@ $(function() {
     console.log('edit_field_form_saved', ajax, response, status);
 
     // Stop the editing.
-    Drupal.edit.stopEditField(ajax.$editable);
+    Drupal.edit.editables.stopEdit(ajax.$editable);
 
     // Response.data contains the updated rendering of the field, if any.
     if (response.data) {

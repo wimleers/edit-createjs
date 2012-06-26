@@ -366,7 +366,35 @@ Drupal.edit.editables = {
     Drupal.edit.state.editedEditable = Drupal.edit.getID($field);
   },
 
-  stopEdit: function() {},
+  stopEdit: function($editable) {
+    console.log('editables.stopEdit: ', $editable);
+    var self = this;
+    var $field = Drupal.edit.findFieldForEditable($editable);
+    if ($editable.length == 0) {
+      return;
+    }
+
+    $editable.removeClass('edit-highlighted edit-editing');
+
+    // Make the other fields and entities editable again.
+    $('.edit-candidate').addClass('edit-editable');
+    // Restore curtain to original height.
+    var $curtain = Drupal.edit.findEntityForEditable($editable)
+                   .find('.comment-wrapper .edit-curtain');
+    $curtain.height($curtain.data('edit-curtain-height'));
+
+    // Changes to $editable based on the type.
+    var callback = ($field.hasClass('edit-type-direct'))
+      ? self._restoreDirectEditable
+      : self._restoreFormEditable;
+    callback($editable);
+
+    Drupal.edit.toolbar.remove($editable);
+    Drupal.edit.form.remove($editable);
+
+    Drupal.edit.state.fieldBeingEdited = [];
+    Drupal.edit.state.editedEditable = null;
+  },
 
   _updateDirectEditable: function($editable) {
     $editable
@@ -383,7 +411,16 @@ Drupal.edit.editables = {
     });
   },
 
-  _restoreDirectEditable: function($editable) {},
+  _restoreDirectEditable: function($editable) {
+    $editable
+    .removeAttr('contenteditable')
+    .removeData(['edit-content-original', 'edit-content-changed'])
+    .unbind('blur.edit keyup.edit paste.edit edit-content-changed.edit');
+
+    // Not only clean up the changes to $editable, but also clean up the
+    // backstage area, where we hid the form that we used to send the changes.
+    $('#edit-backstage form').remove();
+  },
 
   // Creates a form container; when the $editable is inline, it will inherit CSS
   // properties from the toolbar container, so the toolbar must already exist.
@@ -398,7 +435,10 @@ Drupal.edit.editables = {
     }
   },
 
-  _restoreFormEditable: function($editable) {},
+  _restoreFormEditable: function($editable) {
+    // No need to do anything here; all of the field HTML will be overwritten
+    // with the freshly rendered version from the server anyway!
+  },
 
   _loadForm: function($editable, $field) {
     var edit_id = Drupal.edit.getID($field);
@@ -447,7 +487,7 @@ Drupal.edit.editables = {
   _buttonFieldCloseClicked: function(e, $editable, $field) {
     // Content not changed: stop editing field.
     if (!$editable.data('edit-content-changed')) {
-      Drupal.edit.stopEditField($editable);
+      Drupal.edit.editables.stopEdit($editable);
     }
     // Content changed: show modal.
     else {
@@ -462,36 +502,6 @@ Drupal.edit.editables = {
     };
     return false;
   }
-};
-
-Drupal.edit.stopEditField = function($editable) {
-  console.log('stopEditField: ', $editable);
-  if ($editable.length == 0) {
-    return;
-  }
-
-  $editable
-  .removeClass('edit-highlighted edit-editing')
-  .removeAttr('contenteditable')
-  .unbind('blur.edit keyup.edit paste.edit edit-content-changed')
-  .removeData(['edit-content-original', 'edit-content-changed']);
-
-  // Make the other fields and entities editable again.
-  $('.edit-candidate').addClass('edit-editable');
-  var $curtain = Drupal.edit.findEntityForEditable($editable)
-  .find('.comment-wrapper .edit-curtain');
-  $curtain.height($curtain.data('edit-curtain-height'));
-
-  Drupal.edit.toolbar.remove($editable);
-  Drupal.edit.form.remove($editable);
-
-  // Even for type=direct IPE, we use forms to send the changes to the server.
-  if (Drupal.edit.findFieldForEditable($editable).hasClass('edit-type-direct')) {
-    $('#edit-backstage form').remove();
-  }
-
-  Drupal.edit.state.fieldBeingEdited = [];
-  Drupal.edit.state.editedEditable = null;
 };
 
 })(jQuery);
