@@ -13,7 +13,10 @@ $(function() {
 
     // Only apply the form immediately if this form is currently being edited.
     if (Drupal.edit.state.editedEditable == response.id && ajax.$field.hasClass('edit-type-form')) {
-      Drupal.ajax.prototype.commands.insert(ajax, {'data' : response.data});
+      Drupal.ajax.prototype.commands.insert(ajax, {
+        data: response.data,
+        selector: '.edit-form-container .loading'
+      });
 
       // Detect changes in this form.
       Drupal.edit.form.get(ajax.$editable)
