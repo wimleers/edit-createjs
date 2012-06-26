@@ -53,8 +53,7 @@ Drupal.edit.toolbar = {
     var $t = $blockOfEditable.prevAll('.edit-toolbar-container');
     // Currently editing a form, hence the toolbar is shifted around.
     if ($t.length == 0) {
-      var $field = Drupal.edit.findFieldForEditable($editable).filter('.edit-type-form');
-      var $t2 = Drupal.edit.form.get($field).find('.edit-toolbar-container');
+      var $t2 = Drupal.edit.form.get($editable).find('.edit-toolbar-container');
       if ($t2.length > 0) {
         return $t2;
       }
