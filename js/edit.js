@@ -212,7 +212,7 @@ Drupal.edit.startEditableFields = function($fields) {
       e.stopPropagation();
     });
   })
-  .bind('click.edit', function() { Drupal.edit.startEditField($(this)); return false; })
+  .bind('click.edit', function() { Drupal.edit.editables.startEdit($(this)); return false; })
   // Some transformations are field-specific.
   .map(function() {
     // This does not get stripped when going back to view mode. The only way
@@ -314,82 +314,145 @@ Drupal.edit.stopHighlightField = function($editable) {
   Drupal.edit.state.highlightedEditable = null;
 };
 
-Drupal.edit.startEditField = function($editable) {
-  if (Drupal.edit.state.fieldBeingEdited.length > 0 && Drupal.edit.state.fieldBeingEdited[0] == $editable[0]) {
-    return;
-  }
+Drupal.edit.editables = Drupal.edit.editables || {};
 
-  console.log('startEditField: ', $editable);
-  if (Drupal.edit.state.fieldBeingHighlighted[0] != $editable[0]) {
-    Drupal.edit.startHighlightField($editable);
-  }
+Drupal.edit.editables = {
+  startHighlight: function() {},
 
-  var $field = Drupal.edit.findFieldForEditable($editable);
-  var edit_id = Drupal.edit.getID($field);
+  stopHighlight: function() {},
 
-  $editable
-  .data('edit-content-original', $editable.html())
-  .data('edit-content-changed', false)
-  .addClass('edit-editing')
-  .attr('contenteditable', true)
-  // We cannot use Drupal.behaviors.formUpdated here because we're not dealing
-  // with a form!
-  .bind('blur.edit keyup.edit paste.edit', function() {
-    if ($editable.html() != $editable.data('edit-content-original')) {
-      $editable.data('edit-content-changed', true);
-      $editable.trigger('edit-content-changed.edit');
-      console.log('changed!');
+  startEdit: function($editable) {
+    console.log('editables.startEdit: ', $editable);
+    var self = this;
+    var $field = Drupal.edit.findFieldForEditable($editable);
+
+    // Highlight if not already highlighted.
+    if (Drupal.edit.state.fieldBeingHighlighted[0] != $editable[0]) {
+      Drupal.edit.editables.startHighlight($editable);
     }
-  })
-  .bind('edit-content-changed.edit', function() {
+
+    $editable
+    .addClass('edit-editing')
+    .bind('edit-content-changed.edit', function(e) {
+      self._buttonFieldSaveToBlue(e, $editable, $field);
+    });
+
+    // While editing, don't show *any* other field or entity as editable.
+    $('.edit-candidate').not('.edit-editing').removeClass('edit-editable');
+    // Hide the curtain while editing, the above already prevents comments from
+    // showing up.
+    Drupal.edit.findEntityForField($field).find('.comment-wrapper .edit-curtain').height(0);
+
+    // Toolbar (already created in the highlight).
+    Drupal.edit.toolbar.get($editable)
+    .find('.edit-toolbar.secondary:not(:has(.edit-toolgroup.ops))')
+    .append(Drupal.theme('editToolgroup', {
+      classes: 'ops',
+      buttons: [
+        { url: '#', label: Drupal.t('Save'), classes: 'field-save save gray-button' },
+        { url: '#', label: '<span class="close"></span>', classes: 'field-close close gray-button' }
+      ]
+    }))
+    .delegate('a.field-save', 'click.edit', function(e) {
+      return self._buttonFieldSaveClicked(e, $editable, $field);
+    })
+    .delegate('a.field-close', 'click.edit', function(e) {
+      return self._buttonFieldCloseClicked(e, $editable, $field);
+    });
+
+    // Changes to $editable based on the type.
+    var callback = ($field.hasClass('edit-type-direct'))
+      ? self._updateDirectEditable
+      : self._updateFormEditable;
+    callback($editable);
+
+    // Regardless of the type, load the form for this field. We always use forms
+    // to submit the changes.
+    self._loadForm($editable, $field);
+
+    Drupal.edit.state.fieldBeingEdited = $editable;
+    Drupal.edit.state.editedEditable = Drupal.edit.getID($field);
+  },
+
+  stopEdit: function() {},
+
+  _updateDirectEditable: function($editable) {
+    $editable
+    .attr('contenteditable', true)
+    .data('edit-content-original', $editable.html())
+    .data('edit-content-changed', false)
+    // We cannot use Drupal.behaviors.formUpdated here because we're not dealing
+    // with a form!
+    .bind('blur.edit keyup.edit paste.edit', function() {
+      if ($editable.html() != $editable.data('edit-content-original')) {
+        $editable.data('edit-content-changed', true);
+        $editable.trigger('edit-content-changed.edit');
+      }
+    });
+  },
+
+  _restoreDirectEditable: function($editable) {},
+
+  // Creates a form container; when the $editable is inline, it will inherit CSS
+  // properties from the toolbar container, so the toolbar must already exist.
+  _updateFormEditable: function($editable) {
+    if (Drupal.edit.form.create($editable)) {
+      $editable.addClass('edit-belowoverlay');
+
+      Drupal.edit.form.get($editable)
+      .find('.edit-form')
+      .addClass('edit-editable edit-highlighted edit-editing')
+      .css('background-color', Drupal.edit.util.getBgColor($editable));
+    }
+  },
+
+  _restoreFormEditable: function($editable) {},
+
+  _loadForm: function($editable, $field) {
+    var edit_id = Drupal.edit.getID($field);
+    var element_settings = {
+      url      : Drupal.edit.util.calcFormURLForField(edit_id),
+      event    : 'edit-internal.edit',
+      $field   : $field,
+      $editable: $editable,
+      progress : { type : null }, // No progress indicator.
+    };
+    if (Drupal.ajax.hasOwnProperty(edit_id)) {
+      delete Drupal.ajax[edit_id];
+      $editable.unbind('edit-internal.edit');
+    }
+    Drupal.ajax[edit_id] = new Drupal.ajax(edit_id, $editable, element_settings);
+    $editable.trigger('edit-internal.edit');
+  },
+
+  _buttonFieldSaveToBlue: function(e, $editable, $field) {
     Drupal.edit.toolbar.get($editable)
     .find('a.save').addClass('blue-button').removeClass('gray-button');
-  });
+  },
 
-  // While editing, don't show *any* other field or entity as editable.
-  $('.edit-candidate').not('.edit-editing').removeClass('edit-editable');
-  Drupal.edit.findEntityForField($field).find('.comment-wrapper .edit-curtain').height(0);
-
-  // Toolbar + toolbar event handlers.
-  Drupal.edit.toolbar.get($editable)
-  .find('.edit-toolbar.secondary:not(:has(.edit-toolgroup.ops))')
-  .append(Drupal.theme('editToolgroup', {
-    classes: 'ops',
-    buttons: [
-      { url: '#', label: Drupal.t('Save'), classes: 'save gray-button' },
-      { url: '#', label: '<span class="close"></span>', classes: 'close gray-button' }
-    ]
-  }))
-  .find('a.save').bind('click.edit', function() {
+  _buttonFieldSaveClicked: function(e, $editable, $field) {
     // type = form
-    if ($field.filter('.edit-type-form').length > 0) {
+    if ($field.hasClass('edit-type-form')) {
       Drupal.edit.form.get($field).find('form')
       .find('.edit-form-submit').trigger('click.edit').end();
-      //.find(':input:not('.edit-form-submit').attr('disabled', true);
     }
     // type = direct
-    else {
-      // Pseudofields (title, author, authoring date).
-      var parts = edit_id.split(':');
-      if (parts[2] == 'title') {
-        // We trim the title because otherwise whitespace in the raw HTML ends
-        // up in the title as well.
-        // TRICKY: Drupal core does not trim the title, so in theory this is
-        // out of line with Drupal core's behavior.
-        var title = $.trim($editable.text());
-        $('#edit-backstage form')
-        .find(':input:first').val(title).end()
-        .find('.edit-form-submit').trigger('click.edit');
-      }
-      // Fields.
-      else {
-        console.log('TODO: save');
-        Drupal.edit.stopEditField($editable);
-      }
+    else if ($field.hasClass('edit-type-direct')) {
+      // (This is currently used only for the node title.)
+      // We trim the title because otherwise whitespace in the raw HTML ends
+      // up in the title as well.
+      // TRICKY: Drupal core does not trim the title, so in theory this is
+      // out of line with Drupal core's behavior.
+      var value = $.trim($editable.text());
+      console.log(value);
+      $('#edit-backstage form')
+      .find(':input:first').val(value).end()
+      .find('.edit-form-submit').trigger('click.edit');
     }
     return false;
-  }).end()
-  .find('a.close').bind('click.edit', function() {
+  },
+
+  _buttonFieldCloseClicked: function(e, $editable, $field) {
     // Content not changed: stop editing field.
     if (!$editable.data('edit-content-changed')) {
       Drupal.edit.stopEditField($editable);
@@ -404,43 +467,9 @@ Drupal.edit.startEditField = function($editable) {
         ]}),
         $editable
       );
-    }
+    };
     return false;
-  });
-
-  // If we're going to show a form, then prepare for it.
-  if ($editable.hasClass('edit-type-form') && Drupal.edit.form.create($editable)) {
-    $editable.addClass('edit-belowoverlay');
-
-    Drupal.edit.form.get($editable)
-    .find('.edit-form')
-    .addClass('edit-editable edit-highlighted edit-editing')
-    .css('background-color', Drupal.edit.util.getBgColor($editable))
-    .end()
-    .find('.loading')
-    .attr('id', 'this-is-a-filthy-hack');
   }
-
-  // Regardless of the type, load the form for this field. We always use forms to
-  // submit the changes.
-  var url = Drupal.edit.util.calcFormURLForField(edit_id);
-  var element_settings = {
-    url: url,
-    event: 'edit-internal.edit',
-    $field : $field,
-    $editable : $editable,
-    progress: { type : null }, // No progress indicator.
-    wrapper: 'this-is-a-filthy-hack'
-  };
-  if (Drupal.ajax.hasOwnProperty(edit_id)) {
-    delete Drupal.ajax[edit_id];
-    $editable.unbind('edit-internal.edit');
-  }
-  Drupal.ajax[edit_id] = new Drupal.ajax(edit_id, $editable, element_settings);
-  $editable.trigger('edit-internal.edit');
-
-  Drupal.edit.state.fieldBeingEdited = $editable;
-  Drupal.edit.state.editedEditable = edit_id;
 };
 
 Drupal.edit.stopEditField = function($editable) {
