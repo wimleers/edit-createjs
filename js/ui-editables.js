@@ -10,7 +10,6 @@ Drupal.edit = Drupal.edit || {};
 
 
 Drupal.edit.toolbar = {
-
   create: function($editable) {
     if (Drupal.edit.toolbar.get($editable).length > 0) {
       return false;
@@ -64,12 +63,10 @@ Drupal.edit.toolbar = {
   remove: function($editable) {
     Drupal.edit.toolbar.get($editable).remove();
   }
-
 };
 
 
 Drupal.edit.form = {
-
   create: function($editable) {
     if (Drupal.edit.form.get($editable).length > 0) {
       return false;
@@ -99,7 +96,6 @@ Drupal.edit.form = {
   remove: function($editable) {
     Drupal.edit.form.get($editable).remove();
   }
-
 };
 
 })(jQuery);

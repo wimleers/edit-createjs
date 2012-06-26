@@ -52,7 +52,6 @@ Drupal.edit.modal = {
     // Make the other interaction elements available again.
     $('.edit-belowoverlay').removeClass('edit-belowoverlay');
   }
-
 };
 
 })(jQuery);
