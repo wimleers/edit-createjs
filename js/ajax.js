@@ -20,7 +20,7 @@ $(function() {
 
       // Detect changes in this form.
       Drupal.edit.form.get(ajax.$editable)
-      .find(':input').bind('formUpdated.edit', function() {
+      .delegate(':input', 'formUpdated.edit', function() {
         ajax.$editable
         .data('edit-content-changed', true)
         .trigger('edit-content-changed.edit');
