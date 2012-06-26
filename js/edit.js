@@ -191,7 +191,7 @@ Drupal.edit.startEditableFields = function($fields) {
     Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
       console.log('field:mouseenter');
       if (!$editable.hasClass('edit-editing')) {
-        Drupal.edit.startHighlightField($editable);
+        Drupal.edit.editables.startHighlight($editable);
       }
       // Prevents the entity's mouse enter event from firing, in case their borders are one and the same.
       e.stopPropagation();
@@ -202,7 +202,7 @@ Drupal.edit.startEditableFields = function($fields) {
     Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
       console.log('field:mouseleave');
       if (!$editable.hasClass('edit-editing')) {
-        Drupal.edit.stopHighlightField($editable);
+        Drupal.edit.editables.stopHighlight($editable);
         // Leaving a field won't trigger the mouse enter event for the entity
         // because the entity contains the field. Hence, do it manually.
         var $e = Drupal.edit.findEntityForEditable($editable);
@@ -271,55 +271,47 @@ Drupal.edit.stopHighlightEntity = function($e) {
   Drupal.edit.state.entityBeingHiglighted = [];
 };
 
-Drupal.edit.startHighlightField = function($editable) {
-  console.log('startHighlightField');
-  if (Drupal.edit.state.entityBeingHighlighted.length > 0) {
-    var $e = Drupal.edit.findEntityForEditable($editable);
-    Drupal.edit.stopHighlightEntity($e);
-  }
-  if (Drupal.edit.toolbar.create($editable)) {
-    var label = $editable.filter('.edit-type-form').data('edit-field-label')
-      || $editable.closest('.edit-type-direct').data('edit-field-label');
-
-    Drupal.edit.toolbar.get($editable)
-    .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.info))')
-    .append(Drupal.theme('editToolgroup', {
-      classes: 'info',
-      buttons: [
-        { url: '#', label: label, classes: 'blank-button' },
-      ]
-    }));
-
-  }
-  $editable.addClass('edit-highlighted');
-
-  Drupal.edit.state.fieldBeingHighlighted = $editable;
-  Drupal.edit.state.higlightedEditable = Drupal.edit.getID(Drupal.edit.findFieldForEditable($editable));
-};
-
-Drupal.edit.stopHighlightField = function($editable) {
-  console.log('stopHighlightField');
-  if ($editable.length == 0) {
-    return;
-  }
-  else if (Drupal.edit.state.fieldBeingEdited.length > 0 && $editable[0] == Drupal.edit.state.fieldBeingEdited[0]) {
-    return;
-  }
-
-  $editable.removeClass('edit-highlighted');
-
-  Drupal.edit.toolbar.remove($editable);
-
-  Drupal.edit.state.fieldBeingHighlighted = [];
-  Drupal.edit.state.highlightedEditable = null;
-};
-
 Drupal.edit.editables = Drupal.edit.editables || {};
 
 Drupal.edit.editables = {
-  startHighlight: function() {},
+  startHighlight: function($editable) {
+    console.log('editables.startHighlight');
+    if (Drupal.edit.state.entityBeingHighlighted.length > 0) {
+      var $e = Drupal.edit.findEntityForEditable($editable);
+      Drupal.edit.stopHighlightEntity($e);
+    }
+    if (Drupal.edit.toolbar.create($editable)) {
+      var label = $editable.filter('.edit-type-form').data('edit-field-label')
+        || $editable.closest('.edit-type-direct').data('edit-field-label');
 
-  stopHighlight: function() {},
+      Drupal.edit.toolbar.get($editable)
+      .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.info))')
+      .append(Drupal.theme('editToolgroup', {
+        classes: 'info',
+        buttons: [
+          { url: '#', label: label, classes: 'blank-button' },
+        ]
+      }));
+    }
+    $editable.addClass('edit-highlighted');
+
+    Drupal.edit.state.fieldBeingHighlighted = $editable;
+    Drupal.edit.state.higlightedEditable = Drupal.edit.getID(Drupal.edit.findFieldForEditable($editable));
+  },
+
+  stopHighlight: function($editable) {
+    console.log('editables.stopHighlight');
+    if ($editable.length == 0) {
+      return;
+    }
+
+    $editable.removeClass('edit-highlighted');
+
+    Drupal.edit.toolbar.remove($editable);
+
+    Drupal.edit.state.fieldBeingHighlighted = [];
+    Drupal.edit.state.highlightedEditable = null;
+  },
 
   startEdit: function($editable) {
     console.log('editables.startEdit: ', $editable);
