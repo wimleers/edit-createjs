@@ -74,19 +74,6 @@ Drupal.edit.init = function() {
   });
 };
 
-
-/*
-
-1. Editable Entities
-2. Editable Fields (are associated with Editable Entities, but are not
-   necessarily *inside* Editable Entities — e.g. title)
-    -> contains exactly one Editable, in which the editing itself occurs, this
-       can be either:
-         a. type=direct, here some child element of the Field element is marked as editable
-         b. type=form, here the field itself is marked as editable, upon edit, a form is used
-
- */
-
 Drupal.edit.findEditableEntities = function(context) {
   return $('.edit-entity.edit-allowed', context || $('#content'));
 };
@@ -153,14 +140,14 @@ Drupal.edit.startEditableEntities = function($e) {
     var $e = $(this);
     Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
       console.log('entity:mouseenter');
-      Drupal.edit.startHighlightEntity($e);
+      Drupal.edit.entityEditable.startHighlight($e);
     });
   })
   .bind('mouseleave.edit', function(e) {
     var $e = $(this);
     Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
       console.log('entity:mouseleave');
-      Drupal.edit.stopHighlightEntity($e);
+      Drupal.edit.entityEditable.stopHighlight($e);
     });
   })
   // Hang a curtain over the comments if they're inside the entity.
@@ -206,7 +193,7 @@ Drupal.edit.startEditableFields = function($fields) {
         // Leaving a field won't trigger the mouse enter event for the entity
         // because the entity contains the field. Hence, do it manually.
         var $e = Drupal.edit.findEntityForEditable($editable);
-        Drupal.edit.startHighlightEntity($e);
+        Drupal.edit.entityEditables.startHighlight($e);
       }
       // Prevent triggering the entity's mouse leave event.
       e.stopPropagation();
@@ -244,41 +231,53 @@ Drupal.edit.clickOverlay = function(e) {
   }
 };
 
-Drupal.edit.startHighlightEntity = function($e) {
-  console.log('startHighlightEntity');
-  if (Drupal.edit.toolbar.create($e)) {
-    var label = Drupal.t('Edit !entity', { '!entity': $e.data('edit-entity-label') });
-    Drupal.edit.toolbar.get($e)
-    .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.entity))')
-    .append(Drupal.theme('editToolgroup', {
-      classes: 'entity',
-      buttons: [
-        { url: $e.data('edit-entity-edit-url'), label: label, classes: 'blue-button' },
-      ]
-    }));
+/*
+1. Editable Entities
+2. Editable Fields (are associated with Editable Entities, but are not
+   necessarily *inside* Editable Entities — e.g. title)
+    -> contains exactly one Editable, in which the editing itself occurs, this
+       can be either:
+         a. type=direct, here some child element of the Field element is marked as editable
+         b. type=form, here the field itself is marked as editable, upon edit, a form is used
+ */
+
+// Entity editables.
+Drupal.edit.entityEditables = {
+  startHighlight: function($editable) {
+    console.log('entityEditables.startHighlight');
+    if (Drupal.edit.toolbar.create($editable)) {
+      var label = Drupal.t('Edit !entity', { '!entity': $editable.data('edit-entity-label') });
+      Drupal.edit.toolbar.get($editable)
+      .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.entity))')
+      .append(Drupal.theme('editToolgroup', {
+        classes: 'entity',
+        buttons: [
+          { url: $editable.data('edit-entity-edit-url'), label: label, classes: 'blue-button' },
+        ]
+      }));
+    }
+    $editable.addClass('edit-highlighted');
+
+    Drupal.edit.state.entityBeingHighlighted = $editable;
+  },
+
+  stopHighlight: function($editable) {
+    console.log('entityEditables.stopHighlight');
+    $editable.removeClass('edit-highlighted');
+
+    Drupal.edit.toolbar.remove($editable);
+
+    Drupal.edit.state.entityBeingHiglighted = [];
   }
-  $e.addClass('edit-highlighted');
-
-  Drupal.edit.state.entityBeingHighlighted = $e;
 };
 
-Drupal.edit.stopHighlightEntity = function($e) {
-  console.log('stopHighlightEntity');
-  $e.removeClass('edit-highlighted');
-
-  Drupal.edit.toolbar.remove($e);
-
-  Drupal.edit.state.entityBeingHiglighted = [];
-};
-
-Drupal.edit.editables = Drupal.edit.editables || {};
-
+// Field editables.
 Drupal.edit.editables = {
   startHighlight: function($editable) {
     console.log('editables.startHighlight');
     if (Drupal.edit.state.entityBeingHighlighted.length > 0) {
       var $e = Drupal.edit.findEntityForEditable($editable);
-      Drupal.edit.stopHighlightEntity($e);
+      Drupal.edit.entityEditables.stopHighlight($e);
     }
     if (Drupal.edit.toolbar.create($editable)) {
       var label = $editable.filter('.edit-type-form').data('edit-field-label')
