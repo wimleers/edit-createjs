@@ -282,7 +282,7 @@
 .edit-toolbar a.blue-button {
   color: white;
   /* Firefox v3.6+ */
-  background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%); 
+  background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%);
   /* safari v4.0+ and by Chrome v3.0+ */
   background-image:-webkit-gradient(linear,93% 4%,93% 81%,color-stop(0, rgb(111,194,242)),color-stop(1, rgb(78,151,192)));
   /* Chrome v10.0+ and by safari nightly build*/
@@ -306,7 +306,7 @@
 .edit-toolbar a.gray-button {
   color: #666;
   /* Firefox v3.6+ */
-  background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%); 
+  background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%);
   /* safari v4.0+ and by Chrome v3.0+ */
   background-image:-webkit-gradient(linear,26% 0%,26% 94%,color-stop(0, rgb(245,245,245)),color-stop(1, rgb(204,204,204)));
   /* Chrome v10.0+ and by safari nightly build*/
@@ -339,7 +339,7 @@
 #edit-modal a.blue-button:hover,
 .edit-toolbar a.blue-button:hover {
   /* Firefox v3.6+ */
-  background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%); 
+  background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%);
   /* safari v4.0+ and by Chrome v3.0+ */
   background-image:-webkit-gradient(linear,93% 4%,93% 81%,color-stop(0, rgb(111,194,242)),color-stop(1, rgb(78,151,192)));
   /* Chrome v10.0+ and by safari nightly build*/
@@ -373,7 +373,7 @@
 #edit-modal a.gray-button:hover,
 .edit-toolbar a.gray-button:hover {
   /* Firefox v3.6+ */
-  background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%); 
+  background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%);
   /* safari v4.0+ and by Chrome v3.0+ */
   background-image:-webkit-gradient(linear,26% 0%,26% 94%,color-stop(0, rgb(245,245,245)),color-stop(1, rgb(204,204,204)));
   /* Chrome v10.0+ and by safari nightly build*/
@@ -407,7 +407,7 @@
 #edit-modal a.blue-button:active,
 .edit-toolbar a.blue-button:active {
   /* Firefox v3.6+ */
-  background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%); 
+  background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%);
   /* safari v4.0+ and by Chrome v3.0+ */
   background-image:-webkit-gradient(linear,93% 4%,93% 81%,color-stop(0, rgb(111,194,242)),color-stop(1, rgb(78,151,192)));
   /* Chrome v10.0+ and by safari nightly build*/
@@ -443,7 +443,7 @@
 #edit-modal a.gray-button:active,
 .edit-toolbar a.gray-button:active {
   /* Firefox v3.6+ */
-  background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%); 
+  background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%);
   /* safari v4.0+ and by Chrome v3.0+ */
   background-image:-webkit-gradient(linear,26% 0%,26% 94%,color-stop(0, rgb(245,245,245)),color-stop(1, rgb(204,204,204)));
   /* Chrome v10.0+ and by safari nightly build*/
