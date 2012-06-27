@@ -17,6 +17,9 @@ Drupal.behaviors.edit = {
   }
 };
 
+Drupal.edit.const = {};
+Drupal.edit.const.transitionEnd = "transitionEnd.edit webkitTransitionEnd.edit transitionend.edit msTransitionEnd.edit oTransitionEnd.edit";
+
 Drupal.edit.init = function() {
   Drupal.edit.state = {};
   // We always begin in view mode.
@@ -50,6 +53,7 @@ Drupal.edit.init = function() {
     if (wasViewing && !isViewing) {
       $(Drupal.theme('editOverlay', {}))
       .appendTo('body')
+      .addClass('edit-animate-slow edit-animate-invisible')
       .bind('click.edit', Drupal.edit.clickOverlay);;
 
       var $f = Drupal.edit.findEditableFields();
@@ -60,9 +64,18 @@ Drupal.edit.init = function() {
       // TODO: preload forms. We could do one request per form, but that's more
       // RTTs than needed. Instead, the server should support batch requests.
       console.log('Preloading forms that we might need!', Drupal.edit.state.queues.preload);
+
+      // Animations.
+      $('#edit-overlay').removeClass('edit-animate-invisible');
     }
     else if (!wasViewing && isViewing) {
-      $('#edit-overlay, .edit-toolbar-container, #edit-modal').remove();
+      // Animations.
+      $('#edit-overlay')
+      .addClass('edit-animate-invisible')
+      .bind(Drupal.edit.const.transitionEnd, function(e) {
+        $('#edit-overlay, .edit-toolbar-container, #edit-modal').remove();
+      });
+
       var $f = Drupal.edit.findEditableFields();
       Drupal.edit.stopEditableFields($f);
       var $e = Drupal.edit.findEditableEntities();

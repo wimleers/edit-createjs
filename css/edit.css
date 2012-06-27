@@ -1,4 +1,42 @@
 /**
+ * Animations.
+ */
+.edit-animate-invisible {
+  opacity: 0 !important;
+}
+
+.edit-animate-fast {
+-webkit-transition: all .2s ease;
+   -moz-transition: all .2s ease;
+    -ie-transition: all .2s ease;
+     -o-transition: all .2s ease;
+        transition: all .2s ease;
+}
+
+.edit-animate-default {
+  -webkit-transition: all .4s ease;
+     -moz-transition: all .4s ease;
+      -ie-transition: all .4s ease;
+       -o-transition: all .4s ease;
+          transition: all .4s ease;
+}
+
+.edit-animate-slow {
+-webkit-transition: all .6s ease;
+   -moz-transition: all .6s ease;
+    -ie-transition: all .6s ease;
+     -o-transition: all .6s ease;
+        transition: all .6s ease;
+}
+
+.edit-animate-delay-slow {
+  -webkit-transition-delay: .6s;
+}
+
+
+
+
+/**
  * View/edit mode toggle.
  */
 
