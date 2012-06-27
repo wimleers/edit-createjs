@@ -311,6 +311,8 @@ Drupal.edit.editables = {
         ]
       }));
     }
+
+    // Animations.
     $editable.addClass('edit-highlighted');
     Drupal.edit.toolbar.show($editable, 'primary', 'info');
 
