@@ -38,7 +38,7 @@ Drupal.edit.util.getBgColor = function($e) {
 
   if ($e == null) {
     // Fallback to white.
-    return 'white';
+    return 'rgb(255, 255, 255)';
   }
   c = $e.css('background-color');
   if (c == 'rgba(0, 0, 0, 0)') {
