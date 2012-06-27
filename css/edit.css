@@ -29,6 +29,18 @@
         transition: all .6s ease;
 }
 
+.edit-animate-delay-veryfast {
+  -webkit-transition-delay: .05s;
+}
+
+.edit-animate-delay-fast {
+  -webkit-transition-delay: .2s;
+}
+
+.edit-animate-delay-default {
+  -webkit-transition-delay: .4s;
+}
+
 .edit-animate-delay-slow {
   -webkit-transition-delay: .6s;
 }
