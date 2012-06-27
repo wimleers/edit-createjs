@@ -148,6 +148,7 @@ Drupal.edit.findEntityForEditable = function($editable) {
 Drupal.edit.startEditableEntities = function($e) {
   $e
   .once('edit')
+  .addClass('edit-animate-fast')
   .addClass('edit-candidate edit-editable')
   .bind('mouseenter.edit', function(e) {
     var $e = $(this);
@@ -185,6 +186,7 @@ Drupal.edit.startEditableFields = function($fields) {
   var $editables = Drupal.edit.findEditablesForFields($fields);
 
   $editables
+  .addClass('edit-animate-fast')
   .addClass('edit-candidate edit-editable')
   .bind('mouseenter.edit', function(e) {
     var $editable = $(this);
