@@ -87,6 +87,11 @@
 .edit-field.edit-type-direct .edit-editable.edit-highlighted {
   box-shadow: 0 0 8px #666;
 }
+.edit-field.edit-editable.edit-editing,
+.edit-field.edit-type-direct .edit-editable.edit-editing {
+  box-shadow: 0 0 30px 4px #4F4F4F
+}
+
 .edit-editable.edit-entity.edit-highlighted {
   box-shadow: 0 0 5px #666;
 }
@@ -131,7 +136,9 @@
 }
 
 /* Modal active: prevent user from interacting with toolbar & editables. */
-.edit-toolbar-container.edit-belowoverlay,
+.edit-toolbar-container.edit-belowoverlay {
+  z-index: 210;
+}
 .edit-editable.edit-belowoverlay {
   z-index: 200;
 }
@@ -180,6 +187,7 @@
   border: 0;
   margin: 0;
   vertical-align: baseline;
+  z-index: 310;
 }
 
 /* The toolbar; these are not necessarily visible. */
@@ -187,7 +195,6 @@
   position: absolute;
   top: -32px;
   height: 32px;
-  z-index: 300;
   font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
 }
 .edit-toolbar.primary {
@@ -195,9 +202,6 @@
 }
 .edit-toolbar.secondary {
   right: 0px; /* LTR */
-}
-.edit-field .edit-toolbar {
-  top: -31px; /* For some reason, we need different absolute positioning when the toolbar appears for a field. */
 }
 
 /* The toolbar contains toolgroups; these are visible. */

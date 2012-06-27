@@ -19,8 +19,9 @@ Drupal.edit.toggle = {
 Drupal.edit.modal = {
   create: function(message, actions, $editable) {
     // The modal should be the only interaction element now.
-    $editable.addClass('edit-belowoverlay');
-    Drupal.edit.toolbar.get($editable).addClass('edit-belowoverlay');
+    $editable
+    .add(Drupal.edit.toolbar.get($editable))
+    .addClass('edit-belowoverlay');
 
     $(Drupal.theme('editModal', {}))
     .appendTo('body')
