@@ -41,7 +41,7 @@
  */
 
 /* TODO: replace this with a "physical toggle" instead of the current radios.*/
-#edit-view-edit-toggle .form-item { 
+#edit-view-edit-toggle .form-item {
   float: left;
   margin-right: 1em;
   margin-top: .5em;
@@ -226,6 +226,8 @@
   float: right; /* LTR */
   box-shadow: 0 -2px 8px #777;
 }
+
+
 
 
 /**
