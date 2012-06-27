@@ -66,6 +66,8 @@ $(function() {
     else {
       console.log('queueing', response);
     }
+
+    Drupal.edit.toolbar.remove(ajax.$editable);
   };
   Drupal.ajax.prototype.commands.edit_field_form_saved = function(ajax, response, status) {
     console.log('edit_field_form_saved', ajax, response, status);

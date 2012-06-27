@@ -61,7 +61,22 @@ Drupal.edit.toolbar = {
   },
 
   remove: function($editable) {
-    Drupal.edit.toolbar.get($editable).remove();
+    var $toolbar = Drupal.edit.toolbar.get($editable);
+
+    // Remove after animation.
+    $toolbar
+    .find('.edit-toolbar .edit-toolgroup')
+    .addClass('edit-animate-invisible')
+    .bind(Drupal.edit.const.transitionEnd, function(e) {
+      $toolbar.remove();
+    });
+  },
+
+  // Animate into view.
+  show: function($editable, toolbar, toolgroup) {
+    Drupal.edit.toolbar.get($editable)
+    .find('.edit-toolbar.' + toolbar + ' .edit-toolgroup.' + toolgroup)
+    .removeClass('edit-animate-invisible');
   }
 };
 

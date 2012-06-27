@@ -271,15 +271,19 @@ Drupal.edit.entityEditables = {
         ]
       }));
     }
+
+    // Animations.
     $editable.addClass('edit-highlighted');
+    Drupal.edit.toolbar.show($editable, 'primary', 'entity');
 
     Drupal.edit.state.entityBeingHighlighted = $editable;
   },
 
   stopHighlight: function($editable) {
     console.log('entityEditables.stopHighlight');
-    $editable.removeClass('edit-highlighted');
 
+    // Animations.
+    $editable.removeClass('edit-highlighted');
     Drupal.edit.toolbar.remove($editable);
 
     Drupal.edit.state.entityBeingHiglighted = [];
@@ -308,6 +312,7 @@ Drupal.edit.editables = {
       }));
     }
     $editable.addClass('edit-highlighted');
+    Drupal.edit.toolbar.show($editable, 'primary', 'info');
 
     Drupal.edit.state.fieldBeingHighlighted = $editable;
     Drupal.edit.state.higlightedEditable = Drupal.edit.getID(Drupal.edit.findFieldForEditable($editable));
@@ -319,9 +324,9 @@ Drupal.edit.editables = {
       return;
     }
 
-    $editable.removeClass('edit-highlighted');
-
+    // Animations.
     Drupal.edit.toolbar.remove($editable);
+    $editable.removeClass('edit-highlighted');
 
     Drupal.edit.state.fieldBeingHighlighted = [];
     Drupal.edit.state.highlightedEditable = null;
