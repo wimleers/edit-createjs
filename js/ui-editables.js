@@ -39,6 +39,18 @@ Drupal.edit.toolbar = {
         .css('left', pos.left).css('top', pos.top);
       }
 
+      // Remove any and all existing toolbars.
+      $('.edit-toolbar-container').trigger('edit-toolbar-remove.edit');
+
+      // Immediate removal whenever requested.
+      // (This is necessary when showing many toolbars in rapid succession: we
+      // don't want all of them to show up!)
+      var $toolbar = this.get($editable);
+      $toolbar
+      .bind('edit-toolbar-remove.edit', function(e) {
+        $toolbar.remove();
+      });
+
       return true;
     }
   },
