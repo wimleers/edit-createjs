@@ -154,14 +154,14 @@ Drupal.edit.startEditableEntities = function($e) {
     var $e = $(this);
     Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
       console.log('entity:mouseenter');
-      Drupal.edit.entityEditable.startHighlight($e);
+      Drupal.edit.entityEditables.startHighlight($e);
     });
   })
   .bind('mouseleave.edit', function(e) {
     var $e = $(this);
     Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
       console.log('entity:mouseleave');
-      Drupal.edit.entityEditable.stopHighlight($e);
+      Drupal.edit.entityEditables.stopHighlight($e);
     });
   })
   // Hang a curtain over the comments if they're inside the entity.
