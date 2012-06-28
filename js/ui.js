@@ -34,10 +34,12 @@ Drupal.edit.modal = {
 
       Drupal.edit.modal.remove();
       Drupal.edit.toolbar.get($editable).find('a.close').trigger('click.edit');
+      return false;
     })
     .delegate('a.save', 'click.edit', function() {
       Drupal.edit.modal.remove();
       Drupal.edit.toolbar.get($editable).find('a.save').trigger('click.edit');
+      return false;
     });
   },
 
