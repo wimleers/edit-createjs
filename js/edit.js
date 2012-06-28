@@ -311,7 +311,7 @@ Drupal.edit.editables = {
       .append(Drupal.theme('editToolgroup', {
         classes: 'info',
         buttons: [
-          { url: '#', label: label, classes: 'blank-button' },
+          { url: '#', label: label, classes: 'blank-button label' },
         ]
       }));
     }
@@ -362,6 +362,7 @@ Drupal.edit.editables = {
 
     // Toolbar (already created in the highlight).
     Drupal.edit.toolbar.get($editable)
+    .addClass('edit-editing')
     .find('.edit-toolbar.secondary:not(:has(.edit-toolgroup.ops))')
     .append(Drupal.theme('editToolgroup', {
       classes: 'ops',
@@ -399,7 +400,7 @@ Drupal.edit.editables = {
       return;
     }
 
-    $editable.removeClass('edit-highlighted edit-editing');
+    $editable.removeClass('edit-highlighted edit-editing edit-belowoverlay');
 
     // Make the other fields and entities editable again.
     $('.edit-candidate').addClass('edit-editable');

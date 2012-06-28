@@ -20,17 +20,6 @@ Drupal.edit.util.calcFormURLForField = function(id) {
 };
 
 /**
- * Given an element, find the first ancestor whom is not displayed inline.
- */
-Drupal.edit.util.getParentBlock = function($element) {
-  var $block = $element;
-  while ($block.css('display') == 'inline') {
-    $block = $block.parent();
-  }
-  return $block;
-};
-
-/**
  * Get the background color of an element (or the inherited one).
  */
 Drupal.edit.util.getBgColor = function($e) {

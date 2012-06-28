@@ -68,13 +68,13 @@ Drupal.theme.prototype.editModal = function(settings) {
  *
  * @param settings
  *   An object with the following keys:
- *   - None.
+ *   - id: the id to apply to the toolbar container
  * @return
  *   The corresponding HTML.
  */
 Drupal.theme.prototype.editToolbarContainer = function(settings) {
   var html = ''
-  html += '<div class="edit-toolbar-container">';
+  html += '<div id="' + settings.id + '" class="edit-toolbar-container">';
   html += '  <div class="edit-toolbar primary" />';
   html += '  <div class="edit-toolbar secondary" />';
   html += '</div>';
@@ -92,7 +92,7 @@ Drupal.theme.prototype.editToolbarContainer = function(settings) {
  *   The corresponding HTML.
  */
 Drupal.theme.prototype.editToolgroup = function(settings) {
-  var classes = 'edit-toolgroup edit-animate-fast edit-animate-invisible edit-animate-delay-veryfast';
+  var classes = 'edit-toolgroup edit-animate-slow edit-animate-invisible eadit-animate-delay-veryfast';
   var html = ''
   html += '<div class="' + classes + ' ' + settings.classes + '">';
   html += Drupal.theme('editButtons', { buttons: settings.buttons });
@@ -130,13 +130,14 @@ Drupal.theme.prototype.editButtons = function(settings) {
  *
  * @param settings
  *   An object with the following keys:
+ *   - id: the id to apply to the toolbar container
  *   - loadingMsg: The message to show while loading.
  * @return
  *   The corresponding HTML.
  */
 Drupal.theme.prototype.editFormContainer = function(settings) {
   var html = ''
-  html += '<div class="edit-form-container">';
+  html += '<div id="' + settings.id + '" class="edit-form-container">';
   html += '  <div class="edit-form">';
   html += '    <div class="loading">';
   html +=        settings.loadingMsg;

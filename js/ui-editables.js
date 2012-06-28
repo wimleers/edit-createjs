@@ -15,9 +15,30 @@ Drupal.edit.toolbar = {
       return false;
     }
     else {
-      var $blockOfElement = Drupal.edit.util.getParentBlock($editable);
-      $(Drupal.theme('editToolbarContainer', {}))
-      .insertBefore($blockOfElement)
+      // Render toolbar.
+      var $toolbar = $(Drupal.theme('editToolbarContainer', {
+        id: this._id($editable)
+      }));
+
+      // Insert in DOM.
+      if ($editable.css('display') == 'inline') {
+        $toolbar.prependTo($editable.offsetParent());
+
+        var pos = $editable.position();
+        Drupal.edit.toolbar.get($editable)
+        .css('left', pos.left).css('top', pos.top);
+      }
+      else {
+        $toolbar.insertBefore($editable);
+      }
+
+      // Remove any and all existing toolbars, except for any that are for a
+      // currently being edited field.
+      $('.edit-toolbar-container:not(:has(.edit-editing))')
+      .trigger('edit-toolbar-remove.edit');
+
+      // Event bindings.
+      $toolbar
       .bind('mouseenter.edit', function(e) {
         // Prevent triggering the entity's mouse enter event.
         e.stopPropagation();
@@ -30,23 +51,10 @@ Drupal.edit.toolbar = {
         }
         // Prevent triggering the entity's mouse leave event.
         e.stopPropagation();
-      });
-
-      // Work-around for inline elements.
-      if ($editable.css('display') == 'inline') {
-        var pos = $editable.position();
-        Drupal.edit.toolbar.get($editable)
-        .css('left', pos.left).css('top', pos.top);
-      }
-
-      // Remove any and all existing toolbars.
-      $('.edit-toolbar-container').trigger('edit-toolbar-remove.edit');
-
+      })
       // Immediate removal whenever requested.
       // (This is necessary when showing many toolbars in rapid succession: we
       // don't want all of them to show up!)
-      var $toolbar = this.get($editable);
-      $toolbar
       .bind('edit-toolbar-remove.edit', function(e) {
         $toolbar.remove();
       });
@@ -56,20 +64,9 @@ Drupal.edit.toolbar = {
   },
 
   get: function($editable) {
-    if ($editable.length == 0) {
-      return $([]);
-    }
-    // Default case.
-    var $blockOfEditable = Drupal.edit.util.getParentBlock($editable);
-    var $t = $blockOfEditable.prevAll('.edit-toolbar-container');
-    // Currently editing a form, hence the toolbar is shifted around.
-    if ($t.length == 0) {
-      var $t2 = Drupal.edit.form.get($editable).find('.edit-toolbar-container');
-      if ($t2.length > 0) {
-        return $t2;
-      }
-    }
-    return $t;
+    return ($editable.length == 0)
+      ? $([])
+      : $('#' + this._id($editable));
   },
 
   remove: function($editable) {
@@ -89,6 +86,13 @@ Drupal.edit.toolbar = {
     Drupal.edit.toolbar.get($editable)
     .find('.edit-toolbar.' + toolbar + ' .edit-toolgroup.' + toolgroup)
     .removeClass('edit-animate-invisible');
+  },
+
+  _id: function($editable) {
+    var edit_id = ($editable.hasClass('edit-entity'))
+      ? Drupal.edit.getID($editable)
+      : Drupal.edit.getID(Drupal.edit.findFieldForEditable($editable));
+    return 'edit-toolbar-for-' + edit_id.split(':').join('_');
   }
 };
 
@@ -99,16 +103,24 @@ Drupal.edit.form = {
       return false;
     }
     else {
-      var $blockOfEditable = Drupal.edit.util.getParentBlock($editable);
-      $(Drupal.theme('editFormContainer', { loadingMsg: Drupal.t('Loading…')}))
-      .insertBefore($blockOfEditable);
+      // Render form container.
+      var $form = $(Drupal.theme('editFormContainer', {
+        id: this._id($editable),
+        loadingMsg: Drupal.t('Loading…')}
+      ));
 
+      // Insert in DOM.
       if ($editable.css('display') == 'inline') {
-        var $toolbar = Drupal.edit.toolbar.get($editable);
-        Drupal.edit.form.get($editable)
-        .css('left', $toolbar.css('left'))
-        .css('top', $toolbar.css('top'));
-        $toolbar.css('left', '').css('top', '');
+        $form.prependTo($editable.offsetParent());
+
+        var pos = $editable.position();
+        $form.css('left', pos.left).css('top', pos.top);
+        // Reset the toolbar's positioning because it'll be moved inside the
+        // form container.
+        Drupal.edit.toolbar.get($editable).css('left', '').css('top', '');
+      }
+      else {
+        $form.insertBefore($editable);
       }
 
       // Move  toolbar inside .edit-form-container, to let it snap to the width
@@ -120,12 +132,20 @@ Drupal.edit.form = {
   },
 
   get: function($editable) {
-    var $blockOfEditable = Drupal.edit.util.getParentBlock($editable);
-    return $blockOfEditable.prevAll('.edit-form-container');
+    return ($editable.length == 0)
+      ? $([])
+      : $('#' + this._id($editable));
   },
 
   remove: function($editable) {
     Drupal.edit.form.get($editable).remove();
+  },
+
+  _id: function($editable) {
+    var edit_id = ($editable.hasClass('edit-entity'))
+      ? Drupal.edit.getID($editable)
+      : Drupal.edit.getID(Drupal.edit.findFieldForEditable($editable));
+    return 'edit-form-for-' + edit_id.split(':').join('_');
   }
 };
 
