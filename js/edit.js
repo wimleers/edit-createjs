@@ -153,6 +153,10 @@ Drupal.edit.startEditableEntities = function($e) {
   .bind('mouseenter.edit', function(e) {
     var $e = $(this);
     Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
+      if (Drupal.edit.state.fieldBeingEdited.length > 0) {
+        return;
+      }
+
       console.log('entity:mouseenter');
       Drupal.edit.entityEditables.startHighlight($e);
     });
