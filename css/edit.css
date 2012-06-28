@@ -101,7 +101,7 @@
 }
 .edit-field.edit-editable.edit-editing,
 .edit-field.edit-type-direct .edit-editable.edit-editing {
-  box-shadow: 0 0 30px 4px #4F4F4F
+  box-shadow: 0 0 30px 4px #4F4F4F;
 }
 
 .edit-editable.edit-entity.edit-highlighted {
@@ -168,7 +168,7 @@
 .edit-form {
   position: absolute;
   z-index: 300;
-  /*padding: .5em; */
+  box-shadow: 0 0 30px 4px #4F4F4F;
 }
 
 .edit-form .loading {
