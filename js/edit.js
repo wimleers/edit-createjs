@@ -73,7 +73,7 @@ Drupal.edit.init = function() {
       $('#edit-overlay')
       .addClass('edit-animate-invisible')
       .bind(Drupal.edit.const.transitionEnd, function(e) {
-        $('#edit-overlay, .edit-toolbar-container, #edit-modal').remove();
+        $('#edit-overlay, .edit-form-container, .edit-toolbar-container, #edit-modal, #edit-backstage, #edit-curtain').remove();
       });
 
       var $f = Drupal.edit.findEditableFields();
