@@ -54,8 +54,9 @@ Drupal.theme.prototype.editCurtain = function(settings) {
  *   The corresponding HTML.
  */
 Drupal.theme.prototype.editModal = function(settings) {
+  var classes = 'edit-animate-slow edit-animate-invisible edit-animate-delay-veryfast';
   var html = ''
-  html += '<div id="edit-modal">';
+  html += '<div id="edit-modal" class="' + classes + '">';
   html += '  <div class="main"><p></p></div>';
   html += '  <div class="actions"></div>';
   html += '</div>';

@@ -520,6 +520,7 @@ Drupal.edit.editables = {
         ]}),
         $editable
       );
+      setTimeout(Drupal.edit.modal.show, 0);
     };
     return false;
   }

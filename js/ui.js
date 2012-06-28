@@ -46,12 +46,25 @@ Drupal.edit.modal = {
   },
 
   remove: function() {
-    Drupal.edit.modal.get().remove();
+    var $modal = Drupal.edit.modal.get();
 
-    // The modal's HTML was removed, hence no need to undelegate it.
+    // Remove after animation.
+    $modal
+    .addClass('edit-animate-invisible')
+    .bind(Drupal.edit.const.transitionEnd, function(e) {
+      $modal.remove();
+
+      // The modal's HTML was removed, hence no need to undelegate it.
+    });
 
     // Make the other interaction elements available again.
     $('.edit-belowoverlay').removeClass('edit-belowoverlay');
+  },
+
+  // Animate into view.
+  show: function() {
+    Drupal.edit.modal.get()
+    .removeClass('edit-animate-invisible');
   }
 };
 
