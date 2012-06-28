@@ -26,10 +26,6 @@ $(function() {
         .trigger('edit-content-changed.edit');
       });
 
-      // Move  toolbar inside .edit-form-container, to let it snap to the width
-      // of the form instead of the field formatter.
-      Drupal.edit.toolbar.get(ajax.$editable).detach().prependTo('.edit-form')
-
       var $submit = Drupal.edit.form.get(ajax.$editable).find('.edit-form-submit');
       var element_settings = {
         url : $submit.closest('form').attr('action'),

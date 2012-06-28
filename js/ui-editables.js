@@ -111,6 +111,10 @@ Drupal.edit.form = {
         $toolbar.css('left', '').css('top', '');
       }
 
+      // Move  toolbar inside .edit-form-container, to let it snap to the width
+      // of the form instead of the field formatter.
+      Drupal.edit.toolbar.get($editable).detach().prependTo('.edit-form')
+
       return true;
     }
   },
