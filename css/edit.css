@@ -207,8 +207,8 @@
 /* The toolbar; these are not necessarily visible. */
 .edit-toolbar {
   position: absolute;
-  top: -32px;
-  height: 32px;
+  top: -35px;
+  height: 35px;
   font-family: 'Droid sans', 'Lucida Grande', sans-serif;
 }
 .edit-toolbar.primary {
