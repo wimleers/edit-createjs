@@ -25,7 +25,7 @@ Drupal.edit.util.calcFormURLForField = function(id) {
 Drupal.edit.util.getBgColor = function($e) {
   var c;
 
-  if ($e == null) {
+  if ($e == null || $e[0].nodeName == 'HTML') {
     // Fallback to white.
     return 'rgb(255, 255, 255)';
   }
