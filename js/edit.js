@@ -88,11 +88,11 @@ Drupal.edit.init = function() {
 };
 
 Drupal.edit.findEditableEntities = function(context) {
-  return $('.edit-entity.edit-allowed', context || $('#content'));
+  return $('.edit-entity.edit-allowed', context || Drupal.settings.edit.context);
 };
 
 Drupal.edit.findEditableFields = function(context) {
-  return $('.edit-field.edit-allowed', context || $('#content'));
+  return $('.edit-field.edit-allowed', context || Drupal.settings.edit.context);
 };
 
 /*

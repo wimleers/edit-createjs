@@ -77,6 +77,7 @@ function edit_library() {
       array(
         'data' => array('edit' => array(
           'fieldFormURL' => url('admin/edit/field/!entity_type/!id/!field_name'),
+          'context' => 'body',
         )),
         'type' => 'setting',
       ),
