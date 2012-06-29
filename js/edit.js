@@ -315,7 +315,12 @@ Drupal.edit.editables = {
         buttons: [
           { url: '#', label: label, classes: 'blank-button label' },
         ]
-      }));
+      }))
+      .delegate('a.label', 'click.edit', function(e) {
+        // Clicking the label equals clicking the editable itself.
+        $editable.trigger('click.edit');
+        return false;
+      });
     }
 
     // Animations.
