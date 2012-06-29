@@ -46,7 +46,7 @@ Drupal.edit.init = function() {
   $(Drupal.theme('editBackstage', {})).appendTo('body');
 
   // Transition between view/edit states.
-  $("#edit-view-edit-toggle input").click(function() {
+  $("#edit-view-edit-toggle input").bind('click.edit', function() {
     var wasViewing = Drupal.edit.state.isViewing;
     var isViewing  = Drupal.edit.state.isViewing = (this.value == "view");
 
@@ -271,9 +271,14 @@ Drupal.edit.entityEditables = {
       .append(Drupal.theme('editToolgroup', {
         classes: 'entity',
         buttons: [
-          { url: $editable.data('edit-entity-edit-url'), label: label, classes: 'blue-button' },
+          { url: $editable.data('edit-entity-edit-url'), label: label, classes: 'blue-button label' },
         ]
-      }));
+      }))
+      .delegate('a.label', 'click.edit', function(e) {
+        // Disable edit mode, then let the normal behavior (i.e. open the full
+        // entity edit form) go through.
+        $('#edit-view-edit-toggle input[value=view]').trigger('click.edit');
+      });
     }
 
     // Animations.
