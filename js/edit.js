@@ -277,8 +277,10 @@ Drupal.edit.entityEditables = {
     }
 
     // Animations.
-    $editable.addClass('edit-highlighted');
-    Drupal.edit.toolbar.show($editable, 'primary', 'entity');
+    setTimeout(function() {
+      $editable.addClass('edit-highlighted');
+      Drupal.edit.toolbar.show($editable, 'primary', 'entity');
+    }, 0);
 
     Drupal.edit.state.entityBeingHighlighted = $editable;
   },
@@ -317,8 +319,10 @@ Drupal.edit.editables = {
     }
 
     // Animations.
-    $editable.addClass('edit-highlighted');
-    Drupal.edit.toolbar.show($editable, 'primary', 'info');
+    setTimeout(function() {
+      $editable.addClass('edit-highlighted');
+      Drupal.edit.toolbar.show($editable, 'primary', 'info');
+    }, 0);
 
     Drupal.edit.state.fieldBeingHighlighted = $editable;
     Drupal.edit.state.higlightedEditable = Drupal.edit.getID(Drupal.edit.findFieldForEditable($editable));
