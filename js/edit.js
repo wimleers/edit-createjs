@@ -461,7 +461,9 @@ Drupal.edit.editables = {
   // properties from the toolbar container, so the toolbar must already exist.
   _updateFormEditable: function($editable) {
     if (Drupal.edit.form.create($editable)) {
-      $editable.addClass('edit-belowoverlay');
+      $editable
+      .addClass('edit-belowoverlay')
+      .removeClass('edit-highlighted edit-editable');
 
       Drupal.edit.form.get($editable)
       .find('.edit-form')
