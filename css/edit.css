@@ -169,6 +169,7 @@
   position: absolute;
   z-index: 300;
   box-shadow: 0 0 30px 4px #4F4F4F;
+  max-width: 35em;
 }
 
 .edit-form .loading {
