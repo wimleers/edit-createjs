@@ -67,6 +67,11 @@ Drupal.edit.init = function() {
 
       // Animations.
       $('#edit-overlay').removeClass('edit-animate-invisible');
+
+      // Disable contextual links in edit mode.
+      $('.contextual-links-region')
+      .addClass('edit-contextual-links-region')
+      .removeClass('contextual-links-region');
     }
     else if (!wasViewing && isViewing) {
       // Animations.
@@ -80,6 +85,11 @@ Drupal.edit.init = function() {
       Drupal.edit.stopEditableFields($f);
       var $e = Drupal.edit.findEditableEntities();
       Drupal.edit.stopEditableEntities($e);
+
+      // Re-enable contextual links in view mode.
+      $('.edit-contextual-links-region')
+      .addClass('contextual-links-region')
+      .removeClass('edit-contextual-links-region');
     }
     else {
       // No state change.
