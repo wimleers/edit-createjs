@@ -30,10 +30,9 @@ Drupal.edit.util.getBgColor = function($e) {
     return 'rgb(255, 255, 255)';
   }
   c = $e.css('background-color');
-  if (c == 'rgba(0, 0, 0, 0)') {
-    // TODO: add edge case for Firefox' "transparent" here; this is a
-    // browser bug: https://bugzilla.mozilla.org/show_bug.cgi?id=635724
-    // TODO: test in all browsers
+  // TRICKY: edge case for Firefox' "transparent" here; this is a
+  // browser bug: https://bugzilla.mozilla.org/show_bug.cgi?id=635724
+  if (c == 'rgba(0, 0, 0, 0)' || c == 'transparent') {
     return Drupal.edit.util.getBgColor($e.parent());
   }
   return c;
