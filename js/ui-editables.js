@@ -74,6 +74,8 @@ Drupal.edit.toolbar = {
 
     // Remove after animation.
     $toolbar
+    // Prevent this toolbar from being detected *while* it is being removed.
+    .removeAttr('id')
     .find('.edit-toolbar .edit-toolgroup')
     .addClass('edit-animate-invisible')
     .bind(Drupal.edit.const.transitionEnd, function(e) {
