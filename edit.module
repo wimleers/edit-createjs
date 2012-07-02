@@ -220,7 +220,7 @@ function edit_preprocess_node(&$var) {
     if ($node_type->has_title) {
       $var['title_attributes_array']['class'] = 'edit-pseudofield edit-field edit-allowed edit-type-direct';
       $var['title_attributes_array']['data-edit-field-label'] = $node_type->title_label;
-      $var['title_attributes_array']['data-edit-edit'] = "node:$id:title";
+      $var['title_attributes_array']['data-edit-id'] = "node:$id:title";
     }
 
     // Pseudofields: author ("name") & created (authoring date, "date").
