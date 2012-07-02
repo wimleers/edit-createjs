@@ -498,17 +498,23 @@ Drupal.edit.editables = {
     }
     // 2) Add padding; use animations.
     var posProp = Drupal.edit.util.getPositionProperties($editable);
+    var $toolbar = Drupal.edit.toolbar.get($editable);
     setTimeout(function() {
       // Re-enable width animations (padding changes affect width too!).
       $editable.removeClass('edit-animate-disable-width');
 
+      // The whole toolbar must move to the top when it's an inline editable.
+      if ($editable.css('display') == 'inline') {
+        $toolbar.css('top', $toolbar.position().top - 5);
+      }
+
       // The label toolgroup must move to the top and the left.
-      $('.info')
+      $toolbar.find('.primary .info')
       .addClass('edit-animate-exception-grow')
       .css({'position': 'relative', 'top': '-5px', 'left': '-5px'});
 
       // The operations toolgroup must move to the top and the right.
-      $('.ops')
+      $toolbar.find('.secondary .ops')
       .addClass('edit-animate-exception-grow')
       .css({'position': 'relative', 'top': '-5px', 'left': '5px'});
 
@@ -538,12 +544,16 @@ Drupal.edit.editables = {
     // 2) Remove padding; use animations (these will run simultaneously with)
     // the fading out of the toolbar as its gets removed).
     var posProp = Drupal.edit.util.getPositionProperties($editable);
+    var $toolbar = Drupal.edit.toolbar.get($editable);
     setTimeout(function() {
       // Re-enable width animations (padding changes affect width too!).
       $editable.removeClass('edit-animate-disable-width');
 
-      // Move the toolgroups to their original positions.
-      $('.info, .ops')
+      // Move the toolbar & toolgroups to their original positions.
+      if ($editable.css('display') == 'inline') {
+        $toolbar.css('top', $toolbar.position().top + 5);
+      }
+      $toolbar.find('.primary .info, .secondary .ops')
       .removeClass('edit-animate-exception-grow')
       .css({'position': '', 'top': '', 'left': ''});
 
