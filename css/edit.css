@@ -80,34 +80,40 @@
   left: 0px;
 }
 
+/* Editable. */
 .edit-editable {
   z-index: 300;
   position: relative;
-  outline: 1px solid #999;
 }
-
 .edit-editable.edit-entity {
-  outline: 1px solid white;
+  outline: 1px solid #FFF;
+}
+.edit-field.edit-editable,
+.edit-field.edit-type-direct .edit-editable {
+  outline: 2px dotted white;
 }
 
+/* Highlighted (hovered) editable. */
 .edit-editable.edit-highlighted {
-  outline: 1px solid #0199FF;
   min-width: 200px; /* TODO: we even need them to be at least fairly wide! */
 }
-
 .edit-field.edit-editable.edit-highlighted,
 .edit-field.edit-type-direct .edit-editable.edit-highlighted {
+  outline: 1px solid #0199FF;
   box-shadow: 0 0 8px #666;
 }
+.edit-editable.edit-entity.edit-highlighted {
+  outline: 1px solid #0199FF;
+  box-shadow: 0 0 5px #666;
+}
+
+/* Editing (focused) editable. */
 .edit-field.edit-editable.edit-editing,
 .edit-field.edit-type-direct .edit-editable.edit-editing {
   box-shadow: 0 0 30px 4px #4F4F4F;
 }
 
-.edit-editable.edit-entity.edit-highlighted {
-  box-shadow: 0 0 5px #666;
-}
-
+/* Curtain. */
 .edit-editable.edit-entity .edit-curtain {
   position: absolute;
   z-index: 350;
