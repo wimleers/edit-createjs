@@ -92,7 +92,7 @@ Drupal.theme.prototype.editToolbarContainer = function(settings) {
  *   The corresponding HTML.
  */
 Drupal.theme.prototype.editToolgroup = function(settings) {
-  var classes = 'edit-toolgroup edit-animate-slow edit-animate-invisible eadit-animate-delay-veryfast';
+  var classes = 'edit-toolgroup edit-animate-slow edit-animate-invisible edit-animate-delay-veryfast';
   var html = ''
   html += '<div class="' + classes + ' ' + settings.classes + '">';
   html += Drupal.theme('editButtons', { buttons: settings.buttons });
