@@ -225,33 +225,41 @@ function edit_preprocess_node(&$var) {
 
     // Pseudofields: author ("name") & created (authoring date, "date").
     if ($var['display_submitted']) {
-      $var['submitted'] = edit_node_render_submitted($var['name'], $var['date'], $id);
+      $var['name'] = edit_node_wrap_name($var['name'], $id);
+      $var['date'] = edit_node_wrap_date($var['date'], $id);
+      $var['submitted'] = edit_node_render_submitted($var['name'], $var['date']);
     }
   }
+}
+
+function edit_node_wrap_name($name, $node_id) {
+  $classes = 'edit-pseudofield edit-field edit-allowed edit-type-form';
+  return theme('edit_spanned_field', array(
+    'value' => $name,
+    'label' => t('Author'),
+    'edit_id' => "node:$node_id:author",
+    'classes' => $classes,
+  ));
+}
+
+function edit_node_wrap_date($date, $node_id) {
+  $classes = 'edit-pseudofield edit-field edit-allowed edit-type-form';
+  return theme('edit_spanned_field', array(
+    'value' => $date,
+    'label' => t('Authoring date'),
+    'edit_id' => "node:$node_id:created",
+    'classes' => $classes,
+  ));
 }
 
 /**
  * Render pseudofields: author and created (authoring date).
  */
-function edit_node_render_submitted($author, $created, $node_id) {
-  $classes = 'edit-pseudofield edit-field edit-allowed edit-type-form';
-
+function edit_node_render_submitted($author, $created) {
+  // TODO: use template_preprocess_node(), or theme_preprocess_node().
   return t(
     'Submitted by !username on !datetime',
-    array(
-      '!username' => theme('edit_spanned_field', array(
-        'value' => $author,
-        'label' => t('Author'),
-        'edit_id' => "node:$node_id:author",
-        'classes' => $classes,
-      )),
-      '!datetime' => theme('edit_spanned_field', array(
-        'value' => $created,
-        'label' => t('Authoring date'),
-        'edit_id' => "node:$node_id:created",
-        'classes' => $classes,
-      )),
-    )
+    array('!username' => $author, '!datetime' => $created)
   );
 }
 
