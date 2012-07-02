@@ -352,6 +352,10 @@ Drupal.edit.editables = {
   },
 
   startEdit: function($editable) {
+    if ($editable.hasClass('edit-editing')) {
+      return;
+    }
+
     console.log('editables.startEdit: ', $editable);
     var self = this;
     var $field = Drupal.edit.findFieldForEditable($editable);
