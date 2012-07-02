@@ -515,7 +515,7 @@ Drupal.edit.editables = {
 
       // The whole toolbar must move to the top when it's an inline editable.
       if ($editable.css('display') == 'inline') {
-        $toolbar.css('top', $toolbar.position().top - 5);
+        $toolbar.css('top', Drupal.edit.util.stripPX($toolbar.css('top')) - 5 + 'px');
       }
 
       // The label toolgroup must move to the top and the left.
@@ -561,7 +561,7 @@ Drupal.edit.editables = {
 
       // Move the toolbar & toolgroups to their original positions.
       if ($editable.css('display') == 'inline') {
-        $toolbar.css('top', $toolbar.position().top + 5);
+        $toolbar.css('top', Drupal.edit.util.stripPX($toolbar.css('top')) + 5 + 'px');
       }
       $toolbar.find('.primary .info, .secondary .ops')
       .removeClass('edit-animate-exception-grow')
