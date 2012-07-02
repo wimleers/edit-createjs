@@ -445,6 +445,8 @@ Drupal.edit.editables = {
   },
 
   _updateDirectEditable: function($editable) {
+    Drupal.edit.editables._padEditable($editable);
+
     $editable
     .attr('contenteditable', true)
     .data('edit-content-original', $editable.html())
@@ -460,6 +462,8 @@ Drupal.edit.editables = {
   },
 
   _restoreDirectEditable: function($editable) {
+    Drupal.edit.editables._unpadEditable($editable);
+
     $editable
     .removeAttr('contenteditable')
     .removeData(['edit-content-original', 'edit-content-changed'])
@@ -468,6 +472,83 @@ Drupal.edit.editables = {
     // Not only clean up the changes to $editable, but also clean up the
     // backstage area, where we hid the form that we used to send the changes.
     $('#edit-backstage form').remove();
+  },
+
+  _padEditable: function($editable) {
+    // Add 5px padding for readability. This means we'll freeze the current
+    // width and *then* add 5px padding, hence ensuring the padding is added "on
+    // the outside".
+    // 1) Freeze the width (if it's not already set); don't use animations.
+    if ($editable[0].style.width === "") {
+      $editable
+      .data('edit-width-empty', true)
+      .addClass('edit-animate-disable-width')
+      .css('width', $editable.width());
+    }
+    // 2) Add padding; use animations.
+    var posProp = Drupal.edit.util.getPositionProperties($editable);
+    setTimeout(function() {
+      // Re-enable width animations (padding changes affect width too!).
+      $editable.removeClass('edit-animate-disable-width');
+
+      // The label toolgroup must move to the top and the left.
+      $('.info')
+      .addClass('edit-animate-exception-grow')
+      .css({'position': 'relative', 'top': '-5px', 'left': '-5px'});
+
+      // The operations toolgroup must move to the top and the right.
+      $('.ops')
+      .addClass('edit-animate-exception-grow')
+      .css({'position': 'relative', 'top': '-5px', 'left': '5px'});
+
+      // Pad the editable.
+      $editable
+      .css({
+        'position': 'relative',
+        'top':  posProp['top']  - 5 + 'px',
+        'left': posProp['left'] - 5 + 'px',
+        'padding-top'   : posProp['padding-top']    + 5 + 'px',
+        'padding-left'  : posProp['padding-left']   + 5 + 'px',
+        'padding-right' : posProp['padding-right']  + 5 + 'px',
+        'padding-bottom': posProp['padding-bottom'] + 5 + 'px',
+        'margin-bottom': posProp['margin-bottom'] - 10 + 'px',
+      });
+    }, 0);
+  },
+
+  _unpadEditable: function($editable) {
+    // 1) Set the empty width again.
+    if ($editable.data('edit-width-empty') === true) {
+      console.log('restoring width');
+      $editable
+      .addClass('edit-animate-disable-width')
+      .css('width', '');
+    }
+    // 2) Remove padding; use animations (these will run simultaneously with)
+    // the fading out of the toolbar as its gets removed).
+    var posProp = Drupal.edit.util.getPositionProperties($editable);
+    setTimeout(function() {
+      // Re-enable width animations (padding changes affect width too!).
+      $editable.removeClass('edit-animate-disable-width');
+
+      // Move the toolgroups to their original positions.
+      $('.info, .ops')
+      .removeClass('edit-animate-exception-grow')
+      .css({'position': '', 'top': '', 'left': ''});
+
+      // Unpad the editable.
+      $editable
+      .css({
+        'position': 'relative',
+        'top':  posProp['top']  + 5 + 'px',
+        'left': posProp['left'] + 5 + 'px',
+        'padding-top'   : posProp['padding-top']    - 5 + 'px',
+        'padding-left'  : posProp['padding-left']   - 5 + 'px',
+        'padding-right' : posProp['padding-right']  - 5 + 'px',
+        'padding-bottom': posProp['padding-bottom'] - 5 + 'px',
+        'margin-bottom': posProp['margin-bottom'] + 10 + 'px'
+      });
+    }, 0);
   },
 
   // Creates a form container; when the $editable is inline, it will inherit CSS

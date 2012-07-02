@@ -52,4 +52,53 @@ Drupal.edit.util.ignoreHoveringVia = function(e, closest, callback) {
   }
 };
 
+/**
+ * Strip extraneous information ("px") from a given value in preparation
+ * for getPositionProperties().
+ */
+Drupal.edit.util.stripPX = function(value) {
+  if (value) {
+    var index = value.indexOf('px');
+    if (index === -1) {
+      return NaN;
+    }
+    else {
+      return Number(value.substring(0, index));
+    }
+  }
+  else {
+    return NaN;
+  }
+};
+
+/**
+ * If no position properties defined, replace value with zero.
+ */
+Drupal.edit.util.replaceBlankPosition = function(pos) {
+  if (pos == 'auto' || pos == NaN) {
+    pos = '0px';
+  }
+  return pos;
+};
+
+/**
+ * Get the top and left properties of an element and convert extraneous
+ * values and information into numbers ready for subtraction.
+ */
+Drupal.edit.util.getPositionProperties = function($e) {
+  var p,
+      r = {},
+      props = [
+        'top', 'left',
+        'padding-top', 'padding-left', 'padding-right', 'padding-bottom',
+        'margin-bottom'
+      ];
+
+  for (var i in props) {
+    p = props[i];
+    r[p] = this.stripPX(this.replaceBlankPosition($e.css(p)));
+  }
+  return r;
+};
+
 })(jQuery);

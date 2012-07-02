@@ -45,8 +45,19 @@
   -webkit-transition-delay: .6s;
 }
 
+.edit-animate-disable-width {
+  -webkit-transition: width 0s;
+}
 
 
+.edit-animate-exception-grow {
+  -webkit-transition: all .2s linear;
+     -moz-transition: all .2s linear;
+      -ie-transition: all .2s linear;
+       -o-transition: all .2s linear;
+          transition: all .2s linear;
+  -webkit-transition-delay: 0s;
+}
 
 /**
  * View/edit mode toggle.
