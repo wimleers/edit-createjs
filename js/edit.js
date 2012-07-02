@@ -265,7 +265,9 @@ Drupal.edit.entityEditables = {
     console.log('entityEditables.startHighlight');
     if (Drupal.edit.toolbar.create($editable)) {
       var label = Drupal.t('Edit !entity', { '!entity': $editable.data('edit-entity-label') });
-      Drupal.edit.toolbar.get($editable)
+      var $toolbar = Drupal.edit.toolbar.get($editable);
+
+      $toolbar
       .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.entity))')
       .append(Drupal.theme('editToolgroup', {
         classes: 'entity',
@@ -278,6 +280,11 @@ Drupal.edit.entityEditables = {
         // entity edit form) go through.
         $('#edit-view-edit-toggle input[value=view]').trigger('click.edit');
       });
+
+      // TODO: improve this; currently just a hack for Garland compatibility.
+      if ($editable.css('margin-left')) {
+        $toolbar.css('margin-left', $editable.css('margin-left'));
+      }
     }
 
     // Animations.
