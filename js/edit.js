@@ -218,13 +218,12 @@ Drupal.edit.startEditableFields = function($fields) {
       e.stopPropagation();
     });
   })
-  .bind('click.edit', function() { Drupal.edit.editables.startEdit($(this)); return false; })
-  // Some transformations are field-specific.
+  .bind('click.edit', function() {
+    Drupal.edit.editables.startEdit($(this)); return false;
+  })
+  // Some transformations are editable-specific.
   .map(function() {
-    // This does not get stripped when going back to view mode. The only way
-    // this could possibly break, is when fields' background colors can change
-    // on-the-fly, while a visitor is reading the page.
-    $(this).css('background-color', Drupal.edit.util.getBgColor($(this)));
+    $(this).data('edit-background-color', Drupal.edit.util.getBgColor($(this)));
   });
 };
 
@@ -366,6 +365,10 @@ Drupal.edit.editables = {
     .addClass('edit-editing')
     .bind('edit-content-changed.edit', function(e) {
       self._buttonFieldSaveToBlue(e, $editable, $field);
+    })
+    // Some transformations are editable-specific.
+    .map(function() {
+      $(this).css('background-color', $(this).data('edit-background-color'));
     });
 
     // While editing, don't show *any* other field or entity as editable.
@@ -414,7 +417,12 @@ Drupal.edit.editables = {
       return;
     }
 
-    $editable.removeClass('edit-highlighted edit-editing edit-belowoverlay');
+    $editable
+    .removeClass('edit-highlighted edit-editing edit-belowoverlay')
+    // Some transformations are editable-specific.
+    .map(function() {
+      $(this).css('background-color', '');
+    });
 
     // Make the other fields and entities editable again.
     $('.edit-candidate').addClass('edit-editable');
@@ -473,7 +481,7 @@ Drupal.edit.editables = {
       Drupal.edit.form.get($editable)
       .find('.edit-form')
       .addClass('edit-editable edit-highlighted edit-editing')
-      .css('background-color', Drupal.edit.util.getBgColor($editable));
+      .css('background-color', $editable.data('edit-background-color'));
     }
   },
 
