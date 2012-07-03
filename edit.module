@@ -274,7 +274,7 @@ function edit_preprocess_field(&$var) {
 
   $formatter_info = field_info_formatter_types($formatter);
   if (!array_key_exists('edit', $formatter_info)) {
-    watchdog('edit', '%formatter not yet compatible with Edit.', array('%formatter' => $formatter));
+    // Formatter not yet compatible with Edit module.
     return;
   }
   $edit_ability = $formatter_info['edit'];
