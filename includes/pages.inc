@@ -104,8 +104,8 @@ function edit_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL
         'command' => 'edit_field_form_saved',
         'id'      => "$entity_type:$id:$field_name",
         'data'    => edit_node_render_submitted(
-          edit_node_wrap_name(theme('username', array('account' => $entity))),
-          edit_node_wrap_date(format_date($entity->created))
+          edit_node_wrap_name(theme('username', array('account' => $entity)), $id),
+          edit_node_wrap_date(format_date($entity->created), $id)
         ),
       );
     }
