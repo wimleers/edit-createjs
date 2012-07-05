@@ -640,7 +640,7 @@ Drupal.edit.editables = {
       var value = $.trim($editable.text());
       console.log(value);
       $('#edit-backstage form')
-      .find(':input:first').val(value).end()
+      .find(':input[type!=hidden][type!=submit]').val(value).end()
       .find('.edit-form-submit').trigger('click.edit');
     }
     return false;
