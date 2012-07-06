@@ -1,9 +1,10 @@
 <?php
-
 /**
  * @file
- * All logic for altering the toolbar, including some hooks. Hence this include
- * file must *always* be loaded by the .module file.
+ * Integrates the Edit module with the Toolbar module.
+ *
+ * Contains all the logic for altering the toolbar, including some hooks. Hence,
+ * this include file must *always* be loaded by the .module file.
  */
 
 /**
@@ -11,12 +12,13 @@
  */
 function edit_page_alter(&$page) {
   if (isset($page['page_top']['toolbar'])) {
-    // Remove the toolbar drawer toggle by overriding toolbar.module's pre-render
-    // function with our own.
+    // Remove the toolbar drawer toggle by overriding Toolbar module's
+    // pre-render function with our own implementation.
     if (isset($page['page_top']['toolbar']['#pre_render'][0]) && $page['page_top']['toolbar']['#pre_render'][0] == 'toolbar_pre_render') {
       $page['page_top']['toolbar']['#pre_render'][0] = 'edit_override_toolbar_pre_render';
     }
-    // Replace the shortcut.module's toolbar pre-render function with our own.
+    // Replace the Shortcut module's toolbar pre-render function with our own
+    // implementation.
     if (isset($page['page_top']['toolbar']['#pre_render'][1]) && $page['page_top']['toolbar']['#pre_render'][1] == 'shortcut_toolbar_pre_render') {
       $page['page_top']['toolbar']['#pre_render'][1] = 'edit_override_shortcut_toolbar_pre_render';
     }
@@ -31,9 +33,9 @@ function edit_page_alter(&$page) {
  * Implements hook_module_implements_alter().
  */
 function edit_module_implements_alter(&$implementations, $hook) {
-  // Run edit's hook_page_alter() after shortcut's, but retain the ordering.
-  // We need this to be able to override shortcut's #pre_render callback for
-  // rendering the shortcuts into the toolbar.
+  // Run Edit module's hook_page_alter() after the one in Shortcut module, but
+  // retain the ordering. We need this to be able to override Shortcut modules's
+  // #pre_render callback for rendering the shortcuts into the toolbar.
   if ($hook == 'page_alter') {
     unset($implementations['edit']);
     $index = array_search('shortcut', array_keys($implementations));
@@ -42,14 +44,15 @@ function edit_module_implements_alter(&$implementations, $hook) {
 }
 
 /**
- * Pre-render function for edit.module; view/edit mode toggle.
+ * Pre-render function to add the view/edit mode toggle widget to the toolbar.
  */
 function edit_toolbar_pre_render($toolbar) {
   $module_path = drupal_get_path('module', 'edit');
 require_once 'includes/form.inc';
   $toolbar['toolbar_drawer'][] = array(
     'view_edit_toggle' => array(
-      // TODO: make this less hacky; but we might move to something else than radios!
+      // @todo Make this less hacky. We might end up using something other than
+      // radios.
       '#markup' => '
 <div id="edit-view-edit-toggle" class="form-radios">
   <div class="form-item form-type-radio">
@@ -73,7 +76,7 @@ require_once 'includes/form.inc';
 }
 
 /**
- * Override of pre-render function for toolbar.module.
+ * Overrides the Toolbar module's toolbar pre-render function.
  */
 function edit_override_toolbar_pre_render($toolbar) {
   // The original.
@@ -91,7 +94,7 @@ function edit_override_toolbar_pre_render($toolbar) {
 }
 
 /**
- * Override of pre-render function for shortcut.module.
+ * Overrides the Shortcut module's toolbar pre-render function.
  */
 function edit_override_shortcut_toolbar_pre_render($toolbar) {
   // The original.

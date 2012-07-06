@@ -1,10 +1,14 @@
 <?php
+/**
+ * @file
+ * AJAX endpoint to retrieve & save subforms for fields and re-render fields.
+ */
 
 /**
- * Page callback to edit an entity field with IPE.
+ * Page callback: Provides editing of entity fields.
  */
 function edit_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL) {
-  // Ensure the entity type is valid:
+  // Ensure the entity type is valid.
   if (empty($entity_type)) {
     return MENU_NOT_FOUND;
   }
@@ -28,15 +32,15 @@ function edit_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL
     $langcode = $entity->language;
   }
 
-  // Ensure access to actually update this particular field is granted.
+  // Ensure access to update this particular field is granted.
   if (!field_access('edit', $field_name, $entity_type, $entity)) {
     return MENU_ACCESS_DENIED;
   }
 
   list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
 
-  // This allows us to have limited support for non-field API fields.
-  // Currently we support only node:title, node:author and node:created.
+  // This allows us to have limited support for non-field API fields. Currently,
+  // we only have support for node:title, node:author and node:created.
   if ($entity_type == 'node' && in_array($field_name, array('title', 'author', 'created'))) {
     $field_instance = TRUE;
     switch ($field_name) {
@@ -78,7 +82,8 @@ function edit_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL
   );
 
   if (in_array($field_name, array('author', 'created'))) {
-    // TODO: for some unknown, weird reason, form_load_include() breaks the code.
+    // @todo For some unknown, weird reason, form_load_include() breaks the
+    // code.
     //form_load_include($form_state, 'inc', 'edit', 'includes/fape');
     module_load_include('inc', 'edit', 'includes/fape');
   }
@@ -91,14 +96,14 @@ function edit_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL
     // render the field without the updated values.
     $entity = reset(entity_load($entity_type, array($entity_id)));
 
-    // Pseudofield: title.
+    // Pseudo-field: title.
     if ($entity_type == 'node' && $field_name == 'title') {
       $commands[] = array(
         'command' => 'edit_field_form_saved',
         'id'      => "$entity_type:$id:$field_name",
       );
     }
-    // Pseudofields: name and date.
+    // Pseudo-fields: name and date.
     elseif ($entity_type == 'node' && in_array($field_name, array('author', 'created'))) {
       $commands[] = array(
         'command' => 'edit_field_form_saved',

@@ -1,8 +1,7 @@
 <?php
-
 /**
  * @file
- * All theme functions for the Edit module.
+ * Provides theme functions for the Edit module.
  */
 
 /**
@@ -11,7 +10,7 @@
  */
 
 /**
- * Format a Field wrapped in a span with metadata for the Edit module.
+ * Formats a field in a wrapper with the required metadata.
  */
 function theme_edit_spanned_field($variables) {
   $output = '';
