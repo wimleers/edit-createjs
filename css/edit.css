@@ -242,8 +242,8 @@
   float: left; /* LTR */
   padding-left: 5px; /* LTR */
   outline: 1px solid #999;
-  background: #fff;
   box-shadow: 0 0 8px #666;
+  background: #fff url('../images/throbber.gif') no-repeat -60px 60px;
 }
 
 /* Entity toolgroup. */
@@ -252,6 +252,13 @@
   float: left; /* LTR */
   box-shadow: 0 -3px 8px #666;
   outline: 1px solid #0199FF;
+}
+.edit-toolgroup.entity.throbbing,
+.edit-toolgroup.info.throbbing {
+  background-position: 90% 50%;
+}
+.edit-toolgroup.info.throbbing a {
+  margin-right: 35px;
 }
 
 /* Operations toolgroup. */
