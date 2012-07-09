@@ -105,6 +105,9 @@ function edit_library() {
 
 /**
  * Implements hook_form_FORM_ID_alter().
+ *
+ * Simplifies simple field forms that contain only one form item by hiding the
+ * form element title (which is already displayed in the toolbar).
  */
 function edit_form_fape_field_edit_form_alter(&$form, &$form_state) {
   // Only alter this form when it's being built by the Edit module.
@@ -112,32 +115,39 @@ function edit_form_fape_field_edit_form_alter(&$form, &$form_state) {
     return;
   }
 
-  // Simplify simple field forms that contain only one form item.
-  // @todo Somehow make this less hacky.
   $elements = element_children($form);
-  $defaults = array('actions', 'form_build_id', 'form_token', 'form_id');
-  $form_items = array_diff($elements, $defaults);
-  if (count($form_items) == 1) {
-    $k = $form_items[0];
-    if ($form[$k]['#type'] == 'container') {
-      $l = $form[$k]['#language'];
-      switch (count(element_children($form[$k][$l]))) {
-        case 0:
-          if ($form[$k][$l]['#type'] != 'checkbox') {
-            unset($form[$k][$l]['#title']);
-          }
-          break;
-        case 1:
-          unset($form[$k][$l][0]['value']['#title']);
-          break;
-        default:
-          // No changes.
-          break;
+
+  // Required internal form properties.
+  $internal_elements = array('actions', 'form_build_id', 'form_token', 'form_id');
+
+  // Calculate the remaining form elements.
+  $remaining_elements = array_diff($elements, $internal_elements);
+
+  // Only simplify the form if there is a single element remaining.
+  if (count($remaining_elements) === 1) {
+    $element = $remaining_elements[0];
+
+    if ($form[$element]['#type'] == 'container') {
+      $language = $form[$element]['#language'];
+      $children = element_children($form[$element][$language]);
+
+      // Certain fields require different processing depending on the form
+      // structure.
+      if (count($children) == 0) {
+        // Checkbox elements don't have a title.
+        if ($form[$element][$language]['#type'] != 'checkbox') {
+          $form[$element][$language]['#title_display'] = 'invisible';
+        }
+      }
+      elseif (count($children) == 1) {
+        $form[$element][$language][0]['value']['#title_display'] = 'invisible';
       }
     }
-    // Pseudo-fields that are language-independent, such as title, name and date.
-    else if (!array_key_exists('#language', $form[$k])) {
-      unset($form[$k]['#title']);
+
+    // Handle pseudo-fields that are language-independent, such as title,
+    // author, and creation date.
+    elseif (empty($form[$element]['#language'])) {
+      $form[$element]['#title_display'] = 'invisible';
     }
   }
 
@@ -186,13 +196,22 @@ function edit_field_formatter_info_alter(&$info) {
  * Implements hook_preprocess_page().
  */
 function edit_preprocess_page(&$variables) {
-  // Special case: on node pages, the title of the node becomes the page title.
-  if (!empty($variables['node']) && entity_access('update', 'node', $variables['node'])) {
-    // Pseudo-field: title.
-    $node_type = node_type_get_type($variables['node']->type);
+  // If we don't have a node object to work with, return early to avoid
+  // processing.
+  if (empty($variables['node'])) {
+    return;
+  }
+
+  $node = $variables['node'];
+
+  // Ensure the user has access to update the node.
+  if (entity_access('update', 'node', $node)) {
+    // On full node pages the title of the node becomes the page title so we
+    // must handle it differently. In this case, we add a wrapper around the
+    // title with the required attributes to enable editability.
+    $node_type = node_type_get_type($node->type);
 
     if ($node_type->has_title) {
-      $id = $variables['node']->nid;
       $attributes = array(
         'class' => array(
           'edit-pseudofield',
@@ -201,7 +220,7 @@ function edit_preprocess_page(&$variables) {
           'edit-type-direct',
         ),
         'data-edit-field-label' => $node_type->title_label,
-        'data-edit-id' => "node:$id:title",
+        'data-edit-id' => 'node:' . $node->nid . ':title',
       );
       $variables['title_prefix']['edit']['#markup'] = '<div' . drupal_attributes($attributes) . '>';
       $variables['title_suffix']['edit']['#markup'] = '</div>';
@@ -218,15 +237,14 @@ function edit_preprocess_node(&$variables) {
 
   if (entity_access('update', $entity_type, $entity)) {
     list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
-    $i = entity_get_info($entity_type);
+
+    $entity_info = entity_get_info($entity_type);
+    $bundle_label = $entity_info['bundles'][$bundle]['label'];
 
     // Provide metadata using data- attributes.
-    $data_attributes = array(
-      'data-edit-id'              => "node:$id",
-      'data-edit-entity-label'    => $i['bundles'][$bundle]['label'],
-      'data-edit-entity-edit-url' => url("node/$id/edit"),
-    );
-    $variables['attributes_array'] += $data_attributes;
+    $variables['attributes_array']['data-edit-id'] = "node:$id";
+    $variables['attributes_array']['data-edit-entity-label'] = $bundle_label;
+    $variables['attributes_array']['data-edit-entity-edit-url'] = url("node/$id/edit");
 
     // Mark this entity as editable.
     $variables['classes_array'][] = 'edit-entity';
@@ -328,11 +346,17 @@ function edit_preprocess_field(&$variables) {
   $formatter   = $variables['element']['#formatter'];
 
   $formatter_info = field_info_formatter_types($formatter);
+
+  // If the formatter doesn't contain the edit property, assume that it is not
+  // yet compatible with the Edit module and return early.
   if (empty($formatter_info['edit'])) {
-    // Formatter not yet compatible with Edit module.
     return;
   }
+
   $edit_ability = $formatter_info['edit'];
+
+  // If editing is explicitly disabled for this field, return early to avoid
+  // any further processing.
   if ($edit_ability == 'disabled') {
     return;
   }
@@ -346,20 +370,20 @@ function edit_preprocess_field(&$variables) {
     }
   }
 
-  if (entity_access('update', $entity_type, $entity) && field_access('edit', $field_name, $entity_type, $entity)) {
+  $entity_access = entity_access('update', $entity_type, $entity);
+  $field_access = field_access('edit', $field_name, $entity_type, $entity);
+  if ($entity_access && $field_access) {
     list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
-    $ei = entity_get_info($entity_type);
-    $fi = field_info_instance($entity_type, $field_name, $bundle);
 
-    // Provide metadata through data- attributes.
-    $data_attributes = array(
-      'data-edit-field-label'    => $fi['label'],
-      'data-edit-id'             => "$entity_type:$id:$field_name",
-    );
+    $instance_info = field_info_instance($entity_type, $field_name, $bundle);
+
     if (empty($variables['attributes_array'])) {
       $variables['attributes_array'] = array();
     }
-    $variables['attributes_array'] += $data_attributes;
+
+    // Provide metadata through data- attributes.
+    $variables['attributes_array']['data-edit-field-label'] = $instance_info['label'];
+    $variables['attributes_array']['data-edit-id'] = "$entity_type:$id:$field_name";
 
     // Mark this field as editable.
     $variables['classes_array'][] = 'edit-field';
