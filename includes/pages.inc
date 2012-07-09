@@ -78,7 +78,7 @@ function edit_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL
     'subform_id' => $subform_id,
     // We use this in our hook_form_alter() implementation so that we don't
     // alter FAPE's forms when it's used by FAPE itself.
-    'edit' => TRUE,
+    'editability' => TRUE,
   );
 
   if (in_array($field_name, array('author', 'created'))) {

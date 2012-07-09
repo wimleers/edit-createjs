@@ -111,7 +111,7 @@ function edit_library() {
  */
 function edit_form_fape_field_edit_form_alter(&$form, &$form_state) {
   // Only alter this form when it's being built by the Edit module.
-  if (!array_key_exists('edit', $form_state)) {
+  if (empty($form_state['editability'])) {
     return;
   }
 
@@ -166,7 +166,7 @@ function edit_field_formatter_info_alter(&$info) {
   //   - 'editable': these fields will be immediately editable.
   //   - 'form': these fields will load the field's form through AJAX.
   //   - 'disabled': these fields will not be editable inline.
-  $a = array(
+  $element_names = array(
     // @todo Implement file and image editability.
     'file_default'   => 'disabled',
     'file_table'     => 'disabled',
@@ -185,9 +185,11 @@ function edit_field_formatter_info_alter(&$info) {
     'text_trimmed'            => 'disabled',
     'text_summary_or_trimmed' => 'disabled',
   );
-  foreach ($a as $k => $v) {
-    if (array_key_exists($k, $info)) {
-      $info[$k]['edit'] = $v;
+  foreach ($element_names as $element_name => $editability) {
+    if (!empty($info[$element_name])) {
+      $info[$element_name]['settings']['edit'] = array(
+        'editability' => $editability,
+      );
     }
   }
 }
@@ -349,24 +351,24 @@ function edit_preprocess_field(&$variables) {
 
   // If the formatter doesn't contain the edit property, assume that it is not
   // yet compatible with the Edit module and return early.
-  if (empty($formatter_info['edit'])) {
+  if (empty($formatter_info['settings']['edit']['editability'])) {
     return;
   }
 
-  $edit_ability = $formatter_info['edit'];
+  $editability = $formatter_info['settings']['edit']['editability'];
 
   // If editing is explicitly disabled for this field, return early to avoid
   // any further processing.
-  if ($edit_ability == 'disabled') {
+  if ($editability == 'disabled') {
     return;
   }
 
   // If directly editable, check the cardinality. If the cardinality is greater
   // than 1, use a form to edit the field.
-  if ($edit_ability == 'direct') {
+  if ($editability == 'direct') {
     $field_info = field_info_field($field_name);
     if ($field_info['cardinality'] != 1) {
-      $edit_ability = 'form';
+      $editability = 'form';
     }
   }
 
@@ -388,7 +390,7 @@ function edit_preprocess_field(&$variables) {
     // Mark this field as editable.
     $variables['classes_array'][] = 'edit-field';
     $variables['classes_array'][] = 'edit-allowed';
-    $variables['classes_array'][] = 'edit-type-' . $edit_ability;
+    $variables['classes_array'][] = 'edit-type-' . $editability;
   }
 }
 
