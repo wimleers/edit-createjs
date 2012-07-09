@@ -13,15 +13,12 @@
  * Formats a field in a wrapper with the required metadata.
  */
 function theme_edit_spanned_field($variables) {
-  $output = '';
+  $variables['attributes']['data-edit-id'] = $variables['edit_id'];
+  $variables['attributes']['data-edit-field-label'] = $variables['label'];
 
-  $output .= '<span class="' . $variables['classes'] . '"';
-  $output .= ' data-edit-id="' . $variables['edit_id'] . '"';
-  $output .= ' data-edit-field-label="' . $variables['label'] . '">';
-  $output .= $variables['value']; // The field value.
-  $output .= '</span>';
+  $attributes = drupal_attributes($variables['attributes']);
 
-  return $output;
+  return '<span' . $attributes . '>' .  $variables['value'] . '</span>';
 }
 
 /**

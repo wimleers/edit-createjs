@@ -41,12 +41,12 @@ function edit_menu() {
 function edit_theme() {
   return array(
     'edit_spanned_field' => array(
-      'file'      => 'includes/theme.inc',
+      'file' => 'includes/theme.inc',
       'variables' => array(
-        'value'   => NULL,
+        'value' => NULL,
         'edit_id' => NULL,
-        'label'   => NULL,
-        'classes' => NULL,
+        'label' => NULL,
+        'attributes' => array(),
       ),
     ),
   );
@@ -194,9 +194,14 @@ function edit_preprocess_page(&$variables) {
     if ($node_type->has_title) {
       $id = $variables['node']->nid;
       $attributes = array(
-        'class' => 'edit-pseudofield edit-field edit-allowed edit-type-direct',
+        'class' => array(
+          'edit-pseudofield',
+          'edit-field',
+          'edit-allowed',
+          'edit-type-direct',
+        ),
         'data-edit-field-label' => $node_type->title_label,
-        'data-edit-id'          => "node:$id:title",
+        'data-edit-id' => "node:$id:title",
       );
       $variables['title_prefix']['edit']['#markup'] = '<div' . drupal_attributes($attributes) . '>';
       $variables['title_suffix']['edit']['#markup'] = '</div>';
@@ -224,12 +229,16 @@ function edit_preprocess_node(&$variables) {
     $variables['attributes_array'] += $data_attributes;
 
     // Mark this entity as editable.
-    $variables['classes_array'][] = 'edit-entity edit-allowed';
+    $variables['classes_array'][] = 'edit-entity';
+    $variables['classes_array'][] = 'edit-allowed';
 
     // Pseudo-field: title.
     $node_type = node_type_get_type($bundle);
     if ($node_type->has_title) {
-      $variables['title_attributes_array']['class'] = 'edit-pseudofield edit-field edit-allowed edit-type-direct';
+      $variables['title_attributes_array']['class'][] = 'edit-pseudofield';
+      $variables['title_attributes_array']['class'][] = 'edit-field';
+      $variables['title_attributes_array']['class'][] = 'edit-allowed';
+      $variables['title_attributes_array']['class'][] = 'edit-type-direct';
       $variables['title_attributes_array']['data-edit-field-label'] = $node_type->title_label;
       $variables['title_attributes_array']['data-edit-id'] = "node:$id:title";
     }
@@ -255,12 +264,18 @@ function edit_preprocess_node(&$variables) {
  *   The fully-themed HTML output for the wrapped "name" pseudo-field.
  */
 function edit_node_wrap_name($name, $node_id) {
-  $classes = 'edit-pseudofield edit-field edit-allowed edit-type-form';
   return theme('edit_spanned_field', array(
     'value' => $name,
     'label' => t('Author'),
     'edit_id' => "node:$node_id:author",
-    'classes' => $classes,
+    'attributes' => array(
+      'class' => array(
+        'edit-pseudofield',
+        'edit-field',
+        'edit-allowed',
+        'edit-type-form',
+      ),
+    ),
   ));
 }
 
@@ -276,12 +291,18 @@ function edit_node_wrap_name($name, $node_id) {
  *   The fully-themed HTML output for the wrapped "date" pseudo-field.
  */
 function edit_node_wrap_date($date, $node_id) {
-  $classes = 'edit-pseudofield edit-field edit-allowed edit-type-form';
   return theme('edit_spanned_field', array(
     'value' => $date,
     'label' => t('Authoring date'),
     'edit_id' => "node:$node_id:created",
-    'classes' => $classes,
+    'attributes' => array(
+      'class' => array(
+        'edit-pseudofield',
+        'edit-field',
+        'edit-allowed',
+        'edit-type-form',
+      ),
+    ),
   ));
 }
 
@@ -341,6 +362,9 @@ function edit_preprocess_field(&$variables) {
     $variables['attributes_array'] += $data_attributes;
 
     // Mark this field as editable.
-    $variables['classes_array'][] = "edit-field edit-allowed edit-type-$edit_ability";
+    $variables['classes_array'][] = 'edit-field';
+    $variables['classes_array'][] = 'edit-allowed';
+    $variables['classes_array'][] = 'edit-type-' . $edit_ability;
   }
 }
+
