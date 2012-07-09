@@ -185,20 +185,21 @@ function edit_field_formatter_info_alter(&$info) {
 /**
  * Implements hook_preprocess_page().
  */
-function edit_preprocess_page(&$var) {
+function edit_preprocess_page(&$variables) {
   // Special case: on node pages, the title of the node becomes the page title.
-  if (array_key_exists('node', $var) && entity_access('update', 'node', $var['node'])) {
+  if (!empty($variables['node']) && entity_access('update', 'node', $variables['node'])) {
     // Pseudo-field: title.
-    $node_type = node_type_get_type($var['node']->type);
+    $node_type = node_type_get_type($variables['node']->type);
+
     if ($node_type->has_title) {
-      $id = $var['node']->nid;
+      $id = $variables['node']->nid;
       $attributes = array(
         'class' => 'edit-pseudofield edit-field edit-allowed edit-type-direct',
         'data-edit-field-label' => $node_type->title_label,
         'data-edit-id'          => "node:$id:title",
       );
-      $var['title_prefix']['edit']['#markup'] = '<div ' . drupal_attributes($attributes) . '">';
-      $var['title_suffix']['edit']['#markup'] = '</div>';
+      $variables['title_prefix']['edit']['#markup'] = '<div' . drupal_attributes($attributes) . '>';
+      $variables['title_suffix']['edit']['#markup'] = '</div>';
     }
   }
 }
@@ -206,9 +207,9 @@ function edit_preprocess_page(&$var) {
 /**
  * Implements hook_preprocess_node().
  */
-function edit_preprocess_node(&$var) {
-  $entity_type = $var['elements']['#entity_type'];
-  $entity      = $var['elements']['#node'];
+function edit_preprocess_node(&$variables) {
+  $entity_type = $variables['elements']['#entity_type'];
+  $entity      = $variables['elements']['#node'];
 
   if (entity_access('update', $entity_type, $entity)) {
     list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
@@ -220,24 +221,24 @@ function edit_preprocess_node(&$var) {
       'data-edit-entity-label'    => $i['bundles'][$bundle]['label'],
       'data-edit-entity-edit-url' => url("node/$id/edit"),
     );
-    $var['attributes_array'] += $data_attributes;
+    $variables['attributes_array'] += $data_attributes;
 
     // Mark this entity as editable.
-    $var['classes_array'][] = 'edit-entity edit-allowed';
+    $variables['classes_array'][] = 'edit-entity edit-allowed';
 
     // Pseudo-field: title.
     $node_type = node_type_get_type($bundle);
     if ($node_type->has_title) {
-      $var['title_attributes_array']['class'] = 'edit-pseudofield edit-field edit-allowed edit-type-direct';
-      $var['title_attributes_array']['data-edit-field-label'] = $node_type->title_label;
-      $var['title_attributes_array']['data-edit-id'] = "node:$id:title";
+      $variables['title_attributes_array']['class'] = 'edit-pseudofield edit-field edit-allowed edit-type-direct';
+      $variables['title_attributes_array']['data-edit-field-label'] = $node_type->title_label;
+      $variables['title_attributes_array']['data-edit-id'] = "node:$id:title";
     }
 
     // Pseudo-fields: author (name) and created date (authoring date).
-    if ($var['display_submitted']) {
-      $var['name'] = edit_node_wrap_name($var['name'], $id);
-      $var['date'] = edit_node_wrap_date($var['date'], $id);
-      $var['submitted'] = edit_node_render_submitted($var['name'], $var['date']);
+    if ($variables['display_submitted']) {
+      $variables['name'] = edit_node_wrap_name($variables['name'], $id);
+      $variables['date'] = edit_node_wrap_date($variables['date'], $id);
+      $variables['submitted'] = edit_node_render_submitted($variables['name'], $variables['date']);
     }
   }
 }
@@ -299,14 +300,14 @@ function edit_node_render_submitted($author, $created) {
 /**
  * Implements hook_preprocess_field().
  */
-function edit_preprocess_field(&$var) {
-  $entity_type = $var['element']['#entity_type'];
-  $entity      = $var['element']['#object'];
-  $field_name  = $var['element']['#field_name'];
-  $formatter   = $var['element']['#formatter'];
+function edit_preprocess_field(&$variables) {
+  $entity_type = $variables['element']['#entity_type'];
+  $entity      = $variables['element']['#object'];
+  $field_name  = $variables['element']['#field_name'];
+  $formatter   = $variables['element']['#formatter'];
 
   $formatter_info = field_info_formatter_types($formatter);
-  if (!array_key_exists('edit', $formatter_info)) {
+  if (empty($formatter_info['edit'])) {
     // Formatter not yet compatible with Edit module.
     return;
   }
@@ -334,12 +335,12 @@ function edit_preprocess_field(&$var) {
       'data-edit-field-label'    => $fi['label'],
       'data-edit-id'             => "$entity_type:$id:$field_name",
     );
-    if (!array_key_exists('attributes_array', $var)) {
-      $var['attributes_array'] = array();
+    if (empty($variables['attributes_array'])) {
+      $variables['attributes_array'] = array();
     }
-    $var['attributes_array'] += $data_attributes;
+    $variables['attributes_array'] += $data_attributes;
 
     // Mark this field as editable.
-    $var['classes_array'][] = "edit-field edit-allowed edit-type-$edit_ability";
+    $variables['classes_array'][] = "edit-field edit-allowed edit-type-$edit_ability";
   }
 }
