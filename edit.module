@@ -67,10 +67,10 @@ function edit_library() {
   $libraries['edit'] = array(
     'title' => 'Edit',
     'website' => 'http://drupal.org/project/edit',
-    'version' => NULL, // @todo Figure out the correct way to do this.
+    'version' => NULL, // @TODO Figure out the correct way to do this.
     'js' => array(
       $path . '/js/edit.js' => array(
-        // @todo Make sure that a subset of the JavaScript is loaded ASAP, so
+        // @TODO Make sure that a subset of the JavaScript is loaded ASAP, so
         // that the view/edit mode toggle works immediately.
         'defer' => TRUE,
       ),
