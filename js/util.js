@@ -93,7 +93,7 @@ Drupal.edit.util.getPositionProperties = function($e) {
         'margin-bottom'
       ];
 
-  for (var i in props) {
+  for (var i = 0; i < props.length; i++) {
     p = props[i];
     r[p] = this.stripPX(this.replaceBlankPosition($e.css(p)));
   }
