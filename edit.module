@@ -161,12 +161,14 @@ function edit_form_fape_field_edit_form_alter(&$form, &$form_state) {
 function edit_field_formatter_info_alter(&$info) {
   // @todo Create a UI that allows users to override these defaults.
 
-  // Add a new "edit" property to each formatter, with one of the following
-  // values:
-  //   - 'editable': these fields will be immediately editable.
-  //   - 'form': these fields will load the field's form through AJAX.
-  //   - 'disabled': these fields will not be editable inline.
-  $element_names = array(
+  // Add a new "edit" property to each formatter, which contains metadata for
+  // the Edit module depending on the formatter. It contains the following keys:
+  //   * 'editability', with one of the following values:
+  //     - 'editable': these fields will be immediately editable.
+  //     - 'form': these fields will load the field's form through AJAX.
+  //     - 'disabled': these fields will not be editable inline.
+  //   * 'wysiwyg', with boolean values
+  $editability_metadata = array(
     // @todo Implement file and image editability.
     'file_default'   => 'disabled',
     'file_table'     => 'disabled',
@@ -185,10 +187,15 @@ function edit_field_formatter_info_alter(&$info) {
     'text_trimmed'            => 'disabled',
     'text_summary_or_trimmed' => 'disabled',
   );
-  foreach ($element_names as $element_name => $editability) {
-    if (!empty($info[$element_name])) {
-      $info[$element_name]['settings']['edit'] = array(
+  $wysiwyg_metadata = array(
+    'text_default' => TRUE,
+    'text_plain' => FALSE,
+  );
+  foreach ($editability_metadata as $formatter => $editability) {
+    if (!empty($info[$formatter])) {
+      $info[$formatter]['settings']['edit'] = array(
         'editability' => $editability,
+        'wysiwyg'     => (isset($wysiwyg_metadata[$formatter])) ? $wysiwyg_metadata[$formatter] : FALSE,
       );
     }
   }
