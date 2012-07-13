@@ -660,7 +660,7 @@ Drupal.edit.editables = {
       // up in the title as well.
       // TRICKY: Drupal core does not trim the title, so in theory this is
       // out of line with Drupal core's behavior.
-      var value = $.trim($editable.text());
+      var value = $.trim($editable.html());
       console.log(value);
       $('#edit-backstage form')
       .find(':input[type!=hidden][type!=submit]').val(value).end()
