@@ -151,6 +151,13 @@ function edit_form_fape_field_edit_form_alter(&$form, &$form_state) {
       }
       elseif (count($children) == 1) {
         $form[$element][$language][0]['value']['#title_display'] = 'invisible';
+
+        // UX improvement: make the number of rows of textarea form elements
+        // fit the content. (i.e. no wads of whitespace)
+        if ($form[$element][$language][0]['value']['#type'] == 'textarea') {
+          $lines = count(explode("\n", $form[$element][$language][0]['value']['#default_value']));
+          $form[$element][$language][0]['value']['#rows'] = $lines + 1;
+        }
       }
     }
 
