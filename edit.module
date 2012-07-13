@@ -388,6 +388,7 @@ function edit_preprocess_field(&$variables) {
   }
 
   $editability = $formatter_info['settings']['edit']['editability'];
+  $wysiwyg     = $formatter_info['settings']['edit']['wysiwyg'];
 
   // If editing is explicitly disabled for this field, return early to avoid
   // any further processing.
@@ -401,6 +402,21 @@ function edit_preprocess_field(&$variables) {
     $field_info = field_info_field($field_name);
     if ($field_info['cardinality'] != 1) {
       $editability = 'form';
+    }
+  }
+
+  // If still directly editable and the formatter is marked to support WYSIWYG,
+  // then check whether we can actually use WYSIWYG.
+  if ($editability == 'direct' && $wysiwyg) {
+    $field     = $variables['element']['#object']->$field_name;
+    $language  = $variables['element']['#language'];
+    $format_id = $field[$language][0]['format'];
+
+    // Update the editability based on the field's settings and the text format.
+    module_load_include('inc', 'edit', 'includes/wysiwyg');
+    $editability = edit_wysiwyg_analyze_field_editability($entity_type, $entity, $field_name, $format_id);
+    if ($editability == 'disabled') {
+      return;
     }
   }
 
@@ -418,11 +434,22 @@ function edit_preprocess_field(&$variables) {
     // Provide metadata through data- attributes.
     $variables['attributes_array']['data-edit-field-label'] = $instance_info['label'];
     $variables['attributes_array']['data-edit-id'] = "$entity_type:$id:$field_name";
+    if ($editability == 'direct' && $wysiwyg) {
+      $field     = $variables['element']['#object']->$field_name;
+      $language  = $variables['element']['#language'];
+      $format_id = $field[$language][0]['format'];
 
+      // Let the WYSIWYG editor know the allowed tags.
+      // @TODO: make the WYSIWYG editor actually *use* this information.
+      $allowed_tags = edit_wysiwyg_analyze_allowed_tags($format_id);
+      $variables['attributes_array']['data-edit-allowed-tags'] = implode(',', $allowed_tags);
+    }
     // Mark this field as editable.
     $variables['classes_array'][] = 'edit-field';
     $variables['classes_array'][] = 'edit-allowed';
     $variables['classes_array'][] = 'edit-type-' . $editability;
+    if ($editability == 'direct' && $wysiwyg) {
+      $variables['classes_array'][] = 'edit-type-direct-with-wysiwyg';
+    }
   }
 }
-

@@ -7,6 +7,67 @@
 define('EDIT_WYSIWYG_ESSENTIAL_TAGS', 'p br');
 
 /**
+ * Given a field (with cardinality 1) that defaults to "direct" editability and
+ * WYSIWYG support, check whether the field settings and text format don't
+ * force it to "form" editability or even disabled editability.
+ *
+ */
+function edit_wysiwyg_analyze_field_editability($entity_type, $entity, $field_name, $format_id) {
+  // The field must be configured to use text processing.
+  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  $instance_info = field_info_instance($entity_type, $field_name, $bundle);
+  $plain_text = ($instance_info['settings']['text_processing'] == 0);
+  if ($plain_text) {
+    // This field is configured to not use text processing; hence fall back to
+    // "form".
+    return 'form';
+  }
+  else {
+    // The final analysis. Analyzes the compatibility with a WYSIWYG based on
+    // the formats used.
+    if (!edit_wysiwyg_analyze_format_compatibility($format_id)) {
+      return 'disabled';
+    }
+    else {
+      // Extract allowed tags; ensure these include the essential tags.
+      $allowed_tags = edit_wysiwyg_analyze_allowed_tags($format_id);
+      $essential_missing_tags = edit_wysiwyg_essential_tags_missing($allowed_tags);
+      if (count($essential_missing_tags)) {
+        // @TODO: handle this more elegantly. And only show it to users with
+        // sufficient permissions.
+        $formats = filter_formats();
+        $filters = filter_list_format($format_id);
+        $filters_with_allowed_tags = array_map(function($filter) {
+          $filters = filter_get_filters();
+          return $filters[$filter]['title'];
+        }, edit_wysiwyg_filters_with_allowed_tags($format_id));
+        // Warn the user and point him/her in the right direcotion.
+        drupal_set_message(
+          t('For in-place editing of the %field field, some essential HTML
+            tags are missing from the list of allowed tags:
+            %essential-missing-tags. Please <a href="!url">add them</a> to
+            the %text-format text format\'s allowed tags in the %filters
+            filter.',
+            array(
+              '%field' => $instance_info['label'],
+              '%essential-missing-tags' => '<' . implode('>, <', $essential_missing_tags) . '>',
+              '!url' => url("admin/config/content/formats/$format_id"),
+              '%text-format' => $formats[$format_id]->name,
+              '%filters' => implode(' ' . t('or') . ' ', $filters_with_allowed_tags),
+            )
+          ),
+          'error'
+        );
+        return 'disabled';
+      }
+    }
+  }
+
+  // Nothing found that indicates this field cannot use "direct" editability.
+  return 'direct';
+}
+
+/**
  * Analyze text format for WYSIWYG compatibility: every enabled filter must be
  * marked as compatible with WYSIWYG.
  *
