@@ -1,6 +1,7 @@
 (function ($) {
 
 Drupal.edit = Drupal.edit || {};
+Drupal.edit.wysiwyg = Drupal.edit.wysiwyg || {};
 
 /**
  * Attach toggling behavior and in-place editing.
@@ -30,6 +31,7 @@ Drupal.edit.init = function() {
   Drupal.edit.state.higlightedEditable = null;
   Drupal.edit.state.editedEditable = null;
   Drupal.edit.state.queues = {};
+  Drupal.edit.state.wysiwygReady = false;
 
   // Build inventory.
   var IDMapper = function() { return Drupal.edit.getID($(this)); };
@@ -41,6 +43,15 @@ Drupal.edit.init = function() {
   // Form preloader.
   Drupal.edit.state.queues.preload = Drupal.edit.findEditableFields().filter('.edit-type-form').map(IDMapper);
   console.log('Fields with (server-generated) forms:', Drupal.edit.state.queues.preload);
+
+  // Initialize WYSIWYG, if any.
+  if (Drupal.settings.edit.wysiwyg) {
+    $(document).bind('edit-wysiwyg-ready.edit', function() {
+      Drupal.edit.state.wysiwygReady = true;
+      console.log('edit: WYSIWYG ready');
+    });
+    Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].init();
+  }
 
   // Create a backstage area.
   $(Drupal.theme('editBackstage', {})).appendTo('body');
@@ -468,8 +479,14 @@ Drupal.edit.editables = {
   _updateDirectEditable: function($editable) {
     Drupal.edit.editables._padEditable($editable);
 
+    if (Drupal.edit.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')) {
+      Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].attach($editable);
+    }
+    else {
+      $editable.attr('contenteditable', true);
+    }
+
     $editable
-    .attr('contenteditable', true)
     .data('edit-content-original', $editable.html())
     .data('edit-content-changed', false)
     // We cannot use Drupal.behaviors.formUpdated here because we're not dealing
@@ -483,10 +500,16 @@ Drupal.edit.editables = {
   },
 
   _restoreDirectEditable: function($editable) {
+    if (Drupal.edit.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')) {
+      Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].detach($editable);
+    }
+    else {
+      $editable.removeAttr('contenteditable');
+    }
+
     Drupal.edit.editables._unpadEditable($editable);
 
     $editable
-    .removeAttr('contenteditable')
     .removeData(['edit-content-original', 'edit-content-changed'])
     .unbind('blur.edit keyup.edit paste.edit edit-content-changed.edit');
 
