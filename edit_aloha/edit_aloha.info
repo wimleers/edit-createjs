@@ -1,0 +1,7 @@
+name = Edit: Aloha Editor
+description = In-place WYSIWYG editing using Aloha Editor
+package = Spark
+core = 7.x
+
+dependencies[] = edit
+dependencies[] = libraries

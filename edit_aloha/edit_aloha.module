@@ -1,0 +1,109 @@
+<?php
+
+/**
+ * Implements hook_library().
+ */
+function edit_aloha_library() {
+  if (!in_array('aloha', array_keys(libraries_get_libraries()))) {
+    // Display a message when aloha is not found.
+    drupal_set_message(check_plain(t('You need to download !aloha and extract the entire contents of the archive into the %path folder of your server.', array('!aloha' => l(t('Aloha Editor'), 'http://www.aloha-editor.org/'), '%path' => 'sites/all/libraries/aloha'))), 'error', FALSE);
+    return FALSE;
+  }
+
+  // @TODO: update this based on the input format settings. However, Aloha does
+  // not support multiple configurations and does not have a clear, unified way
+  // to deal with a list of allowed tags, so we'll need to figure that out with
+  // the Aloha Editor developers.
+  $plugins_list = array(
+    'list' => drupal_map_assoc(array(
+      'common/format',
+      'common/align',
+      'common/commands',
+      'common/list',
+    )),
+  );
+  $plugins_activated = '';
+  if ($plugins_list) {
+    foreach ($plugins_list['list'] as $key => $plugin) {
+      if ($plugin == $key && !$plugin == '0') {
+        $plugins_activated .= $plugin . ',';
+      }
+    }
+  }
+  if (substr($plugins_activated, -1) == ',') {
+    $plugins_activated = substr($plugins_activated, 0, -1);
+  }
+
+  // Make sure Aloha.settings exist before the actual JS loading.
+  // @TODO: clean this up and generate these settings based on the input
+  // formats being used on this page; this is a work-around for Aloha
+  // limitations.
+  drupal_add_html_head(
+    array(
+      '#type' => 'markup',
+      '#markup' => '<script type="text/javascript">' .
+        'Aloha = {};' .
+        'Aloha.settings = {' .
+          'baseUrl: "' . url(libraries_get_path('aloha') .'/aloha/lib') . '",' .
+          "plugins: {" .
+            "format: { config: [  'strong', 'em', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'removeFormat' ]}," .
+            "list: {config : [ 'ul', 'ol' ] }," .
+          '}' .
+        ' };' .
+        '</script>',
+    ),
+    'edit-aloha'
+  );
+
+  $libraries['edit_aloha'] = array(
+    'title' => 'Edit: Aloha Editor',
+    'website' => 'http://drupal.org/project/edit',
+    'version' => NULL, // @TODO Figure out the correct way to do this.
+    'js' => array(
+      libraries_get_path('aloha') . '/aloha/lib/aloha.js' => array(
+        'group' => JS_LIBRARY,
+        'weight' => -1000,
+        'defer' => TRUE,
+        'attributes' => array(
+          'data-aloha-plugins' => $plugins_activated,
+        ),
+      ),
+      drupal_get_path('module', 'edit_aloha') . '/js/edit_aloha.js' => array(
+        'defer' => TRUE,
+        'weight' => 100,
+      ),
+      // Configure Edit's JS to use edit_aloha as the WYSIWYG.
+      array(
+        'data' => array('edit' => array('wysiwyg' => 'edit_aloha')),
+        'type' => 'setting',
+      ),
+    ),
+    'css' => array(
+      libraries_get_path('aloha') . '/aloha/css/aloha.css',
+    ),
+  );
+
+  return $libraries;
+}
+
+// @TODO: use this + refactor
+function _edit_wysiwyg_tag_to_aloha_plugin($tag) {
+  // format plugin
+  $format_plugin_tags = array(
+    'strong', 'em', 'p', 'sub', 'sup', 'del', 'title',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre'
+  );
+  if (in_array($tag, $format_plugin_tags)) {
+    return 'format';
+  }
+  // list plugin (not explicitly present in Aloha: li)
+  if (in_array($tag, array('ul', 'ol', 'li'))) {
+    return 'list';
+  }
+  // table plugin (not explicitly present in Aloha: td, tr, thead, tbody)
+  if (in_array($tag, array('table', 'td', 'tr', 'thead', 'tbody'))) {
+    return 'table';
+  }
+
+  return FALSE;
+}
