@@ -16,6 +16,10 @@
  */
 module_load_include('inc', 'edit', 'includes/toolbar');
 
+define('EDIT_WYSIWYG_VARIABLE', 'edit_wysiwyg');
+// @TODO: provide a UI so users can switch to
+define('EDIT_WYSIWYG_DEFAULT', 'edit_aloha');
+
 /**
  * Implements hook_menu()
  */
@@ -56,6 +60,9 @@ function edit_theme() {
  * Implements hook_library().
  */
 function edit_library() {
+  // Figure out which library dependency to set for WYSIWYG editor integration.
+  $wysiwyg_module = variable_get(EDIT_WYSIWYG_VARIABLE, EDIT_WYSIWYG_DEFAULT);
+
   $path = drupal_get_path('module', 'edit');
   $libraries['edit'] = array(
     'title' => 'Edit',
@@ -97,6 +104,9 @@ function edit_library() {
     'dependencies' => array(
       array('system', 'jquery.form'),
       array('system', 'drupal.ajax'),
+      // WYSIWYG modules for th Edit module must implement hook_library() so
+      // that we can load them by merely adding a dependency on it here.
+      array($wysiwyg_module, $wysiwyg_module),
     ),
   );
 
