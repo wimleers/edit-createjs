@@ -15,6 +15,10 @@
  * Loads the logic for altering the toolbar.
  */
 module_load_include('inc', 'edit', 'includes/toolbar');
+/**
+ * Loads the proposed modifications to Drupal core's Filter module.
+ */
+module_load_include('inc', 'edit', 'includes/filter');
 
 define('EDIT_WYSIWYG_VARIABLE', 'edit_wysiwyg');
 // @TODO: provide a UI so users can switch to
@@ -111,6 +115,32 @@ function edit_library() {
   );
 
   return $libraries;
+}
+
+/**
+ * Implements hook_field_attach_view_alter().
+ */
+function edit_field_attach_view_alter(&$output, $context) {
+  // @TODO: this is too late in the rendering process!
+  $fields = element_children($output);
+  // @TODO: only do this when the user has access to do so.
+  foreach ($fields as $field) {
+    $output[$field]['#edit_mode'] = TRUE;
+  }
+
+  // @TODO: because the above does not work, we have to override it here.
+  foreach ($fields as $field) {
+    $langcode = $output[$field]['#language'];
+    foreach (array_keys($output[$field]['#items']) as $item) {
+      // @TODO: support more formatters than just "text_default"
+      if ($output[$field]['#formatter'] == 'text_default') {
+        $text      = $output[$field]['#items'][$item]['value'];
+        $format_id = $output[$field]['#items'][$item]['format'];
+        $wrapped = check_markup2($text, $format_id, $langcode, FALSE, TRUE);
+        $output[$field][$item]['#markup'] = $wrapped;
+      }
+    }
+  }
 }
 
 /**
@@ -226,10 +256,18 @@ function edit_filter_info_alter(&$info) {
     // php.module
     'php_code' => FALSE,
     // filter.module
-    'filter_html'          => 'allowed_html',
+    'filter_html'          => TRUE,
     'filter_autop'         => TRUE,
     'filter_url'           => TRUE,
     'filter_htmlcorrector' => TRUE,
+    // token_filter.module
+    'filter_tokens' => TRUE,
+  );
+  $allowed_tags_metadata = array(
+    'filter_html' => 'allowed_html',
+  );
+  $macro_tags_metadata = array(
+    'filter_tokens',
   );
 
   foreach ($wysiwyg_metadata as $filter => $wysiwyg) {
@@ -237,8 +275,9 @@ function edit_filter_info_alter(&$info) {
       continue;
     }
     $info[$filter]['edit'] = array(
-      'wysiwyg' => ($wysiwyg !== FALSE),
-      'allowed_tags' => (is_bool($wysiwyg)) ? FALSE : $wysiwyg,
+      'wysiwyg'      => ($wysiwyg !== FALSE),
+      'allowed_tags' => (isset($allowed_tags_metadata[$filter])) ? $allowed_tags_metadata[$filter] : FALSE,
+      'macro_tags'   => (isset($macro_tags_metadata[$filter])),
     );
   }
 }
