@@ -18,6 +18,8 @@ Drupal.edit.wysiwyg.edit_aloha = {
     console.log('edit_aloha:initializing');
     this._fixExtJsArrayPrototypeOverride();
 
+    Aloha.settings = Drupal.settings.edit.settings;
+    Aloha.deferInit();
     Aloha.ready(function() {
       $(document).trigger('edit-wysiwyg-ready');
     });
