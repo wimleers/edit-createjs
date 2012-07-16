@@ -34,7 +34,11 @@ Drupal.edit.wysiwyg.edit_aloha = {
     }
 
     Aloha.jQuery('#' + id).aloha();
-    // Activate Aloha for this editable.
+  },
+
+  activate: function($editable) {
+    var id = $editable.attr('id');
+
     Aloha.getEditableById(id).activate();
     // This hack will trigger the floating menu to appear *immediately*.
     Aloha.jQuery('#' + id).trigger('mousedown').trigger('mouseup');

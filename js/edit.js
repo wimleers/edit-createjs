@@ -481,6 +481,7 @@ Drupal.edit.editables = {
 
     if (Drupal.edit.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')) {
       Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].attach($editable);
+      Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].activate($editable);
     }
     else {
       $editable.attr('contenteditable', true);
