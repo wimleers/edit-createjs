@@ -118,7 +118,7 @@ function edit_library() {
       array('system', 'drupal.ajax'),
       // WYSIWYG modules for th Edit module must implement hook_library() so
       // that we can load them by merely adding a dependency on it here.
-      array($wysiwyg_module, $wysiwyg_module),
+      array($wysiwyg_module, "$wysiwyg_module.edit"),
     ),
   );
 

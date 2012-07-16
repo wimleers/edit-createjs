@@ -46,9 +46,10 @@ function edit_aloha_library() {
   );
 
   $aloha_path = libraries_get_path('alohaeditor');
-  $libraries['edit_aloha'] = array(
+  // The WYSIWYG files themselves (".wysiwyg").
+  $libraries['edit_aloha.wysiwyg'] = array(
     'title' => 'Edit: Aloha Editor',
-    'website' => 'http://drupal.org/project/edit',
+    'website' => 'http://aloha-editor.org/',
     'version' => NULL, // @TODO Figure out the correct way to do this.
     'js' => array(
       $aloha_path . '/aloha/lib/require.js' => array(
@@ -65,6 +66,17 @@ function edit_aloha_library() {
           'data-aloha-plugins' => $plugins_activated,
         ),
       ),
+    ),
+    'css' => array(
+      libraries_get_path('alohaeditor') . '/aloha/css/aloha.css',
+    ),
+  );
+  // Edit integration (".edit").
+  $libraries['edit_aloha.edit'] = array(
+    'title' => 'Edit: Aloha Editor integration',
+    'website' => 'http://drupal.org/project/edit',
+    'version' => NULL, // @TODO Figure out the correct way to do this.
+    'js' => array(
       drupal_get_path('module', 'edit_aloha') . '/js/edit_aloha.js' => array(
         'defer' => TRUE,
         'weight' => 100,
@@ -78,8 +90,8 @@ function edit_aloha_library() {
         'type' => 'setting',
       ),
     ),
-    'css' => array(
-      libraries_get_path('alohaeditor') . '/aloha/css/aloha.css',
+    'dependencies' => array(
+      array('edit_aloha', 'edit_aloha.wysiwyg'),
     ),
   );
 
