@@ -11,6 +11,11 @@
  * Implements hook_page_alter().
  */
 function edit_page_alter(&$page) {
+  // Don't provide a view/edit toggle on admin pages, node/add and node/%/edit pages.
+  if (arg(0) == 'admin' || (arg(0) == 'node' && arg(1) == 'add') || (arg(0) == 'node' && arg(2) == 'edit')) {
+    return;
+  }
+
   if (isset($page['page_top']['toolbar'])) {
     // Remove the toolbar drawer toggle by overriding Toolbar module's
     // pre-render function with our own implementation.
