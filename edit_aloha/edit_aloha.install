@@ -9,8 +9,8 @@
  * Implements hook_install().
  */
 function edit_aloha_install() {
-  if (!file_exists(libraries_get_path('aloha') . '/aloha/lib/aloha.js')) {
-    drupal_set_message(check_plain(st('You need to download !aloha and extract the entire contents of the archive into the %path folder of your server.', array('!aloha' => l(st('Aloha Editor'), 'http://www.aloha-editor.org/'), '%path' => 'sites/all/libraries/aloha'))), 'error');
+  if (!file_exists(libraries_get_path('alohaeditor') . '/aloha/lib/aloha.js')) {
+    drupal_set_message(check_plain(st('You need to download !aloha and extract the entire contents of the archive into the %path folder of your server.', array('!aloha' => l(st('Aloha Editor'), 'http://www.aloha-editor.org/'), '%path' => 'sites/all/libraries/alohaeditor'))), 'error');
   }
 }
 
@@ -21,7 +21,7 @@ function edit_aloha_requirements($phase) {
   $requirements = array();
 
   if ($phase == 'runtime') {
-    if (file_exists(libraries_get_path('aloha') . '/aloha/lib/aloha.js')) {
+    if (file_exists(libraries_get_path('alohaeditor') . '/aloha/lib/aloha.js')) {
       $requirements['edit_aloha'] = array(
         'value' => 'Aloha Editor library installed',
         'severity' => REQUIREMENT_OK,
@@ -31,7 +31,7 @@ function edit_aloha_requirements($phase) {
       $requirements['edit_aloha'] = array(
         'value' => t('Aloha Editor library missing!'),
         'severity' => REQUIREMENT_ERROR,
-        'description' => t('Aloha Editor library missing. Download the Aloha Editor library from <a href="@url">http://www.aloha-editor.org/</a> and place it in to sites/all/libraries/aloha', array('@url' => 'http://www.aloha-editor.org/')),
+        'description' => t('Aloha Editor library missing. Download the Aloha Editor library from <a href="@url">http://www.aloha-editor.org/</a> and place it in to %path', array('@url' => 'http://www.aloha-editor.org/', '%path' => 'sites/all/libraries/alohaeditor')),
       );
     }
     $requirements['edit_aloha']['title'] = t('Edit: Aloha Editor');
