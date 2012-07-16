@@ -116,7 +116,7 @@ Drupal.theme.prototype.editToolgroup = function(settings) {
  */
 Drupal.theme.prototype.editButtons = function(settings) {
   var html = ''
-  for (var i in settings.buttons) {
+  for (var i = 0; i < settings.buttons.length; i++) {
     var button = settings.buttons[i];
     html += '<a href="' + button.url + '" class="' + button.classes + '">';
     html +=    button.label;
