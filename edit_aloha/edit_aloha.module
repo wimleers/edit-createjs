@@ -20,6 +20,8 @@ function edit_aloha_library() {
       'common/format',
       'common/align',
       'common/commands',
+      'common/contenthandler',
+      'common/paste',
       'common/list',
     )),
   );
