@@ -71,7 +71,7 @@ require_once 'includes/form.inc';
 </div>',
       '#attached' => array(
         'library' => array(
-          array('edit', 'edit'),
+          array('edit', 'edit.frontend'),
         ),
       ),
     ),

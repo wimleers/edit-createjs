@@ -19,6 +19,11 @@ module_load_include('inc', 'edit', 'includes/toolbar');
  * Loads the proposed modifications to Drupal core's Filter module.
  */
 module_load_include('inc', 'edit', 'includes/filter');
+/**
+ * Loads the logic for integrating Edit's WYSIWYG editor on the back-end.
+ */
+module_load_include('inc', 'edit', 'includes/backend');
+
 
 define('EDIT_WYSIWYG_VARIABLE', 'edit_wysiwyg');
 // @TODO: provide a UI so users can switch to
@@ -76,8 +81,8 @@ function edit_library() {
   $wysiwyg_module = variable_get(EDIT_WYSIWYG_VARIABLE, EDIT_WYSIWYG_DEFAULT);
 
   $path = drupal_get_path('module', 'edit');
-  $libraries['edit'] = array(
-    'title' => 'Edit',
+  $libraries['edit.frontend'] = array(
+    'title' => 'Edit: front-end',
     'website' => 'http://drupal.org/project/edit',
     'version' => NULL, // @TODO Figure out the correct way to do this.
     'js' => array(
@@ -116,7 +121,22 @@ function edit_library() {
     'dependencies' => array(
       array('system', 'jquery.form'),
       array('system', 'drupal.ajax'),
-      // WYSIWYG modules for th Edit module must implement hook_library() so
+      // WYSIWYG modules for the Edit module must implement hook_library() so
+      // that we can load them by merely adding a dependency on it here.
+      array($wysiwyg_module, "$wysiwyg_module.edit"),
+    ),
+  );
+  $libraries['edit.backend'] = array(
+    'title' => 'Edit: back-end',
+    'website' => 'http://drupal.org/project/edit',
+    'version' => NULL, // @TODO Figure out the correct way to do this.
+    'js' => array(
+      $path . '/js/edit-backend.js' => array(
+        'defer' => TRUE,
+      ),
+    ),
+    'dependencies' => array(
+      // WYSIWYG modules for the Edit module must implement hook_library() so
       // that we can load them by merely adding a dependency on it here.
       array($wysiwyg_module, "$wysiwyg_module.edit"),
     ),
