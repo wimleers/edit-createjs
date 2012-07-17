@@ -25,6 +25,13 @@ function edit_aloha_library() {
   if (empty($library_path)) {
     return;
   }
+  if (file_exists($library_path . '/src')) {
+    $library_path .= '/src';
+  }
+  else {
+    // @todo Check whether this is correct.
+    $library_path .= '/aloha';
+  }
 
   // @TODO: update this based on the input format settings. However, Aloha does
   // not support multiple configurations and does not have a clear, unified way
@@ -54,7 +61,7 @@ function edit_aloha_library() {
   }
 
   $aloha_settings = array(
-    'baseUrl' => file_create_url($library_path . '/aloha/lib'),
+    'baseUrl' => file_create_url($library_path . '/lib'),
     'plugins' => array(
       'load' => $plugins_activated,
       'format' => array('config' => array('strong', 'em', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'removeFormat')),
@@ -108,7 +115,7 @@ function edit_aloha_library() {
       ),
     ),
     'css' => array(
-      $library_path . '/aloha/css/aloha.css',
+      $library_path . '/css/aloha.css',
     ),
   );
 

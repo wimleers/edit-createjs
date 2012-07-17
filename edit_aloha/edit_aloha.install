@@ -40,6 +40,7 @@ function edit_aloha_requirements($phase) {
   if ($phase == 'install' || $phase == 'runtime') {
     $library_path = libraries_get_path('alohaeditor');
     $default_path = 'sites/all/libraries/alohaeditor';
+    $expected_src_file = 'src/lib/aloha.js';
     $expected_file = 'aloha/lib/aloha.js';
     if (empty($library_path)) {
       $requirements['edit_aloha']['value'] = $t('Missing');
@@ -48,7 +49,7 @@ function edit_aloha_requirements($phase) {
         '@path' => $default_path,
       ));
     }
-    elseif (!file_exists($library_path . '/' . $expected_file)) {
+    elseif (!file_exists($library_path . '/' . $expected_file) && !file_exists($library_path . '/' . $expected_src_file)) {
       $requirements['edit_aloha']['value'] = $t('Bogus');
       $requirements['edit_aloha']['description'] = $t('Ensure that the file <code>@path</code> exists in that location.', array(
         '@path' => $default_path . '/' . $expected_file,
