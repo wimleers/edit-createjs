@@ -3,8 +3,7 @@
  * Integrate Aloha Editor with Edit.
  */
 
-(function($, window, undefined) {
-var Aloha = window.Aloha || (window.Aloha = {});
+(function($) {
 
 Drupal.edit.wysiwyg.edit_aloha = {
   init: function() {
@@ -46,4 +45,4 @@ Drupal.edit.wysiwyg.edit_aloha = {
   }
 };
 
-})(jQuery, window);
+})(jQuery);
