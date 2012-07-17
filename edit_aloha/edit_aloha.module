@@ -6,10 +6,10 @@
 function edit_aloha_menu() {
   $items = array();
   $items['alohaeditor/lookup/%'] = array(
-      'page callback' => 'edit_alohaeditor_link_lookup',
-      'page arguments' => array(2),
-      'access arguments' => array('access content'),
-      'type' => MENU_NORMAL_ITEM,
+    'page callback'    => 'edit_aloha_link_lookup',
+    'page arguments'   => array(2),
+    'access arguments' => array('access content'),
+    'type'             => MENU_CALLBACK,
   );
 
   return $items;
@@ -137,28 +137,23 @@ function _edit_wysiwyg_tag_to_aloha_plugin($tag) {
 }
 
 /**
- * Implements API for AE - Drupal link repository
+ * Page callback; Drupal link repository look-up.
  */
-function edit_alohaeditor_link_lookup($lookup = false) {
-	$lookup = check_plain($lookup);
+function edit_aloha_link_lookup($lookup = false) {
+  $lookup = check_plain($lookup);
 
-	$search_results = node_search_execute($lookup);
-	//watchdog('aloha editor', 'search results: '.print_r($search_results, true));
+  $search_results = node_search_execute($lookup);
 
-	if (is_array($search_results) && empty($search_results[0])) {
-		$search_results = false;
-	}
+  if (is_array($search_results) && empty($search_results[0])) {
+    $search_results = false;
+  }
 
-	header('Content-Type:text/javascript');
-	if (is_array($search_results)) {
-		$out = '[';
-		foreach ($search_results as $result) {
-			$out .= '{"u":"'.$result['link'].'","d":"'.$result['title'].'","a":"","t":[""],"dt":"","n":""},';
-		}
-		$out = substr($out, 0, -1);
-		$out .= ']';
-		echo $out;
-	} else {
-		echo '[]';
-	}
+  if (is_array($search_results)) {
+    $json = array();
+    foreach ($search_results as $result) {
+      $json[] = array('u' => $result['link'], 't' => $result['title']);
+    }
+    print drupal_json_encode($json);
+    exit;
+  }
 }
