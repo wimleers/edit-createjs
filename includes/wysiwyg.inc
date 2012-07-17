@@ -34,7 +34,11 @@ function edit_wysiwyg_analyze_field_editability($entity_type, $entity, $field_na
     if (!edit_wysiwyg_analyze_format_compatibility($format_id)) {
       return 'disabled';
     }
-    else {
+    // Check whether HTML filter is enabled.
+    // @todo Core: Provide a generic + reliable facility for determining text
+    //   processors and security filters in a text format.
+    $filters = filter_list_format($format_id);
+    if (!empty($filters['filter_html']->status)) {
       // Extract allowed tags; ensure these include the essential tags.
       $allowed_tags = edit_wysiwyg_analyze_allowed_tags($format_id);
       $essential_missing_tags = edit_wysiwyg_essential_tags_missing($allowed_tags);
@@ -42,7 +46,6 @@ function edit_wysiwyg_analyze_field_editability($entity_type, $entity, $field_na
         // @TODO: handle this more elegantly. And only show it to users with
         // sufficient permissions.
         $formats = filter_formats();
-        $filters = filter_list_format($format_id);
         $filters_with_allowed_tags = array_map(function($filter) {
           $filters = filter_get_filters();
           return $filters[$filter]['title'];
