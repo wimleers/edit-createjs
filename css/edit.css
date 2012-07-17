@@ -519,3 +519,18 @@
   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#fff5f5f5,endColorstr=#ffcccccc,GradientType=0)
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#1a000000,Positive=true);
 }
+
+
+/**
+ * Disable all box-shadows for Firefox.
+ *
+ * The combination of outline and box-shadow is broken.
+ *
+ * @see https://bugzilla.mozilla.org/show_bug.cgi?id=480888
+ */
+@-moz-document url-prefix() {
+  .edit-editable,
+  .edit-toolgroup {
+    box-shadow: none !important;
+  }
+}
