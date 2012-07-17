@@ -31,13 +31,13 @@ function edit_wysiwyg_analyze_field_editability($entity_type, $entity, $field_na
   else {
     // The final analysis. Analyzes the compatibility with a WYSIWYG based on
     // the formats used.
-    if (!edit_wysiwyg_analyze_format_compatibility($format_id)) {
+    $filters = filter_list_format($format_id);
+    if (!edit_wysiwyg_analyze_format_compatibility($filters)) {
       return 'disabled';
     }
     // Check whether HTML filter is enabled.
     // @todo Core: Provide a generic + reliable facility for determining text
     //   processors and security filters in a text format.
-    $filters = filter_list_format($format_id);
     if (!empty($filters['filter_html']->status)) {
       // Extract allowed tags; ensure these include the essential tags.
       $allowed_tags = edit_wysiwyg_analyze_allowed_tags($format_id);
@@ -80,15 +80,15 @@ function edit_wysiwyg_analyze_field_editability($entity_type, $entity, $field_na
  * Analyze text format for WYSIWYG compatibility: every enabled filter must be
  * marked as compatible with WYSIWYG.
  *
- * @param $format_id
- *   A text format ID.
- * @return
+ * @param array $filters
+ *   A list of filters in a potentially editable text field, as provided by
+ *   filter_list_format().
+ *
+ * @return bool
  *   A boolean value that indicates whether the given text format is compatible
  *   with WYSIWYG.
  */
-function edit_wysiwyg_analyze_format_compatibility($format_id) {
-  $filters = filter_list_format($format_id);
-
+function edit_wysiwyg_analyze_format_compatibility($filters) {
   // Ignore filters that are disabled.
   $filters = array_filter($filters, function($filter) {
     return $filter->status == 1;
