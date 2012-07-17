@@ -16,11 +16,17 @@ function edit_wysiwyg_analyze_field_editability($entity_type, $entity, $field_na
   // The field must be configured to use text processing.
   list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
   $instance_info = field_info_instance($entity_type, $field_name, $bundle);
-  $plain_text = ($instance_info['settings']['text_processing'] == 0);
-  if ($plain_text) {
+
+  if (empty($instance_info['settings']['text_processing'])) {
     // This field is configured to not use text processing; hence fall back to
     // "form".
     return 'form';
+  }
+  // Bail out with an appropriate warning if, for an unknown reason, the field
+  // has text processing enabled, but no format is assigned yet (NULL).
+  elseif (empty($format_id)) {
+    drupal_set_message(t('Text format could not be detected.'), 'warning');
+    return 'disabled';
   }
   else {
     // The final analysis. Analyzes the compatibility with a WYSIWYG based on
