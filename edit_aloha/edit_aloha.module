@@ -19,10 +19,11 @@ function edit_aloha_menu() {
  * Implements hook_library().
  */
 function edit_aloha_library() {
-  if (!in_array('alohaeditor', array_keys(libraries_get_libraries()))) {
-    // Display a message when aloha is not found.
-    drupal_set_message(check_plain(t('You need to download !aloha and extract the entire contents of the archive into the %path folder of your server.', array('!aloha' => l(t('Aloha Editor'), 'http://www.aloha-editor.org/'), '%path' => 'sites/all/libraries/alohaeditor'))), 'error', FALSE);
-    return FALSE;
+  $library_path = libraries_get_path('alohaeditor');
+  // It should not be possible to reach this hook without having Aloha Editor
+  // properly setup in the first place, but an extra check does not hurt.
+  if (empty($library_path)) {
+    return;
   }
 
   // @TODO: update this based on the input format settings. However, Aloha does
@@ -53,7 +54,7 @@ function edit_aloha_library() {
   }
 
   $aloha_settings = array(
-    'baseUrl' => file_create_url(libraries_get_path('alohaeditor') .'/aloha/lib'),
+    'baseUrl' => file_create_url($library_path . '/aloha/lib'),
     'plugins' => array(
       'load' => $plugins_activated,
       'format' => array('config' => array('strong', 'em', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'removeFormat')),
@@ -85,19 +86,18 @@ function edit_aloha_library() {
     ),
   );
 
-  $aloha_path = libraries_get_path('alohaeditor') . '/aloha/';
   // The WYSIWYG files themselves (".wysiwyg").
   $libraries['edit_aloha.wysiwyg'] = array(
     'title' => 'Edit: Aloha Editor',
     'website' => 'http://aloha-editor.org/',
     'version' => NULL, // @TODO Figure out the correct way to do this.
     'js' => array(
-      $aloha_path . '/lib/require.js' => array(
+      $library_path . '/lib/require.js' => array(
         'group' => JS_LIBRARY,
         'weight' => -1001,
         'defer' => TRUE,
       ),
-      $aloha_path . '/lib/aloha.js' => array(
+      $library_path . '/lib/aloha.js' => array(
         'group' => JS_LIBRARY,
         'weight' => -1000,
         'defer' => TRUE,
@@ -108,7 +108,7 @@ function edit_aloha_library() {
       ),
     ),
     'css' => array(
-      libraries_get_path('alohaeditor') . '/aloha/css/aloha.css',
+      $library_path . '/aloha/css/aloha.css',
     ),
   );
 
@@ -121,7 +121,7 @@ function edit_aloha_library() {
   );
 
   // @todo reference all the plugins.
-  $common_path = $aloha_path . '/common';
+  $common_path = $library_path . '/plugins/common';
   // Plugin registration
   $libraries['aloha.common.abbr'] = array(
     'js' => array($common_path . '/abbr/lib/abbr.js' => array('defer' => TRUE)),

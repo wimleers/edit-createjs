@@ -6,35 +6,58 @@
  */
 
 /**
- * Implements hook_install().
- */
-function edit_aloha_install() {
-  if (!file_exists(libraries_get_path('alohaeditor') . '/aloha/lib/aloha.js')) {
-    drupal_set_message(check_plain(st('You need to download !aloha and extract the entire contents of the archive into the %path folder of your server.', array('!aloha' => l(st('Aloha Editor'), 'http://www.aloha-editor.org/'), '%path' => 'sites/all/libraries/alohaeditor'))), 'error');
-  }
-}
-
-/**
  * Implements hook_requirements().
  */
 function edit_aloha_requirements($phase) {
   $requirements = array();
+  $t = get_t();
 
-  if ($phase == 'runtime') {
-    if (file_exists(libraries_get_path('alohaeditor') . '/aloha/lib/aloha.js')) {
-      $requirements['edit_aloha'] = array(
-        'value' => 'Aloha Editor library installed',
-        'severity' => REQUIREMENT_OK,
-      );
+  if ($phase != 'update') {
+    $requirements['edit_aloha'] = array(
+      'title' => $t('Aloha Editor library'),
+      'severity' => REQUIREMENT_ERROR,
+    );
+  }
+
+  if ($phase == 'install') {
+    // There are two different scenarios scenarios for phase 'install'; the
+    // initial Drupal installer and the later/regular module installation.
+    // In the Drupal installer, no module exists yet, so Libraries API helper
+    // functions need to be loaded manually.
+    if (drupal_installation_attempted()) {
+      if ($path = drupal_get_path('module', 'libraries')) {
+        require_once DRUPAL_ROOT . '/' . $path . '/libraries.module';
+      }
+    }
+    // If we cannot locate and load libraries.module, return an error.
+    // Drupal will also not load libraries.module, if it wasn't installed yet.
+    if (!function_exists('libraries_get_path')) {
+      $requirements['edit_aloha']['value'] = $t('Unable to detect');
+      $requirements['edit_aloha']['description'] = $t('Ensure that the Libraries API module exists.');
+      return $requirements;
+    }
+  }
+  if ($phase == 'install' || $phase == 'runtime') {
+    $library_path = libraries_get_path('alohaeditor');
+    $default_path = 'sites/all/libraries/alohaeditor';
+    $expected_file = 'aloha/lib/aloha.js';
+    if (empty($library_path)) {
+      $requirements['edit_aloha']['value'] = $t('Missing');
+      $requirements['edit_aloha']['description'] = $t('<a href="@url">Download the Aloha Editor library</a> and place it into <code>@path</code>.', array(
+        '@url' => 'http://www.aloha-editor.org/',
+        '@path' => $default_path,
+      ));
+    }
+    elseif (!file_exists($library_path . '/' . $expected_file)) {
+      $requirements['edit_aloha']['value'] = $t('Bogus');
+      $requirements['edit_aloha']['description'] = $t('Ensure that the file <code>@path</code> exists in that location.', array(
+        '@path' => $default_path . '/' . $expected_file,
+      ));
     }
     else {
-      $requirements['edit_aloha'] = array(
-        'value' => t('Aloha Editor library missing!'),
-        'severity' => REQUIREMENT_ERROR,
-        'description' => t('Aloha Editor library missing. Download the Aloha Editor library from <a href="@url">http://www.aloha-editor.org/</a> and place it in to %path', array('@url' => 'http://www.aloha-editor.org/', '%path' => 'sites/all/libraries/alohaeditor')),
-      );
+      $requirements['edit_aloha']['value'] = $t('Installed');
+      unset($requirements['edit_aloha']['severity']);
     }
-    $requirements['edit_aloha']['title'] = t('Edit: Aloha Editor');
   }
   return $requirements;
 }
