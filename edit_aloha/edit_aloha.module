@@ -151,7 +151,7 @@ function edit_aloha_link_lookup($lookup = false) {
   if (is_array($search_results)) {
     $json = array();
     foreach ($search_results as $result) {
-      $json[] = array('u' => $result['link'], 't' => $result['title']);
+      $json[] = array('u' => $result['link'], 't' => $result['title'], 's' => $result['score']);
     }
     print drupal_json_encode($json);
     exit;
