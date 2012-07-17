@@ -633,6 +633,7 @@ Drupal.edit.editables = {
       event    : 'edit-internal.edit',
       $field   : $field,
       $editable: $editable,
+      submit   : { nocssjs : ($field.hasClass('edit-type-direct')) },
       progress : { type : null }, // No progress indicator.
     };
     if (Drupal.ajax.hasOwnProperty(edit_id)) {
