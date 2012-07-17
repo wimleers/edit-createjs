@@ -1,6 +1,21 @@
 <?php
 
 /**
+ * Implements hook_menu()
+ */
+function edit_aloha_menu() {
+  $items = array();
+  $items['alohaeditor/lookup/%'] = array(
+      'page callback' => 'edit_alohaeditor_link_lookup',
+      'page arguments' => array(2),
+      'access arguments' => array('access content'),
+      'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_library().
  */
 function edit_aloha_library() {
@@ -118,4 +133,31 @@ function _edit_wysiwyg_tag_to_aloha_plugin($tag) {
   }
 
   return FALSE;
+}
+
+/**
+ * Implements API for AE - Drupal link repository
+ */
+function edit_alohaeditor_link_lookup($lookup = false) {
+	$lookup = check_plain($lookup);
+
+	$search_results = node_search_execute($lookup);
+	//watchdog('aloha editor', 'search results: '.print_r($search_results, true));
+
+	if (is_array($search_results) && empty($search_results[0])) {
+		$search_results = false;
+	}
+
+	header('Content-Type:text/javascript');
+	if (is_array($search_results)) {
+		$out = '[';
+		foreach ($search_results as $result) {
+			$out .= '{"u":"'.$result['link'].'","d":"'.$result['title'].'","a":"","t":[""],"dt":"","n":""},';
+		}
+		$out = substr($out, 0, -1);
+		$out .= ']';
+		echo $out;
+	} else {
+		echo '[]';
+	}
 }
