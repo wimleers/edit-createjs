@@ -45,7 +45,9 @@ function edit_aloha_library() {
       'common/paste',
       'common/list',
       'common/block',
+      'common/link',
       'extra/captioned-image',
+      'edit_aloha/drupal',
     )),
   );
   $plugins_activated = '';
@@ -62,11 +64,27 @@ function edit_aloha_library() {
 
   $aloha_settings = array(
     'baseUrl' => file_create_url($library_path . '/lib'),
+    // Let AE/RequireJS know where edit_aloha's plug-in bundle lives.
+    'bundles' => array('edit_aloha' => file_create_url(drupal_get_path('module', 'edit') . '/edit_aloha/aloha/')),
     'plugins' => array(
       'load' => $plugins_activated,
-      'format' => array('config' => array('strong', 'em', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'removeFormat')),
+      // Note: the DrupalContentHandler plug-in will ensure that only tags
+      // specified in the editable's data-edit-allowed-tags attribute will be
+      // allowed. Here, we must specify the whole range of available HTML tags.
+      'format' => array('config' => array(
+        // Inline HTML elements.
+        'strong', 'em', 'b', 'i', 'u', 's', 'sub', 'sup',
+        // Block-level HTML elements.
+        'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre',
+        // Non-HTML.
+        'removeFormat',
+      )),
       'list' => array('config' => array('ul', 'ol')),
       'contentHandler' => array(
+        'insertHtml' => array('word', 'generic', 'drupal'),
+        'handler' => array(
+          'generic' => array('transformFormattings' => FALSE),
+        ),
         'initEditable' => array(),
       ),
       'sidebar' => array('disabled' => TRUE),
@@ -89,9 +107,22 @@ function edit_aloha_library() {
     'version' => NULL, // @TODO Figure out the correct way to do this.
     'js' => array(
       drupal_get_path('module', 'edit_aloha') . '/js/edit_aloha.js' => array(
-        'defer' => TRUE,
+        'defer'  => TRUE,
         'weight' => 100,
       ),
+      // // Drupal AE plugin
+      // drupal_get_path('module', 'edit_aloha') . '/aloha/drupal/lib/drupal-plugin.js' => array(
+      //   'defer'  => FALSE,
+      //   'weight' => 101,
+      // ),
+      // drupal_get_path('module', 'edit_aloha') . '/aloha/drupal/lib/repository.js' => array(
+      //   'defer'  => FALSE,
+      //   'weight' => 102,
+      // ),
+      // drupal_get_path('module', 'edit_aloha') . '/aloha/drupal/lib/drupalcontenthandler.js' => array(
+      //   'defer'  => FALSE,
+      //   'weight' => 103,
+      // ),
       // Configure Edit's JS to use edit_aloha as the WYSIWYG.
       array(
         'data' => array('edit' => array(
