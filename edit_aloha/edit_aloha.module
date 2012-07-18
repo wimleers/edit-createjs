@@ -43,6 +43,8 @@ function edit_aloha_library() {
       'common/contenthandler',
       'common/paste',
       'common/list',
+      'common/block',
+      'extra/captioned-image',
     )),
   );
   $plugins_activated = '';
@@ -63,7 +65,19 @@ function edit_aloha_library() {
       'load' => $plugins_activated,
       'format' => array('config' => array('strong', 'em', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'removeFormat')),
       'list' => array('config' => array('ul', 'ol')),
+      'contentHandler' => array(
+        'initEditable' => array(),
+      ),
     ),
+    'toolbar' => array(
+         'tabs' => array(
+             array(
+                 'label' => 'Captioned Image',
+                 'showOn' => array('scope' => 'Aloha.captionedimage'),
+                 'components' => array('imgFloatLeft', 'imgFloatRight', 'imgFloatClear')
+             )
+         )
+     ),
   );
 
   // Edit integration (".edit").
