@@ -12,6 +12,7 @@
 function edit_field_widget_info_alter(&$info) {
   $wysiwyg_metadata = array(
     'text_textarea_with_summary',
+    'text_textarea'
   );
 
   foreach ($wysiwyg_metadata as $widget) {
@@ -27,7 +28,9 @@ function edit_field_widget_info_alter(&$info) {
  * Implements hook_field_widget_form_alter().
  */
 function edit_field_widget_form_alter(&$element, &$form_state, $context) {
-  if (!empty($context['instance']['settings']['text_processing']) && !empty($context['instance']['widget']['settings']['edit']['wysiwyg'])) {
+  if (!empty($context['instance']['settings']['text_processing'])
+      && !empty($context['instance']['widget']['settings']['edit']['wysiwyg']))
+  {
     $format_id = $element['#format'];
     $entity    = $element['#entity'];
     $entity_type = $context['instance']['entity_type'];

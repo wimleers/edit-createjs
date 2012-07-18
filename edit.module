@@ -254,6 +254,7 @@ function edit_field_formatter_info_alter(&$info) {
     'text_plain'              => 'form',
     'text_trimmed'            => 'disabled',
     'text_summary_or_trimmed' => 'disabled',
+    'text_textarea'           => 'direct',
   );
   $wysiwyg_metadata = array(
     'text_default' => TRUE,
