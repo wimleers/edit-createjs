@@ -68,6 +68,7 @@ function edit_aloha_library() {
       'contentHandler' => array(
         'initEditable' => array(),
       ),
+      'sidebar' => array('disabled' => TRUE),
     ),
     'toolbar' => array(
          'tabs' => array(
