@@ -33,10 +33,7 @@ function edit_aloha_library() {
     $library_path .= '/aloha';
   }
 
-  // @TODO: update this based on the input format settings. However, Aloha does
-  // not support multiple configurations and does not have a clear, unified way
-  // to deal with a list of allowed tags, so we'll need to figure that out with
-  // the Aloha Editor developers.
+  // @todo update this based on the input format settings.
   $plugins_list = array(
     'list' => drupal_map_assoc(array(
       'common/ui',
@@ -93,6 +90,7 @@ function edit_aloha_library() {
     ),
   );
 
+  $common_path = $library_path . '/plugins/common';
   // The WYSIWYG files themselves (".wysiwyg").
   $libraries['edit_aloha.wysiwyg'] = array(
     'title' => 'Edit: Aloha Editor',
@@ -113,26 +111,22 @@ function edit_aloha_library() {
           'data-aloha-plugins' => $plugins_activated,
         ),
       ),
+      // These are the files from the 'build-with-plugin-separated' profile.
+      // They should be declared as their own libraries. Listed here for
+      // convenience.
+
+      // $common_path . '/ui/lib/ui-plugin.js' => array('defer' => TRUE),
+      // $common_path . '/align/lib/align-plugin.js' => array('defer' => TRUE),
+      // $common_path . '/format/lib/format-plugin.js' => array('defer' => TRUE),
+      // $common_path . '/commands/lib/commands-plugin.js' => array('defer' => TRUE),
+      // $common_path . '/list/lib/list-plugin.js' => array('defer' => TRUE),
+      // $common_path . '/contenthandler/lib/contenthandler-plugin.js' => array('defer' => TRUE),
+      // $common_path . '/paste/lib/paste-plugin.js' => array('defer' => TRUE),
     ),
     'css' => array(
       $library_path . '/css/aloha.css',
     ),
   );
-
-  $plugin_default = array(
-    'title' => 'Aloha Plugin',
-    'version' => 'x',
-    'dependencies' => array(
-      array('edit_aloha', 'edit_aloha.wysiwyg'),
-    ),
-  );
-
-  // @todo reference all the plugins.
-  $common_path = $library_path . '/plugins/common';
-  // Plugin registration
-  $libraries['aloha.common.abbr'] = array(
-    'js' => array($common_path . '/abbr/lib/abbr.js' => array('defer' => TRUE)),
-  ) + $plugin_default;
 
   return $libraries;
 }
