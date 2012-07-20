@@ -1,0 +1,9 @@
+/* Quick hack to make our custom Aloha UI fit in quite nicely with the rest of Edit's UI. */
+.aloha .ui-button-icon-only .ui-button-text, .aloha .ui-button-icons-only .ui-button-text {
+  padding: .2em;
+}
+
+.aloha-editable-active, .aloha-editable-active[contenteditable="true"]:focus {
+  /* Aloha's outline CSS statement is already marked as important, so we cannot cleanly disable it without also overriding our outline. */
+  /*outline: 0 !important;*/
+}
