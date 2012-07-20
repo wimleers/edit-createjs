@@ -554,13 +554,13 @@ Drupal.edit.editables = {
         $toolbar.css('top', Drupal.edit.util.stripPX($toolbar.css('top')) - 5 + 'px');
       }
 
-      // The label toolgroup must move to the top and the left.
-      $toolbar.find('.primary .info')
+      // The primary toolgroups must move to the top and the left.
+      $toolbar.find('.primary .edit-toolgroup')
       .addClass('edit-animate-exception-grow')
       .css({'position': 'relative', 'top': '-5px', 'left': '-5px'});
 
-      // The operations toolgroup must move to the top and the right.
-      $toolbar.find('.secondary .ops')
+      // The secondary toolgroups must move to the top and the right.
+      $toolbar.find('.secondary .edit-toolgroup')
       .addClass('edit-animate-exception-grow')
       .css({'position': 'relative', 'top': '-5px', 'left': '5px'});
 
@@ -599,7 +599,7 @@ Drupal.edit.editables = {
       if ($editable.css('display') == 'inline') {
         $toolbar.css('top', Drupal.edit.util.stripPX($toolbar.css('top')) + 5 + 'px');
       }
-      $toolbar.find('.primary .info, .secondary .ops')
+      $toolbar.find('.edit-toolgroup')
       .removeClass('edit-animate-exception-grow')
       .css({'position': '', 'top': '', 'left': ''});
 
