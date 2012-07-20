@@ -480,8 +480,20 @@ Drupal.edit.editables = {
     Drupal.edit.editables._padEditable($editable);
 
     if (Drupal.edit.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')) {
+      Drupal.edit.toolbar.get($editable)
+      .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.wysiwyg))')
+      .append(Drupal.theme('editToolgroup', {
+        classes: 'wysiwyg',
+        buttons: []
+      }));
+
       Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].attach($editable);
       Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].activate($editable);
+
+      // Animations.
+      setTimeout(function() {
+        Drupal.edit.toolbar.show($editable, 'primary', 'wysiwyg');
+      }, 0);
     }
     else {
       $editable.attr('contenteditable', true);
