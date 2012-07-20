@@ -41,6 +41,7 @@ function edit_aloha_library() {
       'common/align',
       'common/commands',
       'common/contenthandler',
+      'common/characterpicker',
       'common/paste',
       'common/list',
       'common/block',
