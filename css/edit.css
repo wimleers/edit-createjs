@@ -85,8 +85,7 @@
   z-index: 250;
   width: 100%;
   height: 100%;
-  background-color: black;
-  opacity: 0.3;
+  background-color: rgba(255,255,255,.5);
   top: 64px; /* offset for toolbar -> TODO: use Drupal.toolbar.height() */
   left: 0px;
 }
@@ -101,7 +100,7 @@
 }
 .edit-field.edit-editable,
 .edit-field.edit-type-direct .edit-editable {
-  outline: 2px dotted white;
+  outline: 1px solid rgb(77,157,233);
 }
 
 /* Highlighted (hovered) editable. */
@@ -112,17 +111,18 @@
 .edit-form.edit-editable.edit-highlighted,
 .edit-field.edit-type-direct .edit-editable.edit-highlighted {
   outline: 1px solid #0199FF;
-  box-shadow: 0 0 8px #666;
+  box-shadow: 0px 0px 3px 3px rgba(153,153,153,.5);
 }
 .edit-editable.edit-entity.edit-highlighted {
   outline: 1px solid #0199FF;
-  box-shadow: 0 0 5px #666;
+  box-shadow: 0px 0px 3px 3px rgba(153,153,153,.5);
 }
 
 /* Editing (focused) editable. */
 .edit-form.edit-editable.edit-editing,
 .edit-field.edit-type-direct .edit-editable.edit-editing {
-  box-shadow: 0px 0px 3px 3px rgba(0,0,0,0.3);
+  /* In the latest design, there's no special styling when editing as opposed to
+     just hovering. */
 }
 
 /* Curtain. */
@@ -242,7 +242,7 @@
   float: left; /* LTR */
   padding-left: 5px; /* LTR */
   outline: 1px solid #999;
-  box-shadow: 0 0 8px #666;
+  box-shadow: 0px 0px 3px 3px rgba(153,153,153,.5);
   background: #fff url('../images/throbber.gif') no-repeat -60px 60px;
 }
 
@@ -250,7 +250,6 @@
 .edit-toolgroup.entity,
 .edit-toolgroup.info {
   float: left; /* LTR */
-  box-shadow: 0 -3px 8px #666;
   outline: 1px solid #0199FF;
 }
 .edit-toolgroup.entity.throbbing,
@@ -264,7 +263,6 @@
 /* Operations toolgroup. */
 .edit-toolgroup.ops {
   float: right; /* LTR */
-  box-shadow: 0 -2px 8px #777;
 }
 
 
