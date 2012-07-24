@@ -64,7 +64,7 @@
  */
 
 /* TODO: replace this with a "physical toggle" instead of the current radios.*/
-#edit-view-edit-toggle .form-item {
+#edit_view-edit-toggle .form-item {
   float: left;
   margin-right: 1em;
   margin-top: .5em;
@@ -80,7 +80,7 @@
  * or themes. In IPE-specific DOM subtrees, this is not necessary.
  */
 
-#edit-overlay {
+#edit_overlay {
   position: fixed;
   z-index: 250;
   width: 100%;
@@ -139,7 +139,7 @@
 /**
  * Edit mode: modal.
  */
-#edit-modal {
+#edit_modal {
   z-index: 350;
   position: fixed;
   top: 40%;
@@ -150,14 +150,14 @@
   font-family: 'Droid sans', 'Lucida Grande', sans-serif;
 }
 
-#edit-modal .main {
+#edit_modal .main {
   font-size: 130%;
   margin: 25px;
   padding-left: 40px;
   background: transparent url('../images/attention.png') no-repeat;
 }
 
-#edit-modal .actions {
+#edit_modal .actions {
   border-top: 1px solid #ddd;
   padding: 3px inherit;
   text-align: right;
@@ -178,7 +178,7 @@
 /**
  * Edit mode: form.
  */
-#edit-backstage {
+#edit_backstage {
   display: none;
 }
 
@@ -269,7 +269,7 @@
 /**
  * Edit mode: buttons (in both modal and toolbar).
  */
-#edit-modal a,
+#edit_modal a,
 .edit-toolbar a {
   float: left; /* LTR */
   display: block;
@@ -283,15 +283,15 @@
   text-decoration: none;
   font-size: 13px;
 }
-#edit-modal a {
+#edit_modal a {
   float: none;
   display: inline-block;
 }
 
-#edit-modal a:link,
-#edit-modal a:visited,
-#edit-modal a:hover,
-#edit-modal a:active,
+#edit_modal a:link,
+#edit_modal a:visited,
+#edit_modal a:hover,
+#edit_modal a:active,
 .edit-toolbar a:link,
 .edit-toolbar a:visited,
 .edit-toolbar a:hover,
@@ -300,7 +300,7 @@
 }
 
 /* Button with icons. */
-#edit-modal a span,
+#edit_modal a span,
 .edit-toolbar a span {
   width: 22px;
   height: 19px;
@@ -320,7 +320,7 @@
   color: black;
 }
 
-#edit-modal a.blue-button,
+#edit_modal a.blue-button,
 .edit-toolbar a.blue-button {
   color: white;
   /* Firefox v3.6+ */
@@ -344,7 +344,7 @@
   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#ff6fc2f2,endColorstr=#ff4e97c0,GradientType=0);
 }
 
-#edit-modal a.gray-button,
+#edit_modal a.gray-button,
 .edit-toolbar a.gray-button {
   color: #666;
   /* Firefox v3.6+ */
@@ -368,7 +368,7 @@
   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#fff5f5f5,endColorstr=#ffcccccc,GradientType=0);
 }
 
-#edit-modal a img.gray-button.close img, .gray-button.save img, .blue-button.save img,
+#edit_modal a img.gray-button.close img, .gray-button.save img, .blue-button.save img,
 .edit-toolbar a img.gray-button.close img, .gray-button.save img, .blue-button.save img {
   padding: 0;
 }
@@ -378,7 +378,7 @@
   padding-right: 5px;
 }
 
-#edit-modal a.blue-button:hover,
+#edit_modal a.blue-button:hover,
 .edit-toolbar a.blue-button:hover {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%);
@@ -412,7 +412,7 @@
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#33000000,Positive=true);
 }
 
-#edit-modal a.gray-button:hover,
+#edit_modal a.gray-button:hover,
 .edit-toolbar a.gray-button:hover {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%);
@@ -446,7 +446,7 @@
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#1a000000,Positive=true);
 }
 
-#edit-modal a.blue-button:active,
+#edit_modal a.blue-button:active,
 .edit-toolbar a.blue-button:active {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(93% 4% -90deg,rgb(111,194,242) 0%,rgb(78,151,192) 100%);
@@ -482,7 +482,7 @@
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#33000000,Positive=true);
 }
 
-#edit-modal a.gray-button:active,
+#edit_modal a.gray-button:active,
 .edit-toolbar a.gray-button:active {
   /* Firefox v3.6+ */
   background-image:-moz-linear-gradient(26% 0% -90deg,rgb(245,245,245) 0%,rgb(204,204,204) 100%);

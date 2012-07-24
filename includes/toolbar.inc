@@ -59,14 +59,14 @@ require_once 'includes/form.inc';
       // @todo Make this less hacky. We might end up using something other than
       // radios.
       '#markup' => '
-<div id="edit-view-edit-toggle" class="form-radios">
+<div id="edit_view-edit-toggle" class="form-radios">
   <div class="form-item form-type-radio">
-    <input type="radio" id="edit-view-edit-toggle--view" value="view" class="form-radio" name="edit_view_edit_toggle" checked="checked">
-    <label class="option" for="edit-view-edit-toggle--view">' . t('View') . '</label>
+    <input type="radio" id="edit_view-edit-toggle--view" value="view" class="form-radio" name="edit_view_edit_toggle" checked="checked">
+    <label class="option" for="edit_view-edit-toggle--view">' . t('View') . '</label>
   </div>
   <div class="form-item form-type-radio">
-    <input type="radio" id="edit-view-edit-toggle--edit" value="edit" class="form-radio" name="edit_view_edit_toggle">
-    <label class="option" for="edit-view-edit-toggle--edit">' . t('Edit') . '</label>
+    <input type="radio" id="edit_view-edit-toggle--edit" value="edit" class="form-radio" name="edit_view_edit_toggle">
+    <label class="option" for="edit_view-edit-toggle--edit">' . t('Edit') . '</label>
   </div>
 </div>',
       '#attached' => array(

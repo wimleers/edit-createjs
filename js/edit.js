@@ -8,11 +8,11 @@ Drupal.edit.wysiwyg = Drupal.edit.wysiwyg || {};
  */
 Drupal.behaviors.edit = {
   attach: function(context) {
-    $('#edit-view-edit-toggle').once('edit-init', Drupal.edit.init);
-    $('#edit-view-edit-toggle').once('edit-toggle', Drupal.edit.toggle.render);
+    $('#edit_view-edit-toggle').once('edit-init', Drupal.edit.init);
+    $('#edit_view-edit-toggle').once('edit-toggle', Drupal.edit.toggle.render);
 
     // TODO: remove this; this is to make the current prototype somewhat usable.
-    $('#edit-view-edit-toggle label').click(function() {
+    $('#edit_view-edit-toggle label').click(function() {
       $(this).prevUntil(null, ':radio').trigger('click.edit');
     });
   }
@@ -57,7 +57,7 @@ Drupal.edit.init = function() {
   $(Drupal.theme('editBackstage', {})).appendTo('body');
 
   // Transition between view/edit states.
-  $("#edit-view-edit-toggle input").bind('click.edit', function() {
+  $("#edit_view-edit-toggle input").bind('click.edit', function() {
     var wasViewing = Drupal.edit.state.isViewing;
     var isViewing  = Drupal.edit.state.isViewing = (this.value == "view");
 
@@ -77,7 +77,7 @@ Drupal.edit.init = function() {
       console.log('Preloading forms that we might need!', Drupal.edit.state.queues.preload);
 
       // Animations.
-      $('#edit-overlay').removeClass('edit-animate-invisible');
+      $('#edit_overlay').removeClass('edit-animate-invisible');
 
       // Disable contextual links in edit mode.
       $('.contextual-links-region')
@@ -86,10 +86,10 @@ Drupal.edit.init = function() {
     }
     else if (!wasViewing && isViewing) {
       // Animations.
-      $('#edit-overlay')
+      $('#edit_overlay')
       .addClass('edit-animate-invisible')
       .bind(Drupal.edit.const.transitionEnd, function(e) {
-        $('#edit-overlay, .edit-form-container, .edit-toolbar-container, #edit-modal, #edit-backstage, #edit-curtain').remove();
+        $('#edit_overlay, .edit-form-container, .edit-toolbar-container, #edit_modal, #edit_backstage, .edit-curtain').remove();
       });
 
       var $f = Drupal.edit.findEditableFields();
@@ -299,7 +299,7 @@ Drupal.edit.entityEditables = {
       .delegate('a.label', 'click.edit', function(e) {
         // Disable edit mode, then let the normal behavior (i.e. open the full
         // entity edit form) go through.
-        $('#edit-view-edit-toggle input[value=view]').trigger('click.edit');
+        $('#edit_view-edit-toggle input[value=view]').trigger('click.edit');
       });
 
       // TODO: improve this; currently just a hack for Garland compatibility.
@@ -528,7 +528,7 @@ Drupal.edit.editables = {
 
     // Not only clean up the changes to $editable, but also clean up the
     // backstage area, where we hid the form that we used to send the changes.
-    $('#edit-backstage form').remove();
+    $('#edit_backstage form').remove();
   },
 
   _padEditable: function($editable) {
@@ -694,7 +694,7 @@ Drupal.edit.editables = {
       // out of line with Drupal core's behavior.
       var value = $.trim($editable.html());
       console.log(value);
-      $('#edit-backstage form')
+      $('#edit_backstage form')
       .find(':input[type!=hidden][type!=submit]').val(value).end()
       .find('.edit-form-submit').trigger('click.edit');
     }

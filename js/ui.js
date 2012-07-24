@@ -44,7 +44,7 @@ Drupal.edit.modal = {
   },
 
   get: function() {
-    return $('#edit-modal');
+    return $('#edit_modal');
   },
 
   remove: function() {

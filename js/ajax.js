@@ -47,9 +47,9 @@ $(function() {
     }
     else if (Drupal.edit.state.editedEditable == response.id && ajax.$field.hasClass('edit-type-direct')) {
       Drupal.edit.state.directEditableFormResponse = response;
-      $('#edit-backstage').append(response.data);
+      $('#edit_backstage').append(response.data);
 
-      var $submit = $('#edit-backstage form .edit-form-submit');
+      var $submit = $('#edit_backstage form .edit-form-submit');
       var element_settings = {
         url : $submit.closest('form').attr('action'),
         setClick : true,

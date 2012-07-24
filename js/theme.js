@@ -11,7 +11,7 @@
  */
 Drupal.theme.prototype.editOverlay = function(settings) {
   var html = ''
-  html += '<div id="edit-overlay" />';
+  html += '<div id="edit_overlay" />';
   return html;
 };
 
@@ -26,7 +26,7 @@ Drupal.theme.prototype.editOverlay = function(settings) {
  */
 Drupal.theme.prototype.editBackstage = function(settings) {
   var html = ''
-  html += '<div id="edit-backstage" />';
+  html += '<div id="edit_backstage" />';
   return html;
 };
 
@@ -56,7 +56,7 @@ Drupal.theme.prototype.editCurtain = function(settings) {
 Drupal.theme.prototype.editModal = function(settings) {
   var classes = 'edit-animate-slow edit-animate-invisible edit-animate-delay-veryfast';
   var html = ''
-  html += '<div id="edit-modal" class="' + classes + '">';
+  html += '<div id="edit_modal" class="' + classes + '">';
   html += '  <div class="main"><p></p></div>';
   html += '  <div class="actions"></div>';
   html += '</div>';
