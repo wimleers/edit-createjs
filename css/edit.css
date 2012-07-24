@@ -96,11 +96,11 @@
   position: relative;
 }
 .edit-editable.edit-entity {
-  outline: 1px solid #FFF;
+  box-shadow: 0px 0px 1px 1px #FFF;
 }
 .edit-field.edit-editable,
 .edit-field.edit-type-direct .edit-editable {
-  outline: 1px solid rgb(77,157,233);
+  box-shadow: 0px 0px 1px 1px #4D9DE9;
 }
 
 /* Highlighted (hovered) editable. */
@@ -110,12 +110,10 @@
 .edit-field.edit-editable.edit-highlighted,
 .edit-form.edit-editable.edit-highlighted,
 .edit-field.edit-type-direct .edit-editable.edit-highlighted {
-  outline: 1px solid #0199FF;
-  box-shadow: 0px 0px 3px 3px rgba(153,153,153,.5);
+  box-shadow: 0px 0px 1px 1px #0199FF, 0px 0px 3px 3px rgba(153, 153, 153, .5);
 }
 .edit-editable.edit-entity.edit-highlighted {
-  outline: 1px solid #0199FF;
-  box-shadow: 0px 0px 3px 3px rgba(153,153,153,.5);
+  box-shadow: 0px 0px 1px 1px #0199FF, 0px 0px 3px 3px rgba(153, 153, 153, .5);
 }
 
 /* Editing (focused) editable. */
@@ -242,8 +240,7 @@
 .edit-toolgroup {
   float: left; /* LTR */
   padding-left: 5px; /* LTR */
-  outline: 1px solid #999;
-  box-shadow: 0px 0px 3px 3px rgba(153,153,153,.5);
+  box-shadow: 0px 0px 1px 1px #999, 0px 0px 3px 3px rgba(153, 153, 153, .5);
   background: #fff url('../images/throbber.gif') no-repeat -60px 60px;
 }
 
@@ -251,7 +248,7 @@
 .edit-toolgroup.entity,
 .edit-toolgroup.info {
   float: left; /* LTR */
-  outline: 1px solid #0199FF;
+  box-shadow: 0px 0px 1px 1px #0199FF, 0px 0px 3px 3px rgba(153, 153, 153, .5);
 }
 .edit-toolgroup.entity.throbbing,
 .edit-toolgroup.info.throbbing {
@@ -517,19 +514,4 @@
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#1a000000,Positive=true)";
   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#fff5f5f5,endColorstr=#ffcccccc,GradientType=0)
     progid:DXImageTransform.Microsoft.dropshadow(OffX=0,OffY=2,Color=#1a000000,Positive=true);
-}
-
-
-/**
- * Disable all box-shadows for Firefox.
- *
- * The combination of outline and box-shadow is broken.
- *
- * @see https://bugzilla.mozilla.org/show_bug.cgi?id=480888
- */
-@-moz-document url-prefix() {
-  .edit-editable,
-  .edit-toolgroup {
-    box-shadow: none !important;
-  }
 }
