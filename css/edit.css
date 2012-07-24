@@ -189,7 +189,7 @@
   max-width: 35em;
 }
 
-.edit-form .loading {
+.edit-form .placeholder {
   min-height: 22px;
 }
 
@@ -250,11 +250,11 @@
   float: left; /* LTR */
   box-shadow: 0px 0px 1px 1px #0199FF, 0px 0px 3px 3px rgba(153, 153, 153, .5);
 }
-.edit-toolgroup.entity.throbbing,
-.edit-toolgroup.info.throbbing {
+.edit-toolgroup.entity.loading,
+.edit-toolgroup.info.loading {
   background-position: 90% 50%;
 }
-.edit-toolgroup.info.throbbing a {
+.edit-toolgroup.info.loading a {
   margin-right: 35px;
 }
 

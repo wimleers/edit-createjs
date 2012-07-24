@@ -85,9 +85,20 @@ Drupal.edit.toolbar = {
 
   // Animate into view.
   show: function($editable, toolbar, toolgroup) {
-    Drupal.edit.toolbar.get($editable)
-    .find('.edit-toolbar.' + toolbar + ' .edit-toolgroup.' + toolgroup)
-    .removeClass('edit-animate-invisible');
+    this._find($editable, toolbar, toolgroup).removeClass('edit-animate-invisible');
+  },
+
+  addClass: function($editable, toolbar, toolgroup, classes) {
+    this._find($editable, toolbar, toolgroup).addClass(classes);
+  },
+
+  removeClass: function($editable, toolbar, toolgroup, classes) {
+    this._find($editable, toolbar, toolgroup).removeClass(classes);
+  },
+
+  _find: function($editable, toolbar, toolgroup) {
+    return Drupal.edit.toolbar.get($editable)
+           .find('.edit-toolbar.' + toolbar + ' .edit-toolgroup.' + toolgroup);
   },
 
   _id: function($editable) {
@@ -105,6 +116,9 @@ Drupal.edit.form = {
       return false;
     }
     else {
+      // Indicate in the 'info' toolgroup that the form is loading.
+      Drupal.edit.toolbar.addClass($editable, 'primary', 'info', 'loading');
+
       // Render form container.
       var $form = $(Drupal.theme('editFormContainer', {
         id: this._id($editable),

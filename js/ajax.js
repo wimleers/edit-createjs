@@ -15,8 +15,11 @@ $(function() {
     if (Drupal.edit.state.editedEditable == response.id && ajax.$field.hasClass('edit-type-form')) {
       Drupal.ajax.prototype.commands.insert(ajax, {
         data: response.data,
-        selector: '.edit-form-container .loading'
+        selector: '.edit-form-container .placeholder'
       });
+
+      // Indicate in the 'info' toolgroup that the form has loaded.
+      Drupal.edit.toolbar.removeClass(ajax.$editable, 'primary', 'info', 'loading');
 
       // Detect changes in this form.
       Drupal.edit.form.get(ajax.$editable)

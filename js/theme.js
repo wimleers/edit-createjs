@@ -139,7 +139,7 @@ Drupal.theme.prototype.editFormContainer = function(settings) {
   var html = ''
   html += '<div id="' + settings.id + '" class="edit-form-container">';
   html += '  <div class="edit-form">';
-  html += '    <div class="loading">';
+  html += '    <div class="placeholder">';
   html +=        settings.loadingMsg;
   html += '    </div>';
   html += '  </div>';
