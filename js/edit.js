@@ -555,14 +555,27 @@ Drupal.edit.editables = {
       }
 
       // The primary toolgroups must move to the top and the left.
-      $toolbar.find('.primary .edit-toolgroup')
+      $toolbar.find('.edit-toolbar.primary .edit-toolgroup')
       .addClass('edit-animate-exception-grow')
       .css({'position': 'relative', 'top': '-5px', 'left': '-5px'});
 
       // The secondary toolgroups must move to the top and the right.
-      $toolbar.find('.secondary .edit-toolgroup')
+      $toolbar.find('.edit-toolbar.secondary .edit-toolgroup')
       .addClass('edit-animate-exception-grow')
       .css({'position': 'relative', 'top': '-5px', 'left': '5px'});
+
+      // The clipping (to get rid of the bottom box-shadow) needs to be updated.
+      $toolbar
+      .delegate('.edit-toolbar', Drupal.edit.const.transitionEnd, function(e) {
+        var $this = $(this);
+        if (!$this.data('edit-toolbar-updating-clipping')) {
+          $this.data('edit-toolbar-updating-clipping', true);
+
+          var parts = $this.css('clip').split(' ');
+          parts[2] = Drupal.edit.util.stripPX(parts[2]) - 5 + 'px';
+          $this.css('clip', parts.join(' '));
+        }
+      });
 
       // Pad the editable.
       $editable
@@ -574,7 +587,7 @@ Drupal.edit.editables = {
         'padding-left'  : posProp['padding-left']   + 5 + 'px',
         'padding-right' : posProp['padding-right']  + 5 + 'px',
         'padding-bottom': posProp['padding-bottom'] + 5 + 'px',
-        'margin-bottom': posProp['margin-bottom'] - 10 + 'px',
+        'margin-bottom':  posProp['margin-bottom'] - 10 + 'px',
       });
     }, 0);
   },
@@ -602,6 +615,11 @@ Drupal.edit.editables = {
       $toolbar.find('.edit-toolgroup')
       .removeClass('edit-animate-exception-grow')
       .css({'position': '', 'top': '', 'left': ''});
+
+      // Undo our changes to the clipping (to prevent the bottom box-shadow).
+      $toolbar
+      .undelegate('.edit-toolbar', Drupal.edit.const.transitionEnd)
+      .find('.edit-toolbar').css('clip', '');
 
       // Unpad the editable.
       $editable
