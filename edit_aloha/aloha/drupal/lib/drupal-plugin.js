@@ -9,7 +9,7 @@ define( [
 ], function (
     Aloha,
     Plugin,
-    jQuery,
+    $,
     ContentHandlerManager,
     DrupalContentHandler,
     console
@@ -71,19 +71,19 @@ define( [
         if (allowedTagsList) {
           allowedTags = allowedTagsList.split(',');
 
-          jQuery.each(elementMapping, function(element, className) {
-            if (jQuery.inArray(element, allowedTags) == -1) {
-              jQuery('.' + className).closest('button').hide();
+          $.each(elementMapping, function(element, className) {
+            if ($.inArray(element, allowedTags) == -1) {
+              $('.' + className).closest('button').hide();
             }
           });
         }
 
         // Clean up empty component groups.
-        jQuery.each(jQuery('.aloha-ui-component-group'), function(){
+        $.each($('.aloha-ui-component-group'), function(){
           // Check for hidden nodes and empty nodes.
           var cc = 0;
-          jQuery.each(jQuery(this).children(), function() {
-            if (jQuery(this).css('display') == 'none' || !jQuery(this).text()) {
+          $.each($(this).children(), function() {
+            if ($(this).css('display') == 'none' || !$(this).text()) {
               cc++;
             }
           });
@@ -94,15 +94,15 @@ define( [
       });
 
       Aloha.bind('aloha-editable-deactivated', function($event, params) {
-        jQuery.each(elementMapping, function(element, className) {
-          if (jQuery.inArray(element, allowedTags) == -1) {
-            jQuery('.' + className).closest('button').show();
+        $.each(elementMapping, function(element, className) {
+          if ($.inArray(element, allowedTags) == -1) {
+            $('.' + className).closest('button').show();
           }
         });
 
         // Restore previously empty component groups.
-        jQuery.each(jQuery('.aloha-ui-component-group'), function() {
-            jQuery(this).show();
+        $.each($('.aloha-ui-component-group'), function() {
+            $(this).show();
         });
       });
     }
