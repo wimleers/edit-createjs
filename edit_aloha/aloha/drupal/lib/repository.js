@@ -16,14 +16,16 @@ define( [
          * initalize repository API for Drupal (look-up for link plugin)
         */
         init: function () {
-            // get the current host (+ protocol) for the repository look-up path
-            var host = window.location.protocol + '//' + window.location.hostname;
-            if ( window.location.port ) {
-                host += ':'+window.location.port;
-            }
+          this.repositoryUrl = false;
+          this.repositoryName = "drupal/local"; // can be any other name
 
-            this.repositoryUrl = host + "/alohaeditor/lookup/"; // maybe make this configurable via edit module
-            this.repositoryName = "drupal/local"; // can be any other name
+          if (Aloha.settings
+              && Aloha.settings.repository
+              && Aloha.settings.repository.drupal
+              && typeof Aloha.settings.repository.drupal.url !== 'undefinded')
+          {
+            this.repositoryUrl = Aloha.settings.repository.drupal.url;
+          }
         },
 
         /**

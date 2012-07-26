@@ -97,6 +97,9 @@ function edit_aloha_library() {
       ),
       'initEditable' => array(),
     ),
+    'repository' => array(
+        'drupal' => array('url' => url('alohaeditor/lookup/')),
+    ),
     'sidebar' => array('disabled' => TRUE),
     'toolbar' => array(
          'tabs' => array(
