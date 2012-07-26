@@ -16,8 +16,7 @@ define( [
 ) {
     'use strict';
 
-    var GENTICS = window.GENTICS,
-        pluginNamespace = 'aloha-drupal';
+    var pluginNamespace = 'aloha-drupal';
 
     return Plugin.create( 'drupal', {
         /**
@@ -64,9 +63,6 @@ define( [
             ContentHandlerManager.register('drupal', DrupalContentHandler);
 
             Aloha.bind( 'aloha-editable-activated', function( $event, params ) {
-                // @todo note: this hides the tabs
-                jQuery('.ui-widget-header').hide();
-
                 dataAttr = Aloha.activeEditable.obj.closest('.edit-field').data();
                 if ( dataAttr && dataAttr.editAllowedTags ) {
                     allows = dataAttr.editAllowedTags.split(',');
@@ -96,7 +92,6 @@ define( [
             
             Aloha.bind( 'aloha-editable-deactivated', function( $event, params ) {
                 jQuery.each(elementMapping, function( element, css ) {
-                    //window.console.log('*** element', element, css);
                     if (jQuery.inArray(element, allows) == -1) {
                       jQuery('.' + css).closest('button').show();
                     }
