@@ -18,22 +18,23 @@ define( [
 
     var pluginNamespace = 'aloha-drupal';
 
-    return Plugin.create( 'drupal', {
+    return Plugin.create('drupal', {
         /**
-         * Configure the available languages
+         * Configure the available languages.
         */
         languages: [ 'en' ],
 
         /**
-         * Default configuration
+         * Default configuration.
         */
         config: [ ],
 
         /**
-         * Initialize the plugin
+         * Initialize the plug-in.
         */
         init: function () {
-            var dataAttr, allows, elementMapping;
+            var elementMapping,
+                allowedTags;
 
             elementMapping = {
                 'a': 'aloha-icon-link',
@@ -63,42 +64,44 @@ define( [
             ContentHandlerManager.register('drupal', DrupalContentHandler);
 
             Aloha.bind( 'aloha-editable-activated', function( $event, params ) {
-                dataAttr = Aloha.activeEditable.obj.closest('.edit-field').data();
-                if ( dataAttr && dataAttr.editAllowedTags ) {
-                    allows = dataAttr.editAllowedTags.split(',');
+                var allowedTagsList = Aloha.activeEditable.obj
+                                      .closest('.edit-field')
+                                      .data('edit-allowed-tags');
 
-                    jQuery.each(elementMapping, function( element, css) {
-                      if (jQuery.inArray(element, allows) == -1) {
-                        jQuery('.' + css).closest('button').hide();
-                      }
-                    });
+                if (allowedTagsList) {
+                  allowedTags = allowedTagsList.split(',');
+
+                  jQuery.each(elementMapping, function(element, className) {
+                    if (jQuery.inArray(element, allowedTags) == -1) {
+                      jQuery('.' + className).closest('button').hide();
+                    }
+                  });
                 }
                 
-                // cleanup empty groups
+                // Clean up empty component groups.
                 jQuery.each(jQuery('.aloha-ui-component-group'), function(){
-                    // check for hidden nodes and empty nodes
+                    // Check for hidden nodes and empty nodes.
                     var cc = 0;
                     jQuery.each(jQuery(this).children(), function() {
-                        if ( jQuery(this).css('display') == 'none' || !jQuery(this).text() ) {
+                        if (jQuery(this).css('display') == 'none' || !jQuery(this).text()) {
                             cc++;
                         }
                     });
-                    
-                    if ( cc == jQuery(this).children().length ) {
+                    if (cc == jQuery(this).children().length) {
                         jQuery(this).hide();
                     }
                 });
             });
-            
+
             Aloha.bind( 'aloha-editable-deactivated', function( $event, params ) {
-                jQuery.each(elementMapping, function( element, css ) {
-                    if (jQuery.inArray(element, allows) == -1) {
-                      jQuery('.' + css).closest('button').show();
+                jQuery.each(elementMapping, function(element, className) {
+                    if (jQuery.inArray(element, allowedTags) == -1) {
+                      jQuery('.' + className).closest('button').show();
                     }
                 });
-                
-                // cleanup empty groups
-                jQuery.each(jQuery('.aloha-ui-component-group'), function(){
+
+                // Restore previously empty component groups.
+                jQuery.each(jQuery('.aloha-ui-component-group'), function() {
                     jQuery(this).show();
                 });
             });
