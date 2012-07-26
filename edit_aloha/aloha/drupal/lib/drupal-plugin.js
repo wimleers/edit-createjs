@@ -46,7 +46,7 @@ define( [
                 'sub': 'aloha-icon-subscript',
                 'sup': 'aloha-icon-superscript',
                 'u': 'aloha-icon-underline',
-                's': 'aloha-icon-strikethrough',
+                's': 'aloha-icon-strikethrough2',
                 'ol': 'aloha-icon-orderedlist',
                 'ul': 'aloha-icon-unorderedlist',
                 'p': 'aloha-large-icon-p',
