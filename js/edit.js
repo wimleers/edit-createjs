@@ -483,7 +483,7 @@ Drupal.edit.editables = {
       Drupal.edit.toolbar.get($editable)
       .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.wysiwyg))')
       .append(Drupal.theme('editToolgroup', {
-        classes: 'wysiwyg', + ' aloha' /* @TODO: remove the latter once our custom UI has its own CSS. It's here just to make sure AE's CSS still applies. */,
+        classes: 'wysiwyg' + ' aloha', /* @TODO: remove the latter once our custom UI has its own CSS. It's here just to make sure AE's CSS still applies. */
         buttons: []
       }));
 
