@@ -21,17 +21,17 @@ define( [
   return Plugin.create('drupal', {
     /**
      * Configure the available languages.
-    */
+     */
     languages: [ 'en' ],
 
     /**
      * Default configuration.
-    */
+     */
     config: [ ],
 
     /**
      * Initialize the plug-in.
-    */
+     */
     init: function () {
       var elementMapping,
           allowedTags;
@@ -63,7 +63,7 @@ define( [
       // @todo add data-edit-allowed-tags attribute also to the backend or adapt the DrupalContentHandler
       ContentHandlerManager.register('drupal', DrupalContentHandler);
 
-      Aloha.bind( 'aloha-editable-activated', function( $event, params ) {
+      Aloha.bind('aloha-editable-activated', function($event, params) {
         var allowedTagsList = Aloha.activeEditable.obj
                               .closest('.edit-field')
                               .data('edit-allowed-tags');
@@ -93,7 +93,7 @@ define( [
         });
       });
 
-      Aloha.bind( 'aloha-editable-deactivated', function( $event, params ) {
+      Aloha.bind('aloha-editable-deactivated', function($event, params) {
         jQuery.each(elementMapping, function(element, className) {
           if (jQuery.inArray(element, allowedTags) == -1) {
             jQuery('.' + className).closest('button').show();
