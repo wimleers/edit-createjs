@@ -58,6 +58,16 @@ define('ui/ui-plugin', [
       'orderedList',
       'indentList',
       'outdentList',
+      'formatLink',
+      'editLink',
+      'removeLink',
+      'characterPicker',
+      'imgFloatLeft',
+      'imgFloatClear',
+      'imgFloatRight',
+    ];
+    var remove = [
+      'insertLink',
     ];
 
     // @TODO: figure out the $editable more cleanly?
@@ -69,10 +79,22 @@ define('ui/ui-plugin', [
     var sortable = [];
     for (var component in componentsHash) {
       if (componentsHash.hasOwnProperty(component)) {
-        sortable.push([component, componentsHash[component].element]);
+        // Only store the component if it should not be removed.
+        if (remove.indexOf(component) == -1) {
+          sortable.push([component, componentsHash[component].element]);
+        }
       }
     }
     sortable.sort(function(a, b) {
+      // Components for which no order is defined should always live at the end
+      // of the toolbar.
+      if (order.indexOf(a[0]) == -1) {
+        return 1;
+      }
+      if (order.indexOf(b[0]) == -1) {
+        return -1;
+      }
+
       return (order.indexOf(a[0]) < order.indexOf(b[0])) ? -1 : 1;
     })
 
@@ -80,6 +102,21 @@ define('ui/ui-plugin', [
     for (var i = 0; i < sortable.length; i++) {
       $toolgroup.append(sortable[i][1]);
     }
+
+    // @TODO: improve this when the WYSIWYG UI/toolbar becomes fully defined;
+    // this is a quick hack to ensure all WYSIWYG buttons are visible until then
+    $editable.bind('edit-form-loaded.edit', function() {
+      var $left = $('.edit-toolgroup.info');
+      var $right = jQuery('.edit-toolgroup.ops');
+      var width = $right.offset().left - ($left.offset().left + $left.width());
+      width -= 5; // compensate for padding
+      if ($toolgroup.width() > width) {
+        $toolgroup.css('width', width - 7);
+        $toolgroup.css('height', 34*3);
+        $toolgroup.css('top', -5 - 34*2);
+        $toolgroup.css('left', -2);
+      }
+    });
   };
 
   return {

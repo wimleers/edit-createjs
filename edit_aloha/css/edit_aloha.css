@@ -7,3 +7,7 @@
   /* Aloha's outline CSS statement is already marked as important, so we cannot cleanly disable it without also overriding our outline. */
   /*outline: 0 !important;*/
 }
+
+.aloha .ui-button-text-only .ui-button-text {
+  font-size: .8em;
+}
