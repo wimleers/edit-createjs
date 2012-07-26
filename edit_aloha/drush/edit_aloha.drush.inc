@@ -8,7 +8,7 @@
 /**
  * The Aloha Editor download URI.
  */
-define('EDIT_ALOHA_DOWNLOAD_URI', 'https://github.com/downloads/alohaeditor/Aloha-Editor/alohaeditor-0.20.17.zip');
+define('EDIT_ALOHA_DOWNLOAD_URI', 'https://github.com/downloads/alohaeditor/Aloha-Editor/alohaeditor-0.21.0.zip');
 
 /**
  * Implementats hook_drush_command().
