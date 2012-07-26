@@ -284,6 +284,8 @@ function edit_filter_info_alter(&$info) {
     'filter_htmlcorrector' => TRUE,
     // token_filter.module
     'filter_tokens' => TRUE,
+    // image_resize_filter.module
+    'image_resize_filter' => TRUE,
   );
   $allowed_tags_metadata = array(
     'filter_html' => 'allowed_html',
