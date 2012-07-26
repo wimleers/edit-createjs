@@ -71,14 +71,10 @@ define( [
                 if ( dataAttr && dataAttr.editAllowedTags ) {
                     allows = dataAttr.editAllowedTags.split(',');
 
-                    jQuery.each(elementMapping, function( element, css ) {
-                        if ( jQuery.inArray(element, allows) == -1 ) {
-                            if (/large-icon/.test(css)) {
-                                jQuery('.' + css).closest('button').hide();
-                            } else {
-                                jQuery('.' + css).closest('button').parent('span').hide();
-                            }
-                        }
+                    jQuery.each(elementMapping, function( element, css) {
+                      if (jQuery.inArray(element, allows) == -1) {
+                        jQuery('.' + css).closest('button').hide();
+                      }
                     });
                 }
                 
@@ -101,12 +97,8 @@ define( [
             Aloha.bind( 'aloha-editable-deactivated', function( $event, params ) {
                 jQuery.each(elementMapping, function( element, css ) {
                     //window.console.log('*** element', element, css);
-                    if ( jQuery.inArray(element, allows) == -1 ) {
-                        if (/large-icon/.test(css)) {
-                            jQuery('.' + css).closest('button').show();
-                        } else {
-                            jQuery('.' + css).closest('button').parent('span').show();
-                        }
+                    if (jQuery.inArray(element, allows) == -1) {
+                      jQuery('.' + css).closest('button').show();
                     }
                 });
                 
