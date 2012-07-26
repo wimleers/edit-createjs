@@ -1,18 +1,16 @@
 define( [
-    'aloha',
-    'aloha/plugin',
-    'jquery',
-    'aloha/contenthandlermanager',
-    'drupal/drupalcontenthandler',
-    'aloha/console',
-    'drupal/repository',
+  'aloha',
+  'aloha/plugin',
+  'jquery',
+  'aloha/contenthandlermanager',
+  'drupal/drupalcontenthandler',
+  'drupal/repository',
 ], function (
-    Aloha,
-    Plugin,
-    $,
-    ContentHandlerManager,
-    DrupalContentHandler,
-    console
+  Aloha,
+  Plugin,
+  $,
+  ContentHandlerManager,
+  DrupalContentHandler
 ) {
   'use strict';
 
@@ -59,11 +57,12 @@ define( [
           'h6': 'aloha-large-icon-h6',
       };
 
-      // register DrupalContentHandler
-      // @todo add data-edit-allowed-tags attribute also to the backend or adapt the DrupalContentHandler
+      // Register DrupalContentHandler.
       ContentHandlerManager.register('drupal', DrupalContentHandler);
 
       Aloha.bind('aloha-editable-activated', function($event, params) {
+        // @todo Figure out how to deal with the data-edit-allowed-tags
+        // attribute on the full node form.
         var allowedTagsList = Aloha.activeEditable.obj
                               .closest('.edit-field')
                               .data('edit-allowed-tags');
