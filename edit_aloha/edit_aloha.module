@@ -89,15 +89,15 @@ function edit_aloha_library() {
         'removeFormat',
       )),
       'list' => array('config' => array('ul', 'ol')),
-      'contentHandler' => array(
-        'insertHtml' => array('word', 'generic', 'drupal'),
-        'handler' => array(
-          'generic' => array('transformFormattings' => FALSE),
-        ),
-        'initEditable' => array(),
-      ),
-      'sidebar' => array('disabled' => TRUE),
     ),
+    'contentHandler' => array(
+      'insertHtml' => array('word', 'generic', 'drupal'),
+      'handler' => array(
+        'generic' => array('transformFormattings' => FALSE),
+      ),
+      'initEditable' => array(),
+    ),
+    'sidebar' => array('disabled' => TRUE),
     'toolbar' => array(
          'tabs' => array(
              array(
