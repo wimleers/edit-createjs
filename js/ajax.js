@@ -68,6 +68,7 @@ $(function() {
 
     // Animations.
     Drupal.edit.toolbar.show(ajax.$editable, 'secondary', 'ops');
+    ajax.$editable.trigger('edit-form-loaded.edit');
   };
   Drupal.ajax.prototype.commands.edit_field_form_saved = function(ajax, response, status) {
     console.log('edit_field_form_saved', ajax, response, status);
