@@ -8,7 +8,8 @@
 /**
  * The Aloha Editor download URI.
  */
-define('EDIT_ALOHA_DOWNLOAD_URI', 'https://github.com/downloads/alohaeditor/Aloha-Editor/alohaeditor-0.21.0.zip');
+define('EDIT_ALOHA_VERSION', '0.21.0');
+define('EDIT_ALOHA_DOWNLOAD_URI', 'https://github.com/downloads/alohaeditor/Aloha-Editor/alohaeditor-' . EDIT_ALOHA_VERSION . '.zip');
 
 /**
  * Implementats hook_drush_command().
@@ -64,6 +65,7 @@ function edit_aloha_drush_help($section) {
  * Command to download Aloha Editor.
  */
 function drush_edit_aloha_download() {
+  $target_dir = 'alohaeditor';
   if (!drush_shell_exec('type unzip')) {
     return drush_set_error(dt('Missing dependency: unzip. Install it before using this command.'));
   }
@@ -104,15 +106,21 @@ function drush_edit_aloha_download() {
   }
 
   if (is_file($filename)) {
+    $tmp_dir = sys_get_temp_dir() . '/' . $target_dir;
+
     // Decompress the zip archive
-    drush_shell_exec('unzip -qq -o ' . $filename . ' -d aloha');
+    drush_shell_exec('unzip -qq -o ' . $filename . ' -d ' . $tmp_dir);
+
+    // Move everything from the temp directory into the target directory.
+    drush_op('rename', $tmp_dir . '/alohaeditor-' . EDIT_ALOHA_VERSION, $target_dir);
+
     // Remove the zip archive
     drush_op('unlink', $filename);
   }
 
   // Set working directory back to the previous working directory.
   chdir($olddir);
-  if (is_dir($path . '/aloha')) {
+  if (is_dir($path . '/' . $target_directory)) {
     drush_log(dt('Aloha Editor has been downloaded to @path.', array('@path' => $path)), 'success');
   }
   else {
