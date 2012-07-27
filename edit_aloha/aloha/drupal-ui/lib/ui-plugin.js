@@ -65,6 +65,7 @@ define('ui/ui-plugin', [
       'imgFloatLeft',
       'imgFloatClear',
       'imgFloatRight',
+      'TokenFilterInsert',
     ];
     var remove = [
       'insertLink',

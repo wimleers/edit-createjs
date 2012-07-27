@@ -48,13 +48,18 @@ function edit_aloha_library() {
     'common/link',
     'extra/captioned-image',
     'edit_aloha/drupal',
+    'token_filter/token-filter'
   );
 
   $plugin_path = drupal_get_path('module', 'edit_aloha') . '/aloha/drupal-ui';
   $aloha_settings = array(
     'baseUrl' => file_create_url($library_path . '/lib'),
     // Let AE/RequireJS know where edit_aloha's plug-in bundle lives.
-    'bundles' => array('edit_aloha' => file_create_url(drupal_get_path('module', 'edit') . '/edit_aloha/aloha/')),
+    'bundles' => array(
+      'edit_aloha' => file_create_url(drupal_get_path('module', 'edit') . '/edit_aloha/aloha/'),
+      // @TODO: make sure this doesn't need to remain hardcoded.
+      'token_filter' => file_create_url(drupal_get_path('module', 'token_filter') . '/aloha/')
+    ),
     // Overide parts of AE's default UI, so that we can have a custom UI with
     // minimal effort.
     'requireConfig' => array(
@@ -77,6 +82,10 @@ function edit_aloha_library() {
         'removeFormat',
       )),
       'list' => array('config' => array('ul', 'ol')),
+      'token-filter' => array(
+        'macroRender' => url('admin/macro/render/token_filter'),
+        'macroList'   => url('admin/macro/list/token_filter'),
+      )
     ),
     'contentHandler' => array(
       'insertHtml' => array('word', 'generic', 'drupal'),
