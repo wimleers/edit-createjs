@@ -35,33 +35,20 @@ function edit_aloha_library() {
   }
 
   // @todo update this based on the input format settings.
-  $plugins_list = array(
-    'list' => drupal_map_assoc(array(
-      'common/ui',
-      'common/format',
-      'common/align',
-      'common/commands',
-      'common/contenthandler',
-      'common/characterpicker',
-      'common/paste',
-      'common/list',
-      'common/block',
-      'common/link',
-      'extra/captioned-image',
-      'edit_aloha/drupal',
-    )),
+  $plugins = array(
+    'common/ui',
+    'common/format',
+    'common/align',
+    'common/commands',
+    'common/contenthandler',
+    'common/characterpicker',
+    'common/paste',
+    'common/list',
+    'common/block',
+    'common/link',
+    'extra/captioned-image',
+    'edit_aloha/drupal',
   );
-  $plugins_activated = '';
-  if ($plugins_list) {
-    foreach ($plugins_list['list'] as $key => $plugin) {
-      if ($plugin == $key && !$plugin == '0') {
-        $plugins_activated .= $plugin . ',';
-      }
-    }
-  }
-  if (substr($plugins_activated, -1) == ',') {
-    $plugins_activated = substr($plugins_activated, 0, -1);
-  }
 
   $plugin_path = drupal_get_path('module', 'edit_aloha') . '/aloha/drupal-ui';
   $aloha_settings = array(
@@ -77,7 +64,7 @@ function edit_aloha_library() {
       )
     ),
     'plugins' => array(
-      'load' => $plugins_activated,
+      'load' => implode(',', $plugins),
       // Note: the DrupalContentHandler plug-in will ensure that only tags
       // specified in the editable's data-edit-allowed-tags attribute will be
       // allowed. Here, we must specify the whole range of available HTML tags.
@@ -168,7 +155,6 @@ function edit_aloha_library() {
         'defer' => TRUE,
         'attributes' => array(
           'data-aloha-defer-init' => 'true',
-          'data-aloha-plugins' => $plugins_activated,
         ),
       ),
       // These are the files from the 'build-with-plugin-separated' profile.
