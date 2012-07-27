@@ -22,7 +22,9 @@ module_load_include('inc', 'edit', 'includes/filter');
 /**
  * Loads the logic for integrating Edit's WYSIWYG editor on the back-end.
  */
-module_load_include('inc', 'edit', 'includes/backend');
+// @TODO: make the UI work on the back-end, otherwise this is just plain
+// confusing!
+// module_load_include('inc', 'edit', 'includes/backend');
 
 
 define('EDIT_WYSIWYG_VARIABLE', 'edit_wysiwyg');
