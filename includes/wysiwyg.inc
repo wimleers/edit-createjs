@@ -22,10 +22,10 @@ function edit_wysiwyg_analyze_field_editability($entity_type, $entity, $field_na
     // "form".
     return 'form';
   }
-  // Bail out with an appropriate warning if, for an unknown reason, the field
-  // has text processing enabled, but no format is assigned yet (NULL).
+  // Bail out with an appropriate warning if the field has text processing
+  // enabled, but no format is assigned yet, e.g. when the field is still
+  // empty (NULL).
   elseif (empty($format_id)) {
-    drupal_set_message(t('Text format could not be detected.'), 'warning');
     return 'disabled';
   }
   else {
