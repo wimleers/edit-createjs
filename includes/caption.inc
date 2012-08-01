@@ -25,7 +25,7 @@ function edit_filter_info() {
  * Filter process callback. Expands images with a data-caption attribute into
  * images with captions.
  */
-function edit_captioned_image_process_filter($text, $filter) {
+function edit_captioned_image_process_filter($text, $filter, $format, $langcode, $cache, $cache_id) {
   $search = array();
   $replace = array();
 
