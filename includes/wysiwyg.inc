@@ -97,7 +97,7 @@ function edit_wysiwyg_analyze_format_compatibility($filters) {
   // Ensure all filters are marked as compatible with WYSIWYG.
   $compatible = array_reduce($filters, function($result, $filter) {
     $filters_metadata = filter_get_filters();
-    return $result && ($filters_metadata[$filter->name]['edit']['wysiwyg'] === TRUE);
+    return $result && (!empty($filters_metadata[$filter->name]['edit']) && $filters_metadata[$filter->name]['edit']['wysiwyg'] === TRUE);
   }, TRUE);
 
   return $compatible;
