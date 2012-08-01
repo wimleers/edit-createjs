@@ -20,6 +20,12 @@ module_load_include('inc', 'edit', 'includes/toolbar');
  */
 module_load_include('inc', 'edit', 'includes/filter');
 /**
+ * Loads the "captioned image" filter; the server-side equivalent of the
+ * CaptionedImage Aloha Editor plug-in.
+ */
+module_load_include('inc', 'edit', 'includes/caption');
+
+/**
  * Loads the logic for integrating Edit's WYSIWYG editor on the back-end.
  */
 // @TODO: make the UI work on the back-end, otherwise this is just plain
@@ -65,6 +71,13 @@ function edit_theme() {
         'attributes' => array(),
       ),
     ),
+    'edit_captioned_image' => array(
+      'file' => 'includes/caption.inc',
+      'variables' => array(
+        'image' => NULL,
+        'caption' => NULL,
+      )
+    )
   );
 }
 
@@ -288,6 +301,8 @@ function edit_filter_info_alter(&$info) {
     'filter_tokens' => TRUE,
     // image_resize_filter.module
     'image_resize_filter' => TRUE,
+    // edit.module
+    'edit_filter_captioned_image' => TRUE,
   );
   $allowed_tags_metadata = array(
     'filter_html' => 'allowed_html',
