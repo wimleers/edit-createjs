@@ -31,16 +31,6 @@ function edit_captioned_image_process_filter($text, $filter) {
 
   // Prevent useless processing if there are no data-caption attributes at all.
   if (stristr($text, 'data-caption') !== FALSE || stristr($text, 'data-align') !== FALSE) {
-    // Original regexp-based approach, which didn't work well anymore once you
-    // had both data-caption and data-original attributes instead of just one.
-    // $pattern = "#(?:(<img\s+|<img\s+)"; // Opening of image tag.
-    // $pattern .= "([^>]*\s+)*"; // attributes up to the first data-caption or align attribute.
-    // $pattern .= "(?:(?:(data-caption|data-align)\s*=\s*[\"|'])([^\"|^']*)(?:[\"|'])(\s+[^>]*\s+)*)";
-    // $pattern .= "([^>]*\s+)*?"; // attributes up to the first data-caption or align attribute.
-    // $pattern .= "(?:(?:(data-align|data-caption)\s*=\s*[\"|'])([^\"|^']*)(?:[\"|'])(\s+[^>]*\s+)*)*";
-    // $pattern .= ")(\s*/>|\s*></img>)#i"; // Closing of image tag.
-    // $text = preg_replace_callback($pattern, '_edit_captioned_image_filter_replace', $text);
-
     // Iterate over all images that have data-caption and/or data-align
     // attributes. Remove these attributes and wrap the image in a caption.
     $pattern = "#(?:(?:<img\s+|<img\s+[^>]*\s+)(?:data-caption|data-align)\s*.*(?:\s*/>|\s*></img>))#i";
@@ -81,10 +71,8 @@ function edit_captioned_image_process_filter($text, $filter) {
         // Finally, replace the original image node with the new image node!
         $image_node->parentNode->replaceChild($new_image_node, $image_node);
 
-        $new_html = filter_dom_serialize($dom);
-
         $search[] = $image_html;
-        $replace[] = $new_html;
+        $replace[] = filter_dom_serialize($dom);
       }
     }
   }
@@ -125,7 +113,19 @@ function _edit_filter_get_width(DOMNode $image_node) {
  * Filter tips callback.
  */
 function edit_captioned_image_filter_tips($filter, $format, $long = FALSE) {
-  return t('You can add <code>data-caption</code> attributes to images to add captions.');
+  if ($long) {
+    return t('
+      <p><strong>Caption Filter</strong></p>
+      <p>You may wrap images with a caption using the <code>data-caption</code> attribute.</p>
+      <p>Examples:</p>
+      <ul>
+        <li>Caption an image:<br /><code><img src="" data-caption="This is a caption" /></code></li>
+        <li>Caption & align an image:<br /><code><img src="" data-caption="This is another caption" data-align="right" /></code></li>
+      </ul>');
+  }
+  else {
+    return check_plain(t('Captions may be specified with a <code>data-caption="Image caption"</code> attribute. Images can be aligned with <code>data-align="left"</code>.'));
+  }
 }
 
 
