@@ -74,8 +74,10 @@ function edit_theme() {
     'edit_captioned_image' => array(
       'file' => 'includes/caption.inc',
       'variables' => array(
-        'image' => NULL,
+        'image'   => NULL,
         'caption' => NULL,
+        'align'   => NULL,
+        'width'   => NULL,
       )
     )
   );
