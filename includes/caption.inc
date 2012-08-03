@@ -6,6 +6,8 @@
 function edit_init() {
   $path = drupal_get_path('module', 'edit');
   drupal_add_css($path .'/css/edit-captioned-image-filter.css', array('every_page' => TRUE));
+  drupal_add_css($path .'/css/edit-captioned-image-filter-aloha.css', array('every_page' => TRUE));
+  drupal_add_js($path .'/js/caption.js', array('every_page' => TRUE));
 }
 
 /**
@@ -144,7 +146,7 @@ function theme_edit_captioned_image($variables) {
   $caption = $variables['caption'];
   $align   = $variables['align'];
   $width   = $variables['width'];
-  return '<div class="caption caption-'. $align .'"><div class="caption-inner" style="width: '. $width .';">'. $image . $caption .'</div></div>';
+  return '<div class="caption caption-'. $align .'"><div class="caption-inner" style="width: '. $width .';">'. $image .'<div class="caption-text">'. $caption .'</div></div></div>';
 }
 
 /**

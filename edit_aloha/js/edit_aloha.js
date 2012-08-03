@@ -10,6 +10,14 @@ Drupal.edit.wysiwyg.edit_aloha = {
     console.log('edit_aloha:initializing');
 
     Aloha.settings = Drupal.settings.edit.settings;
+    /*
+     * TODO: because drupal_add_js(), or really drupal_json_encode() doesn't
+     *       support function callbacks, we have to specify it manually here.
+     */
+    Aloha.settings.plugins = Aloha.settings.plugins || {};
+    Aloha.settings.plugins.captionedImage = Aloha.settings.plugins.captionedImage || {};
+    Aloha.settings.plugins.captionedImage.render = Drupal.edit.captionedImage.render;
+
     Aloha.deferInit();
     Aloha.ready(function() {
       $(document).trigger('edit-wysiwyg-ready');
@@ -23,8 +31,6 @@ Drupal.edit.wysiwyg.edit_aloha = {
       id = 'edit-aloha-' + new Date().getTime();
       $editable.attr('id', id);
     }
-
-    this._markImages($editable);
 
     Aloha.jQuery('#' + id).aloha();
   },
@@ -44,24 +50,7 @@ Drupal.edit.wysiwyg.edit_aloha = {
     if (id.match(/^edit-aloha-\d+$/) != null) {
       $editable.removeAttr('id');
     }
-
-    this._unmarkImages($editable);
   },
-
-  // The AE Captioned Image plug-in only works on images that have a certain
-  // class, mark images that should be captionable with this class.
-  _markImages: function($editable) {
-    // @TODO: For now, make *all* images captionable.
-    $editable
-    .find('img')
-    .addClass('aloha-captioned-image');
-  },
-
-  _unmarkImages: function($editable) {
-    $editable
-    .find('.aloha-captioned-image')
-    .removeClass('aloha-captioned-image');
-  }
 };
 
 })(jQuery);

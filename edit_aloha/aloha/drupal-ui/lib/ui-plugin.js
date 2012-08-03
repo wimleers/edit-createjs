@@ -62,9 +62,10 @@ define('ui/ui-plugin', [
       'editLink',
       'removeLink',
       'characterPicker',
-      'imgFloatLeft',
-      'imgFloatClear',
-      'imgFloatRight',
+      'imgAlignLeft',
+      'imgAlignCenter',
+      'imgAlignRight',
+      'imgAlignClear',
       'TokenFilterInsert',
     ];
     var remove = [

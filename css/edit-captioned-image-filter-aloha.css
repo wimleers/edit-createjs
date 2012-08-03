@@ -1,0 +1,21 @@
+/**
+ * @file
+ * Caption filter Aloha Editor CaptionedImage plug-in integration: override infrastructure CSS for tighter results.
+ *
+ * Overrides parts of the default CSS in AE's captioned-image.css.
+ */
+
+.edit-captioned-image-block div.caption-left,
+.edit-captioned-image-block div.caption-right,
+.edit-captioned-image-block div.caption-center {
+  float: none;
+  display: block;
+  text-align: inherit;
+  margin: 0;
+}
+.edit-captioned-image-block.align-left {
+  margin: 10px 10px 10px 0;
+}
+.edit-captioned-image-block.align-right {
+  margin: 10px 0 10px 10px;
+}

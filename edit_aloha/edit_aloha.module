@@ -85,6 +85,13 @@ function edit_aloha_library() {
       'token-filter' => array(
         'macroRender' => url('admin/macro/render/token_filter'),
         'macroList'   => url('admin/macro/list/token_filter'),
+      ),
+      'captionedImage' => array(
+        'selector'            => 'img',
+        'defaultCss'          => FALSE,
+        'captionedImageClass' => '',
+        'blockClass'          => 'edit-captioned-image-block',
+        // 'render' => function() {}, // function callback, we can't set that here.
       )
     ),
     'contentHandler' => array(
