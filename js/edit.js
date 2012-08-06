@@ -208,6 +208,10 @@ Drupal.edit.stopEditableEntities = function($e) {
 
 Drupal.edit.startEditableFields = function($fields) {
   var $fields = $fields.once('edit');
+  // Ignore fields that need a WYSIWYG editor if no WYSIWYG editor is present
+  if (!Drupal.settings.edit.wysiwyg) {
+    $fields = $fields.filter(':not(.edit-type-direct-with-wysiwyg)');
+  }
   var $editables = Drupal.edit.findEditablesForFields($fields);
 
   $editables
