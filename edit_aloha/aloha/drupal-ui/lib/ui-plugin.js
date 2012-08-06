@@ -23,7 +23,7 @@ define('ui/ui-plugin', [
 ) {
   'use strict';
 
-  var componentsHash = {};
+  var components = {};
 
   Aloha.bind('aloha-editable-activated', function(event, alohaEvent) {
     _addComponentsToToolbar();
@@ -32,8 +32,12 @@ define('ui/ui-plugin', [
   function adoptInto(slot, component) {
     // Remember slots & components because we're going to need to recreate
     // the components whenever a Field gets focus and needs AE.
-    componentsHash[slot] = component;
+    components[slot] = component;
     Surface.trackRange(component.element);
+  }
+
+  function getComponentAtSlot(slot) {
+    return components[slot] || null;
   }
 
   function _addComponentsToToolbar() {
@@ -79,11 +83,11 @@ define('ui/ui-plugin', [
 
     // Order the components in our preferred way.
     var sortable = [];
-    for (var component in componentsHash) {
-      if (componentsHash.hasOwnProperty(component)) {
+    for (var component in components) {
+      if (components.hasOwnProperty(component)) {
         // Only store the component if it should not be removed.
         if (remove.indexOf(component) == -1) {
-          sortable.push([component, componentsHash[component].element]);
+          sortable.push([component, components[component].element]);
         }
       }
     }
@@ -122,6 +126,8 @@ define('ui/ui-plugin', [
   };
 
   return {
-    adoptInto: adoptInto
+    adoptInto: adoptInto,
+    getAdoptedComponent: getComponentAtSlot,
+    components: components
   };
 });
