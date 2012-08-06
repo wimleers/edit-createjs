@@ -248,7 +248,9 @@ function edit_form_fape_field_edit_form_alter(&$form, &$form_state) {
 
         // UX improvement: make the number of rows of textarea form elements
         // fit the content. (i.e. no wads of whitespace)
-        if ($form[$element][$language][0]['value']['#type'] == 'textarea') {
+        if (isset($form[$element][$language][0]['value']['#type'])
+            && $form[$element][$language][0]['value']['#type'] == 'textarea')
+        {
           $lines = count(explode("\n", $form[$element][$language][0]['value']['#default_value']));
           $form[$element][$language][0]['value']['#rows'] = $lines + 1;
         }
