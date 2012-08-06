@@ -92,7 +92,7 @@ function edit_field_edit($entity_type, $entity_id, $field_name, $langcode = NULL
   $form = drupal_build_form('fape_field_edit_form', $form_state);
 
   // When working with a hidden form, we don't want any CSS or JS to be loaded.
-  if ($_POST['nocssjs']) {
+  if (isset($_POST['nocssjs']) && $_POST['nocssjs'] === 'true') {
     _edit_remove_attached($form);
   }
 
