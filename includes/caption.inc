@@ -41,7 +41,7 @@ function edit_captioned_image_process_filter($text, $filter, $format, $langcode,
         $dom = filter_dom_load($image_html);
         $image_node = $dom->getElementsByTagName('img')->item(0);
         $caption = NULL;
-        $align = 'center';
+        $align = NULL;
 
         // Retrieve, then remove the data-caption and data-align attributes.
         if ($image_node->hasAttribute('data-caption')) {
