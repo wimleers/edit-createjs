@@ -143,26 +143,29 @@ function edit_library() {
     'dependencies' => array(
       array('system', 'jquery.form'),
       array('system', 'drupal.ajax'),
-      // WYSIWYG modules for the Edit module must implement hook_library() so
-      // that we can load them by merely adding a dependency on it here.
-      array($wysiwyg_module, "$wysiwyg_module.edit"),
     ),
   );
-  $libraries['edit.backend'] = array(
-    'title' => 'Edit: back-end',
-    'website' => 'http://drupal.org/project/edit',
-    'version' => NULL, // @TODO Figure out the correct way to do this.
-    'js' => array(
-      $path . '/js/edit-backend.js' => array(
-        'defer' => TRUE,
+
+  // Only add dependencies on the WYSIWYG editor when it's actually available.
+  if (module_exists($wysiwyg_module)) {
+    // WYSIWYG modules for the Edit module must implement hook_library() so that
+    // we can load them by merely adding a dependency on it here.
+    $libraries['edit.frontend']['dependencies'][] = array($wysiwyg_module, "$wysiwyg_module.edit");
+
+    $libraries['edit.backend'] = array(
+      'title' => 'Edit: back-end',
+      'website' => 'http://drupal.org/project/edit',
+      'version' => NULL, // @TODO Figure out the correct way to do this.
+      'js' => array(
+        $path . '/js/edit-backend.js' => array(
+          'defer' => TRUE,
+        ),
       ),
-    ),
-    'dependencies' => array(
-      // WYSIWYG modules for the Edit module must implement hook_library() so
-      // that we can load them by merely adding a dependency on it here.
-      array($wysiwyg_module, "$wysiwyg_module.edit"),
-    ),
-  );
+      'dependencies' => array(
+        array($wysiwyg_module, "$wysiwyg_module.edit"),
+      ),
+    );
+  }
 
   return $libraries;
 }
