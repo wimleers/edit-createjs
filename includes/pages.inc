@@ -150,3 +150,60 @@ function _edit_remove_attached(&$element) {
     _edit_remove_attached($element[$child]);
   }
 }
+
+/**
+ * Page callback: render a processed text field without transformation filters.
+ */
+function edit_text_field_render_without_transformation_filters($entity_type, $entity_id, $field_name, $langcode = NULL) {
+  // Ensure the entity type is valid.
+  if (empty($entity_type)) {
+    return MENU_NOT_FOUND;
+  }
+
+  $entity_info = entity_get_info($entity_type);
+  if (!$entity_info) {
+    return MENU_NOT_FOUND;
+  }
+
+  $entities = entity_load($entity_type, array($entity_id));
+  if (!$entities) {
+    return MENU_NOT_FOUND;
+  }
+
+  $entity = reset($entities);
+  if (!$entity) {
+    return MENU_NOT_FOUND;
+  }
+
+  if (!isset($langcode) && isset($entity->language)) {
+    $langcode = $entity->language;
+  }
+
+  // Ensure access to update this particular field is granted.
+  if (!field_access('edit', $field_name, $entity_type, $entity)) {
+    return MENU_ACCESS_DENIED;
+  }
+
+  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+
+  $field_instance = field_info_instance($entity_type, $field_name, $bundle);
+  if (empty($field_instance)) {
+    return MENU_NOT_FOUND;
+  }
+
+  $commands = array();
+
+  // Render the field in our custom display mode; retrieve the re-rendered
+  // markup, this is what we're after.
+  $field_output = field_view_field($entity_type, $entity, $field_name, 'edit-render-without-transformation-filters');
+  // TODO: support multiple value text fields. Change the code below and the JS.
+  $output = $field_output[0]['#markup'];
+
+  $commands[] = array(
+    'command' => 'edit_field_rendered_without_transformation_filters',
+    'id'      => "$entity_type:$id:$field_name",
+    'data'    => $output,
+  );
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+}

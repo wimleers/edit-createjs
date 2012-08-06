@@ -27,7 +27,12 @@ function filter_wrap_macro($macro, $value, $module) {
 // Identical to check_markup() with the exception of the new $wrap_macro_tags
 // argument, which is also passed on to the filter preprocess and process
 // callbacks.
-function check_markup2($text, $format_id = NULL, $langcode = '', $cache = FALSE, $wrap_macro_tags = TRUE) {
+// Later, this function was modified to also gain the ability to *not* process
+// filters classified as "transformation" filters.
+//
+// @see edit.module/edit_filter_info_alter()
+// @see http://drupal.org/node/807996#comment-6302188
+function check_markup2($text, $format_id = NULL, $langcode = '', $cache = FALSE, $wrap_macro_tags = FALSE, $skip_transformation_filters = FALSE) {
   if (!isset($format_id)) {
     $format_id = filter_fallback_format();
   }
@@ -35,6 +40,11 @@ function check_markup2($text, $format_id = NULL, $langcode = '', $cache = FALSE,
   if (!$format = filter_format_load($format_id)) {
     watchdog('filter', 'Missing text format: %format.', array('%format' => $format_id), WATCHDOG_ALERT);
     return '';
+  }
+
+  // When transformation filters should be skipped, never perform caching.
+  if ($skip_transformation_filters) {
+    $cache = FALSE;
   }
 
   // Check for a cached version of this piece of text.
@@ -57,6 +67,10 @@ function check_markup2($text, $format_id = NULL, $langcode = '', $cache = FALSE,
 
   // Give filters the chance to escape HTML-like data such as code or formulas.
   foreach ($filters as $name => $filter) {
+    // Skip transformation filters.
+    if ($filter->status && $skip_transformation_filters && $filter_info[$name]['edit']['classification'] == 'transformation') {
+      continue;
+    }
     if ($filter->status && isset($filter_info[$name]['prepare callback']) && function_exists($filter_info[$name]['prepare callback'])) {
       $function = $filter_info[$name]['prepare callback'];
       $text = $function($text, $filter, $format, $langcode, $cache, $cache_id, $wrap_macro_tags);
@@ -65,6 +79,10 @@ function check_markup2($text, $format_id = NULL, $langcode = '', $cache = FALSE,
 
   // Perform filtering.
   foreach ($filters as $name => $filter) {
+    // Skip transformation filters.
+    if ($filter->status && $skip_transformation_filters && $filter_info[$name]['edit']['classification'] == 'transformation') {
+      continue;
+    }
     if ($filter->status && isset($filter_info[$name]['process callback']) && function_exists($filter_info[$name]['process callback'])) {
       $function = $filter_info[$name]['process callback'];
       $text = $function($text, $filter, $format, $langcode, $cache, $cache_id, $wrap_macro_tags);

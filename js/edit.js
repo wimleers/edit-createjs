@@ -476,10 +476,39 @@ Drupal.edit.editables = {
     Drupal.edit.state.editedEditable = null;
   },
 
+  _loadRerenderedProcessedText: function($editable, $field) {
+    // Indicate in the 'info' toolgroup that the form is loading.
+    Drupal.edit.toolbar.addClass($editable, 'primary', 'info', 'loading');
+
+    var edit_id = Drupal.edit.getID($field);
+    var element_settings = {
+      url      : Drupal.edit.util.calcRerenderProcessedTextURL(edit_id),
+      event    : 'edit-internal-load-rerender.edit',
+      $field   : $field,
+      $editable: $editable,
+      submit   : { nocssjs : true },
+      progress : { type : null }, // No progress indicator.
+    };
+    if (Drupal.ajax.hasOwnProperty(edit_id)) {
+      delete Drupal.ajax[edit_id];
+      $editable.unbind('edit-internal-load-rerender.edit');
+    }
+    Drupal.ajax[edit_id] = new Drupal.ajax(edit_id, $editable, element_settings);
+    $editable.trigger('edit-internal-load-rerender.edit');
+  },
+
+  // Attach, activate and show the WYSIWYG editor.
+  _wysiwygify: function($editable) {
+    Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].attach($editable);
+    Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].activate($editable);
+    Drupal.edit.toolbar.show($editable, 'primary', 'wysiwyg');
+  },
+
   _updateDirectEditable: function($editable) {
     Drupal.edit.editables._padEditable($editable);
 
-    if (Drupal.edit.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')) {
+    var $field = Drupal.edit.findFieldForEditable($editable);
+    if ($field.hasClass('edit-type-direct-with-wysiwyg')) {
       Drupal.edit.toolbar.get($editable)
       .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.wysiwyg))')
       .append(Drupal.theme('editToolgroup', {
@@ -487,13 +516,21 @@ Drupal.edit.editables = {
         buttons: []
       }));
 
-      Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].attach($editable);
-      Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].activate($editable);
-
-      // Animations.
-      setTimeout(function() {
-        Drupal.edit.toolbar.show($editable, 'primary', 'wysiwyg');
-      }, 0);
+      // When transformation filters have been been applied to the processed
+      // text of this field, then we'll need to load a re-rendered version of
+      // it without the transformation filters.
+      if ($field.hasClass('edit-text-with-transformation-filters')) {
+        Drupal.edit.editables._loadRerenderedProcessedText($editable, $field);
+        // Also store the "real" original content, i.e. the transformed one.
+        $editable.data('edit-content-original-transformed', $editable.html())
+      }
+      // When no transformation filters have been applied: start WYSIWYG editing
+      // immediately!
+      else {
+        setTimeout(function() {
+          Drupal.edit.editables._wysiwygify($editable);
+        }, 0);
+      }
     }
     else {
       $editable.attr('contenteditable', true);
@@ -523,7 +560,7 @@ Drupal.edit.editables = {
     Drupal.edit.editables._unpadEditable($editable);
 
     $editable
-    .removeData(['edit-content-original', 'edit-content-changed'])
+    .removeData(['edit-content-original', 'edit-content-changed', 'edit-content-original-transformed'])
     .unbind('blur.edit keyup.edit paste.edit edit-content-changed.edit');
 
     // Not only clean up the changes to $editable, but also clean up the
@@ -687,6 +724,15 @@ Drupal.edit.editables = {
     }
     // type = direct
     else if ($field.hasClass('edit-type-direct')) {
+
+      // When using WYSIWYG editing, first detach the WYSIWYG editor to ensure
+      // the content has been cleaned up before saving it. (Otherwise,
+      // annotations and infrastructure created by the WYSIWYG editor could also
+      // get saved).
+      if ($field.hasClass('edit-type-direct-with-wysiwyg')) {
+        Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].detach($editable);
+      }
+
       // (This is currently used only for the node title.)
       // We trim the title because otherwise whitespace in the raw HTML ends
       // up in the title as well.
@@ -704,6 +750,14 @@ Drupal.edit.editables = {
   _buttonFieldCloseClicked: function(e, $editable, $field) {
     // Content not changed: stop editing field.
     if (!$editable.data('edit-content-changed')) {
+      // Restore to original content. When dealing with processed text, it's
+      // possible that one or more transformation filters are used. Then, the
+      // "real" original content (i.e. the transformed one) is stored separately
+      // from the "original content" that we use to detect changes.
+      if (typeof $editable.data('edit-content-original-transformed') !== 'undefined') {
+        $editable.html($editable.data('edit-content-original-transformed'));
+      }
+
       Drupal.edit.editables.stopEdit($editable);
     }
     // Content changed: show modal.

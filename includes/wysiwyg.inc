@@ -77,6 +77,37 @@ function edit_wysiwyg_analyze_field_editability($entity_type, $entity, $field_na
 }
 
 /**
+ * Get all unique filter classifications used by a given text format.
+ *
+ * @param $format_id
+ *   A text format ID.
+ * @return array
+ *   All filter classifications used by filters of the given text format.
+ */
+function edit_wysiwyg_format_get_filter_classifications($format_id) {
+  $filter_classifications = array();
+
+  $filters = filter_list_format($format_id);
+
+  // Ignore filters that are disabled.
+  $filters = array_filter($filters, function($filter) {
+    return $filter->status == 1;
+  });
+
+  $filters_metadata = filter_get_filters();
+  foreach ($filters as $filter) {
+    $classification = (!empty($filters_metadata[$filter->name]['edit']['classification']))
+      ? $filters_metadata[$filter->name]['edit']['classification']
+      : FALSE;
+    if ($classification && !in_array($classification, $filter_classifications)) {
+      $filter_classifications[] = $classification;
+    }
+  }
+
+  return $filter_classifications;
+}
+
+/**
  * Analyze text format for WYSIWYG compatibility: every enabled filter must be
  * marked as compatible with WYSIWYG.
  *

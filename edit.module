@@ -53,6 +53,17 @@ function edit_menu() {
     'delivery callback'=> 'ajax_deliver',
     'theme callback'   => 'ajax_base_page_theme',
   );
+  $items['admin/render-without-transformations/field/%/%/%'] = array(
+    // Access is controlled after we have inspected the entity, which can't
+    // easily happen until after the callback.
+    'access arguments' => array(TRUE),
+    'access callback'  => TRUE,
+    'page callback'    => 'edit_text_field_render_without_transformation_filters',
+    'page arguments'   => array(3, 4, 5),
+    'file'             => 'includes/pages.inc',
+    'delivery callback'=> 'ajax_deliver',
+    'theme callback'   => 'ajax_base_page_theme',
+  );
 
   return $items;
 }
@@ -120,6 +131,7 @@ function edit_library() {
       array(
         'data' => array('edit' => array(
           'fieldFormURL' => url('admin/edit/field/!entity_type/!id/!field_name'),
+          'rerenderProcessedTextURL' => url('admin/render-without-transformations/field/!entity_type/!id/!field_name'),
           'context' => 'body',
         )),
         'type' => 'setting',
@@ -159,6 +171,20 @@ function edit_library() {
  * Implements hook_field_attach_view_alter().
  */
 function edit_field_attach_view_alter(&$output, $context) {
+  // Special case for this special mode.
+  if ($context['display'] == 'edit-render-without-transformation-filters') {
+    $field = reset(element_children($output));
+    $langcode = $output[$field]['#language'];
+    foreach (array_keys($output[$field]['#items']) as $item) {
+      $text      = $output[$field]['#items'][$item]['value'];
+      $format_id = $output[$field]['#items'][$item]['format'];
+      $wrapped_and_untransformed = check_markup2($text, $format_id, $langcode, FALSE, TRUE, TRUE);
+      $output[$field][$item]['#markup'] = $wrapped_and_untransformed;
+    }
+
+    return;
+  }
+
   // @TODO: this is too late in the rendering process!
   $fields = element_children($output);
   // @TODO: only do this when the user has access to do so.
@@ -312,6 +338,30 @@ function edit_filter_info_alter(&$info) {
   $macro_tags_metadata = array(
     'filter_tokens',
   );
+  // Classify filters according to http://drupal.org/node/807996#comment-6302188.
+  // Special cases due to this hacky implementation:
+  // 1) filter_htmlcorrector, which wouldn't exist anymore in the above
+  // 2) macro filters shouldn't exist anymore, if they do, they would fall under
+  //    transformation filters, but we have another way to deal with them
+  //    ($wrap_macro_tags = TRUE), so put them in their own class.
+  $classification_metadata = array(
+    // php.module
+    'php_code' => 'html',
+    // filter.module
+    'filter_html'          => 'security',
+    'filter_autop'         => 'html',
+    'filter_url'           => 'html',
+    'filter_htmlcorrector' => 'security', // special case
+    'filter_html_escape'   => 'html',
+    // token_filter.module
+    'filter_tokens' => 'macro', // special case
+    // image_resize_filter.module
+    'image_resize_filter' => 'transformation',
+    // edit.module
+    'edit_filter_captioned_image' => 'transformation',
+    // typogrify.module
+    'typogrify' => 'transformation',
+  );
 
   foreach ($wysiwyg_metadata as $filter => $wysiwyg) {
     if (empty($info[$filter])) {
@@ -321,6 +371,7 @@ function edit_filter_info_alter(&$info) {
       'wysiwyg'      => ($wysiwyg !== FALSE),
       'allowed_tags' => (isset($allowed_tags_metadata[$filter])) ? $allowed_tags_metadata[$filter] : FALSE,
       'macro_tags'   => (isset($macro_tags_metadata[$filter])),
+      'classification' => $classification_metadata[$filter],
     );
   }
 }
@@ -542,6 +593,16 @@ function edit_preprocess_field(&$variables) {
       // @TODO: make the WYSIWYG editor actually *use* this information.
       $allowed_tags = edit_wysiwyg_analyze_allowed_tags($format_id);
       $variables['attributes_array']['data-edit-allowed-tags'] = implode(',', $allowed_tags);
+
+      // Let the JavaScript logic know whether transformation filters are used
+      // in this format, so it can decide whether to re-render the text or not.
+      $filter_classifications = edit_wysiwyg_format_get_filter_classifications($format_id);
+      if (in_array('transformation', $filter_classifications)) {
+        $variables['classes_array'][] = 'edit-text-with-transformation-filters';
+      }
+      else {
+        $variables['classes_array'][] = 'edit-text-without-transformation-filters';
+      }
     }
     // Mark this field as editable.
     $variables['classes_array'][] = 'edit-field';

@@ -19,6 +19,16 @@ Drupal.edit.util.calcFormURLForField = function(id) {
   });
 };
 
+Drupal.edit.util.calcRerenderProcessedTextURL = function(id) {
+  var parts = id.split(':');
+  var urlFormat = decodeURIComponent(Drupal.settings.edit.rerenderProcessedTextURL);
+  return Drupal.t(urlFormat, {
+    '!entity_type': parts[0],
+    '!id'         : parts[1],
+    '!field_name' : parts[2]
+  });
+}
+
 /**
  * Get the background color of an element (or the inherited one).
  */

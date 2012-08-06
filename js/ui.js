@@ -28,8 +28,17 @@ Drupal.edit.modal = {
     .find('.main p').text(message).end()
     .find('.actions').append($(actions))
     .delegate('a.discard', 'click.edit', function() {
-      // Restore to original state.
-      $editable.html($editable.data('edit-content-original'));
+      // Restore to original content. When dealing with processed text, it's
+      // possible that one or more transformation filters are used. Then, the
+      // "real" original content (i.e. the transformed one) is stored separately
+      // from the "original content" that we use to detect changes.
+      if (typeof $editable.data('edit-content-original-transformed') !== 'undefined') {
+        $editable.html($editable.data('edit-content-original-transformed'));
+      }
+      else {
+        $editable.html($editable.data('edit-content-original'));
+      }
+
       $editable.data('edit-content-changed', false);
 
       Drupal.edit.modal.remove();
