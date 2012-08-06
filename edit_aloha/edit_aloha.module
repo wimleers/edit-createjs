@@ -68,6 +68,11 @@ function edit_aloha_library() {
         'ui/multiSplit' => file_create_url($plugin_path . '/lib/multiSplit'),
       )
     ),
+    // Reduce delays for the "aloha-smart-content-changed" events to a minimum.
+    'smartContentChange' => array(
+      'idle' => 200,
+      'delay' => 100,
+    ),
     'plugins' => array(
       'load' => implode(',', $plugins),
       // Note: the DrupalContentHandler plug-in will ensure that only tags

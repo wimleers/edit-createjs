@@ -538,15 +538,27 @@ Drupal.edit.editables = {
 
     $editable
     .data('edit-content-original', $editable.html())
-    .data('edit-content-changed', false)
-    // We cannot use Drupal.behaviors.formUpdated here because we're not dealing
-    // with a form!
-    .bind('blur.edit keyup.edit paste.edit', function() {
-      if ($editable.html() != $editable.data('edit-content-original')) {
-        $editable.data('edit-content-changed', true);
-        $editable.trigger('edit-content-changed.edit');
-      }
-    });
+    .data('edit-content-changed', false);
+
+    // Detect content changes ourselves only when not using a WYSIWYG editor.
+    var markContentChanged = function() {
+      $editable.data('edit-content-changed', true);
+      $editable.trigger('edit-content-changed.edit');
+    };
+    if (!$field.hasClass('edit-type-direct-with-wysiwyg')) {
+      // We cannot use Drupal.behaviors.formUpdated here because we're not dealing
+      // with a form!
+      $editable.bind('blur.edit keyup.edit paste.edit', function() {
+        if ($editable.html() != $editable.data('edit-content-original')) {
+          markContentChanged();
+        }
+      });
+    }
+    else {
+      $editable.bind('edit-wysiwyg-content-changed.edit', function() {
+        markContentChanged();
+      });
+    }
   },
 
   _restoreDirectEditable: function($editable) {

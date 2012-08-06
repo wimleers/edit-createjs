@@ -33,6 +33,13 @@ Drupal.edit.wysiwyg.edit_aloha = {
     }
 
     Aloha.jQuery('#' + id).aloha();
+
+    // Notify the Edit module's JS whenever content has changed.
+    Aloha.bind('aloha-smart-content-changed.edit_aloha', function(event, alohaEditable) {
+      if (alohaEditable.editable.obj[0].id == id) {
+        $editable.trigger('edit-wysiwyg-content-changed');
+      }
+    });
   },
 
   activate: function($editable) {
@@ -46,11 +53,13 @@ Drupal.edit.wysiwyg.edit_aloha = {
   detach: function($editable) {
     var id = $editable.attr('id');
 
-    Aloha.jQuery('#' + id).mahalo();
+    Aloha.jQuery('#' + id)
+    .unbind('aloha-smart-content-changed.edit_aloha')
+    .mahalo();
     if (id.match(/^edit-aloha-\d+$/) != null) {
       $editable.removeAttr('id');
     }
-  },
+  }
 };
 
 })(jQuery);
