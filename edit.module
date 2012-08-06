@@ -281,10 +281,10 @@ function edit_field_formatter_info_alter(&$info) {
   //   * 'wysiwyg', with boolean values
   $editability_metadata = array(
     // @todo Implement file and image editability.
-    'file_default'   => 'disabled',
-    'file_table'     => 'disabled',
+    'file_default'   => 'form',
+    'file_table'     => 'form',
     'file_url_plain' => 'disabled',
-    'image'          => 'disabled',
+    'image'          => 'form',
     'list_default'   => 'form',
     'list_key'       => 'form',
     'number_integer'     => 'form',
