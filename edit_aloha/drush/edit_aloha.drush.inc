@@ -8,8 +8,8 @@
 /**
  * The Aloha Editor download URI.
  */
-define('EDIT_ALOHA_VERSION', '0.21.0');
-define('EDIT_ALOHA_DOWNLOAD_URI', 'https://github.com/downloads/alohaeditor/Aloha-Editor/alohaeditor-' . EDIT_ALOHA_VERSION . '.zip');
+define('EDIT_ALOHA_VERSION', '0.21.1');
+define('EDIT_ALOHA_DOWNLOAD_URI', 'http://archiva.gentics.com:8081/archiva/repository/com.gentics.public/org/alohaeditor/alohaeditor/0.21.1/alohaeditor-' . EDIT_ALOHA_VERSION . '-cdn.zip');
 
 /**
  * Implementats hook_drush_command().
