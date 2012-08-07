@@ -106,13 +106,8 @@ function drush_edit_aloha_download() {
   }
 
   if (is_file($filename)) {
-    $tmp_dir = sys_get_temp_dir() . '/' . $target_dir;
-
     // Decompress the zip archive
-    drush_shell_exec('unzip -qq -o ' . $filename . ' -d ' . $tmp_dir);
-
-    // Move everything from the temp directory into the target directory.
-    drush_op('rename', $tmp_dir . '/alohaeditor-' . EDIT_ALOHA_VERSION, $target_dir);
+    drush_shell_exec('unzip -qq -o ' . $filename . ' -d ' . $target_dir);
 
     // Remove the zip archive
     drush_op('unlink', $filename);
