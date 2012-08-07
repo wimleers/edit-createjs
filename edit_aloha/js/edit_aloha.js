@@ -27,7 +27,7 @@ Drupal.edit.wysiwyg.edit_aloha = {
   attach: function($editable) {
     var id = $editable.attr('id');
     // If no ID is set on this editable, then generate one.
-    if (id == "") {
+    if (typeof id === 'undefined' || id == "") {
       id = 'edit-aloha-' + new Date().getTime();
       $editable.attr('id', id);
     }
