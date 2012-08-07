@@ -35,8 +35,8 @@ Drupal.edit.wysiwyg.edit_aloha = {
     Aloha.jQuery('#' + id).aloha();
 
     // Notify the Edit module's JS whenever content has changed.
-    Aloha.bind('aloha-smart-content-changed.edit_aloha', function(event, alohaEditable) {
-      if (alohaEditable.editable.obj[0].id == id) {
+    Aloha.bind('aloha-smart-content-changed.edit_aloha', function(event, ae) {
+      if (ae.editable.obj[0].id == id && ae.triggerType !== 'blur') {
         $editable.trigger('edit-wysiwyg-content-changed');
       }
     });
