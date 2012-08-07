@@ -503,6 +503,7 @@ Drupal.edit.editables = {
 
   // Attach, activate and show the WYSIWYG editor.
   _wysiwygify: function($editable) {
+    $editable.addClass('edit-wysiwyg-attached');
     Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].attach($editable);
     Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].activate($editable);
     Drupal.edit.toolbar.show($editable, 'primary', 'wysiwyg');
@@ -566,7 +567,10 @@ Drupal.edit.editables = {
   },
 
   _restoreDirectEditable: function($editable) {
-    if (Drupal.edit.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')) {
+    if (Drupal.edit.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')
+        && $editable.hasClass('edit-wysiwyg-attached'))
+    {
+      $editable.removeClass('edit-wysiwyg-attached');
       Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].detach($editable);
     }
     else {
@@ -745,7 +749,10 @@ Drupal.edit.editables = {
       // the content has been cleaned up before saving it. (Otherwise,
       // annotations and infrastructure created by the WYSIWYG editor could also
       // get saved).
-      if ($field.hasClass('edit-type-direct-with-wysiwyg')) {
+      if ($field.hasClass('edit-type-direct-with-wysiwyg')
+          && $editable.hasClass('edit-wysiwyg-attached'))
+      {
+        $editable.removeClass('edit-wysiwyg-attached');
         Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].detach($editable);
       }
 
