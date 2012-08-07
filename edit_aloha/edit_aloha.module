@@ -58,8 +58,10 @@ function edit_aloha_library() {
     'common/link',
     'extra/captioned-image',
     'edit_aloha/drupal',
-    'token_filter/token-filter'
   );
+  if (module_exists('token_filter')) {
+    $plugins[] = 'token_filter/token-filter';
+  }
 
   $plugin_path = drupal_get_path('module', 'edit_aloha') . '/aloha/drupal-ui';
   $aloha_settings = array(
