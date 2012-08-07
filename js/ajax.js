@@ -95,7 +95,7 @@ $(function() {
     // Response.data contains the updated rendering of the field, if any.
     if (response.data) {
       // Replace the old content with the new content.
-      var $field = $('.edit-field[data-edit-id=' + response.id  + ']');
+      var $field = $('.edit-field[data-edit-id="' + response.id  + '"]');
       var $parent = $field.parent();
       if ($field.css('display') == 'inline') {
         $parent.html(response.data);

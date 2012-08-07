@@ -157,7 +157,7 @@ Drupal.edit.findEntityForField = function($f) {
   var $e = $f.closest('.edit-entity');
   if ($e.length == 0) {
     var entity_edit_id = $f.data('edit-id').split(':').slice(0,2).join(':');
-    $e = $('.edit-entity[data-edit-id=' + entity_edit_id + ']');
+    $e = $('.edit-entity[data-edit-id="' + entity_edit_id + '"]');
   }
   return $e;
 };
@@ -303,7 +303,7 @@ Drupal.edit.entityEditables = {
       .delegate('a.label', 'click.edit', function(e) {
         // Disable edit mode, then let the normal behavior (i.e. open the full
         // entity edit form) go through.
-        $('#edit_view-edit-toggle input[value=view]').trigger('click.edit');
+        $('#edit_view-edit-toggle input[value="view"]').trigger('click.edit');
       });
 
       // TODO: improve this; currently just a hack for Garland compatibility.
@@ -757,7 +757,7 @@ Drupal.edit.editables = {
       var value = $.trim($editable.html());
       console.log(value);
       $('#edit_backstage form')
-      .find(':input[type!=hidden][type!=submit]').val(value).end()
+      .find(':input[type!="hidden"][type!="submit"]').val(value).end()
       .find('.edit-form-submit').trigger('click.edit');
     }
     return false;
