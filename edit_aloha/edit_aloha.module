@@ -26,12 +26,22 @@ function edit_aloha_library() {
   if (empty($library_path)) {
     return;
   }
+
+  // git clone
   if (file_exists($library_path . '/src')) {
     $library_path .= '/src';
   }
-  else {
-    // @todo Check whether this is correct.
+  // CDN package
+  elseif (file_exists($library_path . '/lib')) {
+    // No subdirectory -- nice and clean :)
+  }
+  // regular package
+  elseif (file_exists($library_path)) {
     $library_path .= '/aloha';
+  }
+  else {
+    drupal_set_message(t('Aloha Editor no longer correctly installed, please look at the status report.'));
+    return;
   }
 
   // @todo update this based on the input format settings.
