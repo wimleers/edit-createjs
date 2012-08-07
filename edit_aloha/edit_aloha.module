@@ -182,9 +182,14 @@ function edit_aloha_library() {
         'weight' => -1001,
         'defer' => TRUE,
       ),
-      $library_path . '/lib/aloha.js' => array(
+      drupal_get_path('module', 'edit_aloha') . '/js/aloha-use-drupal-jquery.js' => array(
         'group' => JS_LIBRARY,
         'weight' => -1000,
+        'defer' => FALSE,
+      ),
+      $library_path . '/lib/aloha-bare.js' => array(
+        'group' => JS_LIBRARY,
+        'weight' => -999,
         'defer' => TRUE,
         'attributes' => array(
           'data-aloha-defer-init' => 'true',
