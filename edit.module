@@ -142,6 +142,7 @@ function edit_library() {
     ),
     'dependencies' => array(
       array('system', 'jquery.form'),
+      array('system', 'drupal.form'),
       array('system', 'drupal.ajax'),
     ),
   );
