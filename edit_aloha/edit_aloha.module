@@ -182,6 +182,9 @@ function edit_aloha_library() {
         'weight' => -1001,
         'defer' => TRUE,
       ),
+      // @TODO: stop using this when Aloha 0.21.2 is released, which will
+      // contain bugfixes that obviate it.
+      // See https://github.com/alohaeditor/Aloha-Editor/issues/655#issuecomment-7560877.
       drupal_get_path('module', 'edit_aloha') . '/js/aloha-use-drupal-jquery.js' => array(
         'group' => JS_LIBRARY,
         'weight' => -1000,
