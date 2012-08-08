@@ -70,7 +70,7 @@ Drupal.edit.init = function() {
       var $f = Drupal.edit.findEditableFields();
       Drupal.edit.startEditableFields($f);
       var $e = Drupal.edit.findEditableEntities();
-      Drupal.edit.startEditableEntities($e);
+      // Drupal.edit.startEditableEntities($e);
 
       // TODO: preload forms. We could do one request per form, but that's more
       // RTTs than needed. Instead, the server should support batch requests.
@@ -287,6 +287,7 @@ Drupal.edit.clickOverlay = function(e) {
 // Entity editables.
 Drupal.edit.entityEditables = {
   startHighlight: function($editable) {
+    return;
     console.log('entityEditables.startHighlight');
     if (Drupal.edit.toolbar.create($editable)) {
       var label = Drupal.t('Edit !entity', { '!entity': $editable.data('edit-entity-label') });
@@ -322,6 +323,7 @@ Drupal.edit.entityEditables = {
   },
 
   stopHighlight: function($editable) {
+    return;
     console.log('entityEditables.stopHighlight');
 
     // Animations.
