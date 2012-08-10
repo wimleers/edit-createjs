@@ -179,9 +179,15 @@ function edit_aloha_library() {
     'version' => NULL, // @TODO Figure out the correct way to do this.
     'js' => array(
       $library_path . '/lib/require.js' => array(
+        'data' => $library_path . '/lib/require.js',
+        'type' => 'file',
+        'scope' => 'header',
         'group' => JS_LIBRARY,
-        'weight' => -1001,
-        'defer' => TRUE,
+        'every_page' => TRUE,
+        'weight' => -21, // jquery.js has weight -20
+        'preprocess' => TRUE,
+        'cache' => TRUE,
+        'defer' => FALSE,
       ),
       // @TODO: stop using this when Aloha 0.21.2 is released, which will
       // contain bugfixes that obviate it.
