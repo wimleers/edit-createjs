@@ -10,6 +10,11 @@ define(['jquery', 'jqueryui'], function($) {
 					secondary: (hasMenu && 'aloha-jqueryui-icon ui-icon-triangle-1-s') || null
 				}
 			});
+
+			// Edit: improved accessibility.
+			button.button('widget')
+				.find( '.ui-button-icon-primary' ).attr( 'aria-hidden', 'true' );
+
 			if (props.iconUrl) {
 				button.button('widget')
 					  .children('.ui-button-icon-primary')
