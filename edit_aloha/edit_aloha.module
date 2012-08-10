@@ -214,6 +214,7 @@ function edit_aloha_library() {
     'css' => array(
       $library_path . '/css/aloha.css',
       drupal_get_path('module', 'edit_aloha') . '/css/edit_aloha.css',
+      drupal_get_path('module', 'edit_aloha') . '/css/edit_aloha_ui.css',
     ),
   );
 

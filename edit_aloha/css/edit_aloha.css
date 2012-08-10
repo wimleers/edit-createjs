@@ -1,3 +1,7 @@
+/**
+ * Aloha Hacks.
+ */
+
 /* Quick hack to make our custom Aloha UI fit in quite nicely with the rest of Edit's UI. */
 .aloha .ui-button-icon-only .ui-button-text, .aloha .ui-button-icons-only .ui-button-text {
   padding: .2em;
