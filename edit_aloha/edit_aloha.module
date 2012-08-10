@@ -78,6 +78,7 @@ function edit_aloha_library() {
       'paths' => array(
         'ui/ui-plugin'  => file_create_url($plugin_path . '/lib/ui-plugin'),
         'ui/multiSplit' => file_create_url($plugin_path . '/lib/multiSplit'),
+        'ui/utils'      => file_create_url($plugin_path . '/lib/utils'),
       )
     ),
     // Reduce delays for the "aloha-smart-content-changed" events to a minimum.
