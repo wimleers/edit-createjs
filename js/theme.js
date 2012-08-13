@@ -77,6 +77,7 @@ Drupal.theme.prototype.editToolbarContainer = function(settings) {
   html += '<div id="' + settings.id + '" class="edit-toolbar-container">';
   html += '  <div class="edit-toolbar primary" />';
   html += '  <div class="edit-toolbar secondary" />';
+  html += '  <div class="edit-toolbar tertiary" />';
   html += '</div>';
   return html;
 };
