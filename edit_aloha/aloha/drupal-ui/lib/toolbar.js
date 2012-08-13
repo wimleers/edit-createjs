@@ -3,7 +3,6 @@ define([
 	'aloha/core',
 	'ui/surface',
 	'ui/tab',
-	'ui/floating',
 	'ui/context',
 	'i18n!ui/nls/i18n',
 	'jqueryui'
@@ -12,7 +11,6 @@ define([
 	Aloha,
 	Surface,
 	Tab,
-	floating,
 	Context,
 	i18n
 ) {
@@ -38,7 +36,6 @@ define([
 	 * @extends {Surface}
 	 */
 	var Toolbar = Surface.extend({
-		_moveTimeout: null,
 		$_container: null,
 		_tabBySlot: null,
 		_tabs: [],
@@ -74,10 +71,6 @@ define([
 				}
 				this._tabs.push({tab: tabInstance, settings: tabSettings});
 			}
-
-			// Pinning behaviour is global in that if one toolbar is pinned,
-			// then all other toolbars will be pinned to that position.
-			floating.makeFloating(this, Toolbar);
 		},
 
 		adoptInto: function(slot, component){
@@ -91,65 +84,6 @@ define([
 
 		getContainers: function () {
 			return this.$_container.data('aloha-tabs');
-		},
-
-		_move: function (duration) {
-			// We need to order the invocation of the floating animation to
-			// occur after a sequence point so that the element's height will
-			// be correct.
-			var that = this;
-			if (this._moveTimeout) {
-				clearTimeout(this._moveTimeout);
-			}
-			this._moveTimeout = setTimeout(function () {
-				that._moveTimeout = null;
-				if (Aloha.activeEditable && Toolbar.isFloatingMode) {
-					that.$element.stop();
-					floating.floatSurface(that, Aloha.activeEditable, duration,
-						function (position) {
-							Toolbar.setFloatingPosition(position);
-						});
-				}
-				// 20ms should be small enough to be near instant to
-				// the user but large enough to avoid doing unnecessary
-				// work when selection changes multiple times during a
-				// short time frame.
-			}, 20);
-		},
-
-		addPin: function () {
-			var $pin = $('<div class="aloha-ui-pin">');
-			var $element = this.$element;
-			$element.find('.ui-tabs').append($pin);
-			$element.find('.ui-tabs').hover(function () {
-				$element.addClass('aloha-ui-hover');
-			}, function () {
-				$element.removeClass('aloha-ui-hover');
-			});
-
-			if (!Toolbar.isFloatingMode) {
-				$pin.addClass('aloha-ui-pin-down');
-			}
-
-			var surface = this;
-
-			$pin.click(function () {
-				Toolbar.isFloatingMode = !Toolbar.isFloatingMode;
-				var position;
-
-				if (Toolbar.isFloatingMode) {
-					position = {
-						top: Toolbar.pinTop,
-						left: Toolbar.pinLeft
-					};
-				} else {
-					position = surface.$element.offset();
-					position.top -= $(window).scrollTop();
-				}
-
-				Toolbar.setFloatingPosition(position);
-				floating.togglePinSurface(surface, position, Toolbar.isFloatingMode);
-			});
 		},
 
 		/**
@@ -166,7 +100,6 @@ define([
 				top: position.top,
 				left: position.left
 			});
-			this._move();
 		},
 
 		/**
@@ -189,24 +122,6 @@ define([
 		$surfaceContainer: null,
 
 		/**
-		 * Whether or not floating toolbar surfaces should be pinned.
-		 * @type {boolean}
-		 */
-		isFloatingMode: true,
-
-		/**
-		 * Left position of pinned toolbars.
-		 * @type {number}
-		 */
-		pinLeft: 0,
-
-		/**
-		 * Top position of pinned toolbars.
-		 * @type {number}
-		 */
-		pinTop: 0,
-
-		/**
 		 * Initializes the toolbar manager.  Adds the surface container
 		 * element, and sets up floating behaviour settings.
 		 */
@@ -221,23 +136,7 @@ define([
 			// finished loading, so we have to defer appending the element.
 			$(function () { Toolbar.$surfaceContainer.appendTo('body'); });
 			Surface.trackRange(Toolbar.$surfaceContainer);
-			var pinState = floating.getPinState();
-			Toolbar.pinTop = pinState.top;
-			Toolbar.pinLeft = pinState.left;
-			Toolbar.isFloatingMode = !pinState.isPinned;
 		},
-
-		setFloatingPosition: function (position) {
-			Toolbar.pinTop = position.top;
-			Toolbar.pinLeft = position.left;
-		},
-
-		getFloatingPosition: function () {
-			return {
-				top: Toolbar.pinTop,
-				left: Toolbar.pinLeft
-			};
-		}
 	});
 
 	Toolbar.init();
