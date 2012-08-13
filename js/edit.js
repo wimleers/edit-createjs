@@ -630,6 +630,12 @@ Drupal.edit.editables = {
       .addClass('edit-animate-exception-grow')
       .css({'position': 'relative', 'top': '-5px', 'left': '5px'});
 
+      // The tertiary toolgroups must move to the top and the left, and must
+      // increase their width.
+      $toolbar.find('.edit-toolbar.tertiary .edit-toolgroup')
+      .addClass('edit-animate-exception-grow')
+      .css({'position': 'relative', 'top': '-5px', 'left': '-5px', 'width': $editable.width() + 5});
+
       // The clipping (to get rid of the bottom box-shadow) needs to be updated.
       $toolbar
       .delegate('.edit-toolbar', Drupal.edit.const.transitionEnd, function(e) {
@@ -680,7 +686,7 @@ Drupal.edit.editables = {
       }
       $toolbar.find('.edit-toolgroup')
       .removeClass('edit-animate-exception-grow')
-      .css({'position': '', 'top': '', 'left': ''});
+      .css({'position': '', 'top': '', 'left': '', 'width': ''});
 
       // Undo our changes to the clipping (to prevent the bottom box-shadow).
       $toolbar

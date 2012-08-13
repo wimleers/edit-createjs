@@ -90,15 +90,21 @@ define([
 		 * Shows the toolbar.
 		 */
 		show: function () {
-			console.log(arguments);
-			debugger;
+			// Remove old content.
 			Toolbar.$surfaceContainer.children().detach();
-			Toolbar.$surfaceContainer.append(this.$element);
-			Toolbar.$surfaceContainer.stop().fadeTo(200, 1);
-			var position = Toolbar.getFloatingPosition();
-			this.$element.stop().css({
-				top: position.top,
-				left: position.left
+
+			// Move the toolbar surface into our custom location.
+			jQuery( '.edit-toolgroup.wysiwyg:first' )
+				.append( Toolbar.$surfaceContainer.detach() );
+
+			// Now show the appropriate content.
+			Toolbar.$surfaceContainer.append( this.$element );
+			Toolbar.$surfaceContainer.stop().fadeTo( 200, 1, function() {
+				// Let Edit's JS know that its tertiary toolbar has changed, so that it
+				// can decide to e.g. increase its height to accomodate the changed
+				// content.
+				jQuery( '.edit-toolgroup.wysiwyg:first' )
+					.trigger( 'edit-toolbar-tertiary-changed' );
 			});
 		},
 
@@ -108,6 +114,10 @@ define([
 		hide: function () {
 			Toolbar.$surfaceContainer.stop().fadeOut(200, function () {
 				Toolbar.$surfaceContainer.children().detach();
+				// Move the toolbar surface into its original location again.
+				Toolbar.$surfaceContainer
+					.detach()
+					.appendTo( 'body' );
 			});
 		}
 	});

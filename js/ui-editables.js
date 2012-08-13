@@ -57,6 +57,22 @@ Drupal.edit.toolbar = {
       // don't want all of them to show up!)
       .bind('edit-toolbar-remove.edit', function(e) {
         $toolbar.remove();
+      })
+      // Accomodate changed content in tertiary toolbar.
+      .bind('edit-toolbar-tertiary-changed', function(e) {
+        // Increase height if necessary.
+        var height = 0;
+        $toolbar.find('.edit-toolbar.tertiary').children()
+        .each(function(i, element) {
+          height += $(element).height();
+        });
+        if (height > 0) {
+          $toolbar.find('.edit-toolbar').each(function(i, element) {
+            var top = $(element).css('top');
+            $(element).css('top', Drupal.edit.util.stripPX(top) - height + 'px');
+          });
+          $toolbar.find('.edit-toolbar.tertiary').css('height', height);
+        }
       });
 
       return true;
