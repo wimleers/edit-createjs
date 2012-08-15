@@ -60,18 +60,27 @@ Drupal.edit.toolbar = {
       })
       // Accomodate changed content in tertiary toolbar.
       .bind('edit-toolbar-tertiary-changed', function(e) {
-        // Increase height if necessary.
+        var $tertiary = $toolbar.find('.edit-toolbar.tertiary');
+        var adjustedOffset = $tertiary.data('edit-adjusted-offset');
+        if (typeof adjustedOffset === 'undefined') {
+          $tertiary.data('edit-adjusted-offset', 0);
+          adjustedOffset = 0;
+        }
+
         var height = 0;
         $toolbar.find('.edit-toolbar.tertiary').children()
         .each(function(i, element) {
           height += $(element).height();
         });
-        if (height > 0) {
+
+        // If the height has changed, then change the offsets of the toolgroups
+        // as well.
+        if (height != adjustedOffset) {
           $toolbar.find('.edit-toolbar').each(function(i, element) {
             var top = $(element).css('top');
-            $(element).css('top', Drupal.edit.util.stripPX(top) - height + 'px');
+            $(element).css('top', Drupal.edit.util.stripPX(top) - height + adjustedOffset + 'px');
           });
-          $toolbar.find('.edit-toolbar.tertiary').css('height', height);
+          $tertiary.data('edit-adjusted-offset', height );
         }
       });
 
