@@ -53,8 +53,9 @@ define([
 			    i,
 			    key;
 			this._super(context);
-			this.$element = $('<div>', {'class': 'aloha-ui aloha-ui-toolbar', 'unselectable': 'on'});
-			this.$_container = Tab.createContainer().appendTo(this.$element);
+			this.tabContainers = Tab.createContainers();
+			Toolbar.$tabsSurfaceContainer.append( this.tabContainers.handlesContainer );
+			Toolbar.$mainSurfaceContainer.append( this.tabContainers.panelsContainer );
 			this._tabBySlot = {};
 
 			for (i = 0; i < tabs.length; i++) {
@@ -62,7 +63,8 @@ define([
 				tabInstance = new Tab(context, {
 					label: i18n.t(tabSettings.label, tabSettings.label),
 					showOn: tabSettings.showOn,
-					container: this.$_container
+					handlesContainer: this.tabContainers.handlesContainer,
+					panelsContainer: this.tabContainers.panelsContainer
 				}, tabSettings.components);
 				for (key in tabInstance._elemBySlot) {
 					if (tabInstance._elemBySlot.hasOwnProperty(key)) {
@@ -78,31 +80,26 @@ define([
 			return tab && tab.adoptInto(slot, component);
 		},
 
-		getActiveContainer: function () {
-			return this.$_container.data('aloha-active-container');
-		},
-
-		getContainers: function () {
-			return this.$_container.data('aloha-tabs');
-		},
-
 		/**
 		 * Shows the toolbar.
 		 */
 		show: function () {
 			// Remove old content.
-			Toolbar.$surfaceContainer.children().detach();
+			// Toolbar.$mainSurfaceContainer.children().detach();
+			// Toolbar.$tabsSurfaceContainer.children().detach();
 
 			// Move the toolbar surface into our custom location.
+			jQuery( '.edit-toolgroup.wysiwyg-tabs:first' )
+				.append( Toolbar.$tabsSurfaceContainer.detach() );
 			jQuery( '.edit-toolgroup.wysiwyg:first' )
-				.append( Toolbar.$surfaceContainer.detach() );
+				.append( Toolbar.$mainSurfaceContainer.detach() );
 
 			// Now show the appropriate content.
-			Toolbar.$surfaceContainer.append( this.$element );
-			Toolbar.$surfaceContainer.stop().fadeTo( 200, 1, function() {
-				// Let Edit's JS know that its tertiary toolbar has changed, so that it
-				// can decide to e.g. increase its height to accomodate the changed
-				// content.
+			Toolbar.$tabsSurfaceContainer.stop().fadeTo( 200, 1 );
+			Toolbar.$mainSurfaceContainer.stop().fadeTo( 200, 1, function() {
+			// 	// Let Edit's JS know that its tertiary toolbar has changed, so that it
+			// 	// can decide to e.g. increase its height to accomodate the changed
+			// 	// content.
 				jQuery( '.edit-toolgroup.wysiwyg:first' )
 					.trigger( 'edit-toolbar-tertiary-changed' );
 			});
@@ -112,13 +109,19 @@ define([
 		 * Hides the toolbar.
 		 */
 		hide: function () {
-			Toolbar.$surfaceContainer.stop().fadeOut(200, function () {
-				Toolbar.$surfaceContainer.children().detach();
-				// Move the toolbar surface into its original location again.
-				Toolbar.$surfaceContainer
-					.detach()
-					.appendTo( 'body' );
-			});
+			Toolbar.$mainSurfaceContainer
+				.add( Toolbar.$tabsSurfaceContainer )
+				.stop().fadeOut( 200, function () {
+					// Toolbar.$mainSurfaceContainer.children().detach();
+					// Move the toolbar surface into its original location again.
+					Toolbar.$mainSurfaceContainer
+						.detach()
+						.appendTo( 'body' );
+					Toolbar.$tabsSurfaceContainer
+						.detach()
+						.appendTo( 'body' );
+				});
+
 		}
 	});
 
@@ -129,7 +132,9 @@ define([
 		 * page.
 		 * @type {jQuery.<HTMLElement>}
 		 */
-		$surfaceContainer: null,
+		$mainSurfaceContainer: null,
+
+		$tabsSurfaceContainer: null,
 
 		/**
 		 * Initializes the toolbar manager.  Adds the surface container
@@ -137,15 +142,25 @@ define([
 		 */
 		init: function () {
 			// TODO should use context.js to get the context element
-			Toolbar.$surfaceContainer = $('<div>', {
-				'class': 'aloha aloha-surface aloha-toolbar',
+			Toolbar.$mainSurfaceContainer = $('<div>', {
+				'class': 'drupal-aloha aloha-surface aloha-toolbar',
 				'unselectable': 'on'
 			}).hide();
 
+			Toolbar.$tabsSurfaceContainer = $('<div>', {
+				'class': 'drupal-aloha aloha-surface aloha-toolbar-tabs',
+				'unselectable': 'on'
+			}).hide();
+
+
 			// In the built aloha.js, init will happend before the body has
 			// finished loading, so we have to defer appending the element.
-			$(function () { Toolbar.$surfaceContainer.appendTo('body'); });
-			Surface.trackRange(Toolbar.$surfaceContainer);
+			$(function () {
+				Toolbar.$mainSurfaceContainer.appendTo('body');
+				Toolbar.$tabsSurfaceContainer.appendTo('body');
+			});
+			Surface.trackRange(Toolbar.$mainSurfaceContainer);
+			Surface.trackRange(Toolbar.$tabsSurfaceContainer);
 		},
 	});
 

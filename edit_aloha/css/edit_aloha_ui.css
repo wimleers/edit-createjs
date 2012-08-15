@@ -2,6 +2,8 @@
  * Custom Aloha UI.
  */
 
+
+/** Icons **/
 @font-face {
 	font-family: 'spark_icons';
 	src: url('spark_icons.eot');
@@ -24,4 +26,94 @@
   text-indent: 0px;
   background-image: none;
   font-size: 15px;
+}
+
+
+/** Toolbar tabs **/
+.edit-toolgroup.wysiwyg-tabs {
+  padding-left: 0;
+  box-shadow: 0px 0px 1px 1px #0199FF, 0px 0px 3px 3px rgba(153, 153, 153, .5);
+}
+.edit-toolgroup.wysiwyg-tabs ul {
+  margin: 0;
+  padding: 0;
+}
+.edit-toolgroup.wysiwyg-tabs ul li {
+  list-style: none;
+  float: left;
+}
+
+.edit-toolgroup.wysiwyg-tabs ul li a {
+  color: #999;
+  min-width: 40px;
+  text-align: center;
+  padding: 8px 12px 6px;
+  border: none;
+  border-right: 1px solid #AAA;
+  margin: 0;
+  border-radius: 0;
+}
+
+.edit-toolgroup.wysiwyg-tabs ul li a.active {
+  background-color: #eee;
+  color: black;
+}
+
+.edit-toolgroup.wysiwyg-tabs ul li a.disabled {
+  display:none;
+}
+
+.edit-toolgroup.wysiwyg-tabs ul li:first-child a {
+  border-left: none;
+}
+
+
+/** Toolbar **/
+.edit-toolgroup.wysiwyg {
+  display: inline-block;
+  /* Move the default toolgroup padding from the left to the right.*/
+  /* @todo: revise this */
+  padding-left: 0;
+  padding-right: 5px;
+}
+
+.edit-toolgroup.wysiwyg .aloha-ui-component-group div {
+  display:none;
+}
+
+.edit-toolgroup.wysiwyg button .ui-button-text {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+}
+
+.edit-toolgroup.wysiwyg button .spark-icon {
+  font-size: 15px;
+}
+
+.edit-toolgroup.wysiwyg button.ui-button {
+  border-radius: 0;
+  border: none;
+  background: inherit;
+  color: inherit;
+  width: inherit;
+  margin: 0;
+
+  width: 31px;
+  padding: 5px 0 4px;
+  display: block;
+  float: left;
+  border-right: 1px solid #AAA;
+  text-align: center;
+  border-bottom: 1px solid #AAA;
+}
+
+.edit-toolgroup.wysiwyg {
+  font-size:15px;
+  color:rgb(135,135,135);
+  text-align:center;
+  background:-moz-linear-gradient(rgb(254,254,254) 0%,rgb(204,204,204) 100%);
+  background:-webkit-gradient(linear,color-stop(0, rgb(254,254,254)),color-stop(1, rgb(204,204,204)));
+  background:-webkit-linear-gradient(rgb(254,254,254) 0%,rgb(204,204,204) 100%);
+  background:linear-gradient(rgb(254,254,254) 0%,rgb(204,204,204) 100%);
 }
