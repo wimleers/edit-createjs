@@ -8,12 +8,12 @@ Drupal.edit.wysiwyg = Drupal.edit.wysiwyg || {};
  */
 Drupal.behaviors.edit = {
   attach: function(context) {
-    $('#edit_view-edit-toggle').once('edit-init', Drupal.edit.init);
-    $('#edit_view-edit-toggle').once('edit-toggle', Drupal.edit.toggle.render);
+    $('#edit_view-edit-toggles').once('edit-init', Drupal.edit.init);
+    $('#edit_view-edit-toggles').once('edit-toggle', Drupal.edit.toggle.render);
 
     // TODO: remove this; this is to make the current prototype somewhat usable.
-    $('#edit_view-edit-toggle label').click(function() {
-      $(this).prevUntil(null, ':radio').trigger('click.edit');
+    $('a.edit_view-edit-toggle').click(function() {
+      $(this).trigger('click.edit');
     });
   }
 };
@@ -57,9 +57,12 @@ Drupal.edit.init = function() {
   $(Drupal.theme('editBackstage', {})).appendTo('body');
 
   // Transition between view/edit states.
-  $("#edit_view-edit-toggle input").bind('click.edit', function() {
+  $("a.edit_view-edit-toggle").bind('click.edit', function() {
     var wasViewing = Drupal.edit.state.isViewing;
-    var isViewing  = Drupal.edit.state.isViewing = (this.value == "view");
+    var isViewing  = Drupal.edit.state.isViewing = $(this).hasClass('edit-view');
+    // Swap active class among the two links.
+    $('a.edit_view-edit-toggle').parent().removeClass('active');
+    $('a.edit_view-edit-toggle.edit-' + (isViewing ? 'view' : 'edit')).parent().addClass('active');
 
     if (wasViewing && !isViewing) {
       $(Drupal.theme('editOverlay', {}))
@@ -77,6 +80,7 @@ Drupal.edit.init = function() {
       console.log('Preloading forms that we might need!', Drupal.edit.state.queues.preload);
 
       // Animations.
+      $('#edit_overlay').css('top', Drupal.navbar.height() + Drupal.navbar.drawerHeight());
       $('#edit_overlay').removeClass('edit-animate-invisible');
 
       // Disable contextual links in edit mode.
@@ -105,6 +109,7 @@ Drupal.edit.init = function() {
     else {
       // No state change.
     }
+    return false;
   });
 };
 

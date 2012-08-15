@@ -69,6 +69,16 @@ function edit_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ */
+function edit_menu_alter(&$items) {
+  if (isset($items['node/%node/edit'])) {
+    // Rename to advanced edit, our UI provides in-place editing.
+    $items['node/%node/edit']['title'] = 'Advanced edit';
+  }
+}
+
+/**
  * Implements hook_theme().
  */
 function edit_theme() {
