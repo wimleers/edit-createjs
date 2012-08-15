@@ -52,9 +52,6 @@ define([
 		_elemBySlot: null,
 		_groupBySlot: null,
 		_groupByComponent: null,
-		// State tracking for our alternative to jQuery UI Tabs.
-		_tabActiveHandleIndex: null,
-		_tabActiveHandle: null,
 
 		/**
 		 * All that this constructor does is save the components array into a
@@ -80,14 +77,9 @@ define([
 
 			this.handles = settings.handlesContainer;
 			this.panels = settings.panelsContainer;
+			this.state = settings.handlesContainer.data( 'state' );
 			this.id = 'aloha-drupal-ui-tab-panel-' + (++idCounter);
 			this.panel = $('<div>', {id : this.id, 'unselectable': 'on'});
-			// this.handle = Drupal.theme('editToolgroup', {
-			//         classes: 'entity',
-			//         buttons: [
-			//           { url: '#' + this.id, label: settings.label, classes: 'blank-button label' },
-			//         ]
-			//       });
 			this.handle = $('<li><a href="#' + this.id + '">' +
 				settings.label + '</a></li>');
 
@@ -127,27 +119,15 @@ define([
 			this.handle.appendTo(this.handles);
 			this.panel.appendTo(this.panels);
 
-
-			this._init();
-			// this.container.tabs('refresh');
-
 			var alohaTabs = this.handles.data('aloha-tabs');
 			this.index = alohaTabs.length;
 			alohaTabs.push(this);
+
+			this._processTabs();
 		},
 
 		// idempotent (called whenever a tab is created)
-		_init: function() {
-			// Determine active tab, bail if no tabs.
-			this._tabActiveHandleIndex = ( this._tabActiveHandleIndex === null && this.index > 0 ) ? 0 : false;
-			if ( this._tabActiveHandleIndex === false) {
-				return;
-			}
-
-			this._refresh();
-		},
-
-		_refresh: function() {
+		_processTabs: function() {
 			// _processTabs()
 			// Find all tab handles and set the "aria-controls" attribute.
 			var anchors = this.handles.children().map(function() {
@@ -172,25 +152,18 @@ define([
 				// tab panels
 				.children()
 				.addClass( " aloha-drupal-ui-tab-panel " )
-				// tab panels that are not active (default state: hidden)
-				.not( this._getPanelForHandle( this._tabActiveHandle ) )
-				.hide();
-				// .not( ".aloha-drupal-ui-state-active" )
-				// .addClass( "aloha-drupal-ui-state-default aloha-drupal-ui-state-hidden" );
+				.addClass( "aloha-drupal-ui-state-hidden" );
 
 			// _setupEvents()
 			anchors
 				// Unbind to avoid duplicates.
 				.unbind( ".aloha-drupal-ui-tabs" )
-				//
-				.bind( "click.aloha-drupal-ui-tabs", function() {
-					$.proxy( this, "_eventHandler" );
-				});
+				.bind( "click.aloha-drupal-ui-tabs", $.proxy( this, "_eventHandler" ) );
 		},
 
-		_getVisibleHandleByIndex: function( index ) {
+		_getHandleByIndex: function( index ) {
 			var that = this;
-			return that.handles.children( ":visible" )[ index ];
+			return that.handles.children()[ index ];
 		},
 
 		_getIndexOfHandle: function( handle ) {
@@ -199,19 +172,22 @@ define([
 		},
 
 		_getPanelForHandle: function( handle ) {
+			if ( !handle.length ) {
+				return $( [] );
+			}
+
 			var that = this;
-			var id = $( handle ).attr( "aria-controls" );
+			var id = handle.find( "a" ).attr( "aria-controls" );
 			return that.panels.find( "#" + id );
 		},
 
 		_eventHandler: function( event ) {
 			var that = this,
-				activeHandle = that._tabActiveHandle,
-				activeHandleIndex = that._tabActiveHandleIndex,
+				activeHandle = that.state._tabActiveHandle,
+				activeHandleIndex = that.state._tabActiveHandleIndex,
 				clicked = $( event.currentTarget ),
 				clickedHandle = clicked.closest( "li" ),
 				clickedIsActive = clickedHandle[ 0 ] === activeHandle[ 0 ],
-				// clickedIsActive = clicked[ 0 ] === that._getVisibleHandleByIndex( activeIndex ),
 				toShow = that._getPanelForHandle( clickedHandle ),
 				toHide = !activeHandle.length ? $() : that._getPanelForHandle( activeHandle ),
 				eventData = {
@@ -224,21 +200,20 @@ define([
 			event.preventDefault();
 
 			// If the clicked handle is already marked as active and actually *is* active, bail.
-			if ( clickedIsActive && activeHandle === that._getVisibleHandleByIndex( activeIndex ) ) {
+			if ( clickedIsActive ) {
 				return;
 			}
 
 			// If the clicked handle is disabled or hidden, bail.
-			if ( handle.hasClass( "aloha-drupal-ui-state-disabled" )
-					|| handle.hasClass( "aloha-drupal-ui-state-hidden" ) )
+			if ( clickedHandle.hasClass( "aloha-drupal-ui-state-disabled" )
+					|| clickedHandle.hasClass( "aloha-drupal-ui-state-hidden" ) )
 			{
 				clicked[ 0 ].blur();
 				return;
 			}
 
-			that._tabActiveHandleIndex = that._getIndexOfHandle( clicked );
-			that._tabActiveHandle = clickedHandle;
-			that.active = clickedIsActive ? $() : clicked;
+			that.state._tabActiveHandleIndex = that._getIndexOfHandle( clickedHandle );
+			that.state._tabActiveHandle = clickedHandle;
 
 			if ( !toHide.length && !toShow.length ) {
 				throw "Aloha UI Tabs: Mismatching fragment identifier.";
@@ -248,31 +223,23 @@ define([
 		},
 
 		_updateUI: function( event, eventData ) {
-			// Without queuing or delays: switch the active tab and start showing the
-			// new panel.
-			function show() {
-				eventData.oldHandle.removeClass( "aloha-drupal-ui-state-active" );
-				eventData.newHandle.addClass( "aloha-drupal-ui-state-active" );
-				eventData.newPanel.show();
-			}
+			var that = this;
 
-			// Hide the old panel. Upon completing that, call show().
-			if (eventData.oldPanel) {
-				eventData.oldPanel.hide(function() {
-					show();
-				});
-			}
-			// There was nothing to hide, so just start showing.
-			else {
-				show();
-			}
+			eventData.oldPanel
+				.addClass( "aloha-drupal-ui-state-hidden" )
+				.removeClass( "aloha-drupal-ui-state-default" );
+			eventData.oldHandle.removeClass( "aloha-drupal-ui-state-active" );
+			eventData.newHandle.addClass( "aloha-drupal-ui-state-active" );
+			eventData.newPanel
+				.addClass( "aloha-drupal-ui-state-default" )
+				.removeClass( "aloha-drupal-ui-state-hidden" );
+
+			that._tabSelected( that );
 		},
 
 		select: function( index ) {
-			var that = this;
-			that.handles.children().eq( index ).trigger( "click.aloha-drupal-ui-tabs" );
-
-			that._tabSelected( that );
+			this.handles.children().eq( index ).find( "a" )
+				.trigger( "click" );
 		},
 
 		adoptInto: function(slot, component) {
@@ -342,9 +309,11 @@ define([
 			var that = this;
 
 			var tabs = that.handles.data( 'aloha-tabs' );
-			// $container.data( 'aloha-active-container', tabs[tab.index] );
-			console.log('_tabSelected', tab, tabs, tabs[tab.index]);
 			PubSub.pub( 'aloha.ui.container.selected', {data: tabs[tab.index]} );
+
+			// The height of the toolbar might have changed, let the Edit module know.
+			jQuery( '.edit-toolgroup.wysiwyg:first' )
+				.trigger( 'edit-toolbar-tertiary-changed' );
 		},
 
 		/**
@@ -354,20 +323,21 @@ define([
 			if (!this.handles.children().length) {
 				return;
 			}
-			this.handle.show();
+			this.handle
+				.removeClass( "aloha-drupal-ui-state-hidden" )
+				.addClass( "aloha-drupal-ui-state-default" );
 			this.visible = true;
 
 			// Hiding all tabs may hide the toolbar, so showing the
 			// first tab again must also show the toolbar.
 			// this.container.show();
 
-			// // If no tabs are selected, then select the tab which was just shown.
-			// if (   !this.container.find('.ui-tabs-active').length
-			//     ||  this.container.tabs('option', 'selected') === this.index) {
-			// 	this.foreground();
-			// }
-
-			this.foreground();
+			// If no tab handle is selected, then select this tab.
+			// (this.foreground uses this.index, which means the current tab object's
+			// panel will be shown)
+			if ( this.state._tabActiveHandleIndex === false) {
+				this.foreground();
+			}
 		},
 
 		/**
@@ -377,29 +347,28 @@ define([
 			if ( 0 === this.handles.children().length ) {
 				return;
 			}
-			this.handle.hide();
+			this.handle
+				.removeClass( "aloha-drupal-ui-state-default" )
+				.addClass( "aloha-drupal-ui-state-hidden" );
 			this.visible = false;
 
 			// If the tab we just hid was the selected tab, then we need to
 			// select another tab in its stead.  We will select the first
 			// visible tab we find, or else we deselect all tabs.
-			if ( this.index === this._tabActiveHandleIndex ) {
-				var tabs = this.container.data( 'aloha-tabs' );
+			if ( this.index === this.state._tabActiveHandleIndex ) {
+				var alohaTabs = this.handles.data('aloha-tabs');
 
 				var i;
-				for ( i = 0; i < tabs.length; ++i ) {
-					if ( tabs[ i ].visible ) {
+				for ( i = 0; i < alohaTabs.length; ++i ) {
+					if ( alohaTabs[ i ].visible ) {
 						this.select(i);
-						// this.container.tabs( 'select', i );
 						return;
 					}
 				}
 
-				// Why do we remove this class?
-				// this.handle.removeClass( 'ui-tabs-active' );
-
 				// It doesn't make any sense to leave the toolbar
 				// visible after all tabs have been hidden.
+				// @todo
 				// this.container.hide();
 			}
 		}
@@ -415,19 +384,11 @@ define([
 		 * @return {jQuery.<HTMLElement>} The holder container.
 		 */
 		createContainers: function () {
-			// var $container = $('<div>', {'unselectable': 'on'});
-			// var $handles = $('<ul>', {'unselectable': 'on'}).appendTo($container);
-			// var $panels = $('<div>', {'unselectable': 'on'}).appendTo($container);
-			//
-			// $container
-			// 	// tab handles (the visible "tabs")
-			// 	.data('handles', $handles)
-			// 	// tab panels (the content of each tab)
-			// 	.data('panels', $panels)
-			// 	// all tab metadata
-			// 	.data('aloha-tabs', []);
-			// return $container;
 			var $handles = $('<ul>', { 'class': 'tab-handles', 'unselectable': 'on'})
+				.data( 'state', {
+					_tabActiveHandleIndex: false,
+					_tabActiveHandle: $( [] ),
+				})
 				.data( 'aloha-tabs', [] );
 			var $panels = $('<div>', { 'class': 'tab-panels', 'unselectable': 'on'});
 			return { handlesContainer: $handles, panelsContainer: $panels };

@@ -64,7 +64,8 @@ define([
 					label: i18n.t(tabSettings.label, tabSettings.label),
 					showOn: tabSettings.showOn,
 					handlesContainer: this.tabContainers.handlesContainer,
-					panelsContainer: this.tabContainers.panelsContainer
+					panelsContainer: this.tabContainers.panelsContainer,
+					state: this.tabContainers.handlesContainer.data( 'state' )
 				}, tabSettings.components);
 				for (key in tabInstance._elemBySlot) {
 					if (tabInstance._elemBySlot.hasOwnProperty(key)) {
@@ -84,10 +85,6 @@ define([
 		 * Shows the toolbar.
 		 */
 		show: function () {
-			// Remove old content.
-			// Toolbar.$mainSurfaceContainer.children().detach();
-			// Toolbar.$tabsSurfaceContainer.children().detach();
-
 			// Move the toolbar surface into our custom location.
 			jQuery( '.edit-toolgroup.wysiwyg-tabs:first' )
 				.append( Toolbar.$tabsSurfaceContainer.detach() );
@@ -97,9 +94,9 @@ define([
 			// Now show the appropriate content.
 			Toolbar.$tabsSurfaceContainer.stop().fadeTo( 200, 1 );
 			Toolbar.$mainSurfaceContainer.stop().fadeTo( 200, 1, function() {
-			// 	// Let Edit's JS know that its tertiary toolbar has changed, so that it
-			// 	// can decide to e.g. increase its height to accomodate the changed
-			// 	// content.
+				// Let Edit's JS know that its tertiary toolbar has changed, so that it
+				// can decide to e.g. increase its height to accomodate the changed
+				// content.
 				jQuery( '.edit-toolgroup.wysiwyg:first' )
 					.trigger( 'edit-toolbar-tertiary-changed' );
 			});
@@ -112,7 +109,6 @@ define([
 			Toolbar.$mainSurfaceContainer
 				.add( Toolbar.$tabsSurfaceContainer )
 				.stop().fadeOut( 200, function () {
-					// Toolbar.$mainSurfaceContainer.children().detach();
 					// Move the toolbar surface into its original location again.
 					Toolbar.$mainSurfaceContainer
 						.detach()
