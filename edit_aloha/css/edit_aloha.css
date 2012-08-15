@@ -9,7 +9,7 @@
 
 .aloha-editable-active, .aloha-editable-active[contenteditable="true"]:focus {
   /* Aloha's outline CSS statement is already marked as important, so we cannot cleanly disable it without also overriding our outline. */
-  /*outline: 0 !important;*/
+  outline: 0 !important;
 }
 
 .aloha .ui-button-text-only .ui-button-text {

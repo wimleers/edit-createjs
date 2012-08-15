@@ -359,7 +359,7 @@ Drupal.edit.editables = {
           { url: '#', label: label, classes: 'blank-button label' },
         ]
       }))
-      .delegate('a.label', 'click.edit', function(e) {
+      .delegate('a.label', 'click.edit mousedown.edit', function(e) {
         // Clicking the label equals clicking the editable itself.
         $editable.trigger('click.edit');
         return false;
@@ -436,7 +436,9 @@ Drupal.edit.editables = {
     })
     .delegate('a.field-close', 'click.edit', function(e) {
       return self._buttonFieldCloseClicked(e, $editable, $field);
-    });
+    })
+    // @TODO: clean up when implementing http://drupal.org/node/1702250.
+    .find('.edit-toolgroup.ops').hide();
 
     // Changes to $editable based on the type.
     var callback = ($field.hasClass('edit-type-direct'))
@@ -513,7 +515,8 @@ Drupal.edit.editables = {
     $editable.addClass('edit-wysiwyg-attached');
     Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].attach($editable);
     Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].activate($editable);
-    Drupal.edit.toolbar.show($editable, 'primary', 'wysiwyg');
+    Drupal.edit.toolbar.show($editable, 'secondary', 'wysiwyg-tabs');
+    Drupal.edit.toolbar.show($editable, 'tertiary', 'wysiwyg');
   },
 
   _updateDirectEditable: function($editable) {
@@ -522,9 +525,15 @@ Drupal.edit.editables = {
     var $field = Drupal.edit.findFieldForEditable($editable);
     if ($field.hasClass('edit-type-direct-with-wysiwyg')) {
       Drupal.edit.toolbar.get($editable)
-      .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.wysiwyg))')
+      .find('.edit-toolbar.secondary:not(:has(.edit-toolgroup.wysiwyg-tabs))')
       .append(Drupal.theme('editToolgroup', {
-        classes: 'wysiwyg' + ' aloha', /* @TODO: remove the latter once our custom UI has its own CSS. It's here just to make sure AE's CSS still applies. */
+        classes: 'wysiwyg-tabs',
+        buttons: []
+      }))
+      .end()
+      .find('.edit-toolbar.tertiary:not(:has(.edit-toolgroup.wysiwyg))')
+      .append(Drupal.theme('editToolgroup', {
+        classes: 'wysiwyg',
         buttons: []
       }));
 
@@ -628,6 +637,12 @@ Drupal.edit.editables = {
       .addClass('edit-animate-exception-grow')
       .css({'position': 'relative', 'top': '-5px', 'left': '5px'});
 
+      // The tertiary toolgroups must move to the top and the left, and must
+      // increase their width.
+      $toolbar.find('.edit-toolbar.tertiary .edit-toolgroup')
+      .addClass('edit-animate-exception-grow')
+      .css({'position': 'relative', 'top': '-5px', 'left': '-5px', 'width': $editable.width() + 5});
+
       // The clipping (to get rid of the bottom box-shadow) needs to be updated.
       $toolbar
       .delegate('.edit-toolbar', Drupal.edit.const.transitionEnd, function(e) {
@@ -678,7 +693,7 @@ Drupal.edit.editables = {
       }
       $toolbar.find('.edit-toolgroup')
       .removeClass('edit-animate-exception-grow')
-      .css({'position': '', 'top': '', 'left': ''});
+      .css({'position': '', 'top': '', 'left': '', 'width': ''});
 
       // Undo our changes to the clipping (to prevent the bottom box-shadow).
       $toolbar

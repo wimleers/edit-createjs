@@ -229,6 +229,12 @@
 .edit-toolbar.secondary {
   right: 0px; /* LTR */
 }
+.edit-toolbar.tertiary {
+  top: 0px;
+  height: 0px;
+  clip: auto;
+}
+
 
 /* The toolbar contains toolgroups; these are visible. */
 .edit-toolgroup {

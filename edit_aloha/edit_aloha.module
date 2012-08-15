@@ -76,9 +76,11 @@ function edit_aloha_library() {
     // minimal effort.
     'requireConfig' => array(
       'paths' => array(
-        'ui/ui-plugin'  => file_create_url($plugin_path . '/lib/ui-plugin'),
-        'ui/multiSplit' => file_create_url($plugin_path . '/lib/multiSplit'),
+        // 'ui/ui-plugin'  => file_create_url($plugin_path . '/lib/ui-plugin'),
+        // 'ui/multiSplit' => file_create_url($plugin_path . '/lib/multiSplit'),
         'ui/utils'      => file_create_url($plugin_path . '/lib/utils'),
+        'ui/toolbar'      => file_create_url($plugin_path . '/lib/toolbar'),
+        'ui/tab'      => file_create_url($plugin_path . '/lib/tab'),
       )
     ),
     // Reduce delays for the "aloha-smart-content-changed" events to a minimum.

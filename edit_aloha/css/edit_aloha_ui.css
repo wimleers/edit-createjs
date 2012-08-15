@@ -2,6 +2,8 @@
  * Custom Aloha UI.
  */
 
+
+/** Icons **/
 @font-face {
 	font-family: 'spark_icons';
 	src: url('spark_icons.eot');
@@ -20,8 +22,140 @@
 	speak: none;
 }
 
-.aloha .ui-icon.spark-icon {
-  text-indent: 0px;
-  background-image: none;
+
+
+
+/** General UI */
+
+.aloha-drupal-ui-state-hidden {
+  opacity: 0;
+  display: none;
+}
+
+.aloha-drupal-ui-state-disabled {
+  opacity: 0.3;
+}
+
+.aloha-drupal-ui-state-default {
+  opacity: 1;
+}
+
+.edit-toolgroup.wysiwyg button,
+.aloha-drupal-ui-tab-handle,
+.aloha-drupal-ui-tab-handle * {
+  -webkit-transition: all .2s ease;
+     -moz-transition: all .2s ease;
+      -ie-transition: all .2s ease;
+       -o-transition: all .2s ease;
+          transition: all .2s ease;
+}
+
+
+/** Toolbar tabs **/
+.edit-toolgroup.wysiwyg-tabs {
+  padding-left: 0;
+  box-shadow: 0px 0px 1px 1px #0199FF, 0px 0px 3px 3px rgba(153, 153, 153, .5);
+}
+.edit-toolgroup.wysiwyg-tabs ul {
+  margin: 0;
+  padding: 0;
+}
+.edit-toolgroup.wysiwyg-tabs ul li {
+  list-style: none;
+  float: left;
+}
+
+.edit-toolgroup.wysiwyg-tabs ul li a {
+  color: #999;
+  min-width: 40px;
+  text-align: center;
+  padding: 8px 12px 6px;
+  border: none;
+  border-right: 1px solid #AAA;
+  margin: 0;
+  border-radius: 0;
+}
+
+.edit-toolgroup.wysiwyg-tabs ul li.aloha-drupal-ui-state-active a {
+  background-color: #eee;
+  color: black;
+}
+
+.edit-toolgroup.wysiwyg-tabs ul li:first-child a {
+  border-left: none;
+}
+
+
+
+
+/** Toolbar **/
+.edit-toolgroup.wysiwyg {
+  display: inline-block;
+  /* Move the default toolgroup padding from the left to the right.*/
+  /* @todo: revise this */
+  padding-left: 0;
+  padding-right: 5px;
+  box-shadow: 0px 0px 1px 1px #0199FF, 0px 0px 3px 3px rgba(153, 153, 153, .5)
+}
+
+.edit-toolgroup.wysiwyg .aloha-ui-component-group div {
+  display:none;
+}
+
+.edit-toolgroup.wysiwyg button .ui-button-text {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+}
+
+.edit-toolgroup.wysiwyg button .spark-icon {
   font-size: 15px;
+}
+
+.edit-toolgroup.wysiwyg button.ui-button {
+  border-radius: 0;
+  border: none;
+  background: inherit;
+  color: inherit;
+  width: inherit;
+  margin: 0;
+
+  width: 31px;
+  padding: 5px 0 4px;
+  display: block;
+  float: left;
+  border-right: 1px solid #AAA;
+  text-align: center;
+  border-bottom: 1px solid #AAA;
+}
+
+.edit-toolgroup.wysiwyg {
+  font-size: 15px;
+  color: rgb(135,135,135);
+  text-align: center;
+  background: -moz-linear-gradient(rgb(254,254,254) 0%,rgb(204,204,204) 100%);
+  background: -webkit-gradient(linear,color-stop(0, rgb(254,254,254)),color-stop(1, rgb(204,204,204)));
+  background: -webkit-linear-gradient(rgb(254,254,254) 0%,rgb(204,204,204) 100%);
+  background: linear-gradient(rgb(254,254,254) 0%,rgb(204,204,204) 100%);
+}
+
+.edit-toolgroup.wysiwyg button.ui-state-hover {
+  background: -moz-linear-gradient(rgb(255,255,255) 0%,rgb(221,221,221) 100%);
+  background: -webkit-gradient(linear,color-stop(0, rgb(255,255,255)),color-stop(1, rgb(221,221,221)));
+  background: -webkit-linear-gradient(rgb(255,255,255) 0%,rgb(221,221,221) 100%);
+  background: linear-gradient(rgb(255,255,255) 0%,rgb(221,221,221) 100%);
+}
+.edit-toolgroup.wysiwyg button.aloha-button-active {
+  color: #555;
+  background: -moz-linear-gradient(rgb(170,170,170) 0%,rgb(238,238,238) 100%);
+  background: -webkit-gradient(linear,color-stop(0, rgb(170,170,170)),color-stop(1, rgb(238,238,238)));
+  background: -webkit-linear-gradient(rgb(170,170,170) 0%,rgb(238,238,238) 100%);
+  background: linear-gradient(rgb(170,170,170) 0%,rgb(238,238,238) 100%);
+}
+.edit-toolgroup.wysiwyg button.ui-state-active {
+  color: #333;
+  background: -moz-linear-gradient(rgb(136,136,136) 0%,rgb(204,204,204) 100%);
+  background: -webkit-gradient(linear,color-stop(0, rgb(136,136,136)),color-stop(1, rgb(204,204,204)));
+  background: -webkit-linear-gradient(rgb(136,136,136) 0%,rgb(204,204,204) 100%);
+  background: linear-gradient(rgb(136,136,136) 0%,rgb(204,204,204) 100%);
 }

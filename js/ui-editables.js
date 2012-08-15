@@ -57,6 +57,31 @@ Drupal.edit.toolbar = {
       // don't want all of them to show up!)
       .bind('edit-toolbar-remove.edit', function(e) {
         $toolbar.remove();
+      })
+      // Accomodate changed content in tertiary toolbar.
+      .bind('edit-toolbar-tertiary-changed', function(e) {
+        var $tertiary = $toolbar.find('.edit-toolbar.tertiary');
+        var adjustedOffset = $tertiary.data('edit-adjusted-offset');
+        if (typeof adjustedOffset === 'undefined') {
+          $tertiary.data('edit-adjusted-offset', 0);
+          adjustedOffset = 0;
+        }
+
+        var height = 0;
+        $toolbar.find('.edit-toolbar.tertiary').children()
+        .each(function(i, element) {
+          height += $(element).height();
+        });
+
+        // If the height has changed, then change the offsets of the toolgroups
+        // as well.
+        if (height != adjustedOffset) {
+          $toolbar.find('.edit-toolbar').each(function(i, element) {
+            var top = $(element).css('top');
+            $(element).css('top', Drupal.edit.util.stripPX(top) - height + adjustedOffset + 'px');
+          });
+          $tertiary.data('edit-adjusted-offset', height );
+        }
       });
 
       return true;

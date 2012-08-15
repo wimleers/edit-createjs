@@ -92,6 +92,7 @@ define(['jquery', 'jqueryui'], function($) {
 						.map(function( c ) { return 'aloha-icon-' + c; })
 						.join( ' ' );
 					primaryIcon
+						.removeClass( 'ui-icon' )
 						.removeClass( 'aloha-icon' )
 						.removeClass( removeClassNames )
 						.addClass( 'spark-icon' )
