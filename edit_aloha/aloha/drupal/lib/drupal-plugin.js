@@ -35,26 +35,26 @@ define( [
           allowedTags;
 
       elementMapping = {
-          'a': 'aloha-icon-link',
-          'b': 'aloha-icon-bold',
-          'strong': 'aloha-icon-strong',
-          'i': 'aloha-icon-italic',
-          'em': 'aloha-icon-emphasis',
-          'del': 'aloha-icon-strikethrough',
-          'sub': 'aloha-icon-subscript',
-          'sup': 'aloha-icon-superscript',
-          'u': 'aloha-icon-underline',
-          's': 'aloha-icon-strikethrough2',
-          'ol': 'aloha-icon-orderedlist',
-          'ul': 'aloha-icon-unorderedlist',
-          'p': 'aloha-large-icon-p',
-          'pre': 'aloha-large-icon-pre',
-          'h1': 'aloha-large-icon-h1',
-          'h2': 'aloha-large-icon-h2',
-          'h3': 'aloha-large-icon-h3',
-          'h4': 'aloha-large-icon-h4',
-          'h5': 'aloha-large-icon-h5',
-          'h6': 'aloha-large-icon-h6',
+          'a': 'link',
+          'b': 'bold',
+          'strong': 'strong',
+          'i': 'italic',
+          'em': 'emphasis',
+          'del': 'strikethrough',
+          'sub': 'subscript',
+          'sup': 'superscript',
+          'u': 'underline',
+          's': 'strikethrough2',
+          'ol': 'orderedlist',
+          'ul': 'unorderedlist',
+          'p': 'p',
+          'pre': 'pre',
+          'h1': 'h1',
+          'h2': 'h2',
+          'h3': 'h3',
+          'h4': 'h4',
+          'h5': 'h5',
+          'h6': 'h6',
       };
 
       // Register DrupalContentHandler.
@@ -72,7 +72,9 @@ define( [
 
           $.each(elementMapping, function(element, className) {
             if ($.inArray(element, allowedTags) == -1) {
-              $('.' + className).closest('button').hide();
+              $('span.ui-button-icon-primary[data-html-tag="' + className + '"]')
+              .closest('button')
+              .addClass('aloha-drupal-ui-state-hidden');
             }
           });
         }
@@ -95,7 +97,9 @@ define( [
       Aloha.bind('aloha-editable-deactivated', function($event, params) {
         $.each(elementMapping, function(element, className) {
           if ($.inArray(element, allowedTags) == -1) {
-            $('.' + className).closest('button').show();
+            $('span.ui-button-icon-primary[data-html-tag="' + className + '"]')
+            .closest('button')
+            .removeClass('aloha-drupal-ui-state-hidden');
           }
         });
 

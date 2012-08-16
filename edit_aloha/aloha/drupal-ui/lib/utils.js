@@ -96,6 +96,7 @@ define(['jquery', 'jqueryui'], function($) {
 						.removeClass( 'aloha-icon' )
 						.removeClass( removeClassNames )
 						.addClass( 'spark-icon' )
+						.attr( 'data-html-tag', className )
 						.attr( 'data-icon', Utils.decodeEntities(icon) );
 				}
 			}
