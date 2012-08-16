@@ -83,7 +83,9 @@ Drupal.edit.toolbar = {
             var top = $(element).css('top');
             $(element).css('top', Drupal.edit.util.stripPX(top) - height + adjustedOffset + 'px');
           });
-          $tertiary.data('edit-adjusted-offset', height );
+          $tertiary
+            .css('height', height)
+            .data('edit-adjusted-offset', height);
         }
       });
 

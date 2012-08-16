@@ -232,7 +232,7 @@
 .edit-toolbar.tertiary {
   top: 0px;
   height: 0px;
-  clip: auto;
+  /* @todo: figure out how to deal with clipping; clip: auto causes problems on Safari 5 */
 }
 
 
