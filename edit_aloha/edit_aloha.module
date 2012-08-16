@@ -53,7 +53,8 @@ function edit_aloha_library() {
     'common/align',
     'common/commands',
     'common/contenthandler',
-    'common/characterpicker',
+    // @todo: implement UI
+    // 'common/characterpicker',
     'common/paste',
     'common/list',
     'common/block',
