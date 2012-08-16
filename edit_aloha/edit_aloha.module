@@ -109,6 +109,7 @@ function edit_aloha_library() {
         'macroList'   => url('admin/macro/list/token_filter'),
       ),
       'captionedImage' => array(
+        'allowLineBreak'      => FALSE,
         'selector'            => 'img',
         'defaultCss'          => FALSE,
         'captionedImageClass' => '',
@@ -125,6 +126,9 @@ function edit_aloha_library() {
     ),
     'repository' => array(
         'drupal' => array('url' => url('alohaeditor/lookup/')),
+    ),
+    'sanitize' => array(
+      '.aloha-captioned-image-caption' => array('elements' => array()),
     ),
     'sidebar' => array('disabled' => TRUE),
     'toolbar' => array(
