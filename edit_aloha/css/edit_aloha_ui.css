@@ -29,7 +29,7 @@
 
 .aloha-drupal-ui-state-hidden {
   opacity: 0;
-  display: none;
+  display: none !important;
 }
 
 .aloha-drupal-ui-state-disabled {
