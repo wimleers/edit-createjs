@@ -7,3 +7,4 @@ php = 5.3
 dependencies[] = navbar
 dependencies[] = entity
 dependencies[] = fape
+dependencies[] = iconfonts

@@ -3,28 +3,6 @@
  */
 
 
-/** Icons **/
-@font-face {
-	font-family: 'spark_icons';
-	src: url('spark_icons.eot');
-	src: url('spark_icons.eot?#iefix') format('embedded-opentype'),
-		url('spark_icons.svg#spark_icons') format('svg'),
-		url('spark_icons.woff') format('woff'),
-		url('spark_icons.ttf') format('truetype');
-	font-weight: normal;
-	font-style: normal;
-}
-
-.spark-icon[data-icon]:before,
-[data-icon]:before {
-	font-family: 'spark_icons';
-	content: attr(data-icon);
-	speak: none;
-}
-
-
-
-
 /** General UI */
 
 .aloha-drupal-ui-state-hidden {
