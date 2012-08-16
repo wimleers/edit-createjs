@@ -21,6 +21,7 @@ function edit_aloha_menu() {
  */
 function edit_aloha_library() {
   $library_path = libraries_get_path('alohaeditor');
+  $library_file = "aloha-bare.js";
   // It should not be possible to reach this hook without having Aloha Editor
   // properly setup in the first place, but an extra check does not hurt.
   if (empty($library_path)) {
@@ -30,6 +31,7 @@ function edit_aloha_library() {
   // git clone
   if (file_exists($library_path . '/src')) {
     $library_path .= '/src';
+    $library_file = "aloha.js";
   }
   // CDN package
   elseif (file_exists($library_path . '/lib')) {
@@ -199,7 +201,7 @@ function edit_aloha_library() {
         'weight' => -1000,
         'defer' => FALSE,
       ),
-      $library_path . '/lib/aloha-bare.js' => array(
+      $library_path . '/lib/' . $library_file => array(
         'group' => JS_LIBRARY,
         'weight' => -999,
         'defer' => TRUE,
