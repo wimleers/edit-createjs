@@ -122,14 +122,14 @@ function edit_aloha_library() {
       'insertHtml' => array('word', 'generic', 'drupal'),
       'handler' => array(
         'generic' => array('transformFormattings' => FALSE),
+        'sanitize' => array(
+          '.aloha-captioned-image-caption' => array('elements' => array()),
+        ),
       ),
       'initEditable' => array(),
     ),
     'repository' => array(
         'drupal' => array('url' => url('alohaeditor/lookup/')),
-    ),
-    'sanitize' => array(
-      '.aloha-captioned-image-caption' => array('elements' => array()),
     ),
     'sidebar' => array('disabled' => TRUE),
     'toolbar' => array(
