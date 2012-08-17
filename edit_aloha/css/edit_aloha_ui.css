@@ -110,7 +110,6 @@
 .edit-toolgroup.wysiwyg {
   font-size: 15px;
   color: rgb(135,135,135);
-  text-align: center;
   background: -moz-linear-gradient(rgb(254,254,254) 0%,rgb(204,204,204) 100%);
   background: -webkit-gradient(linear,color-stop(0, rgb(254,254,254)),color-stop(1, rgb(204,204,204)));
   background: -webkit-linear-gradient(rgb(254,254,254) 0%,rgb(204,204,204) 100%);
@@ -138,8 +137,8 @@
   background: linear-gradient(rgb(136,136,136) 0%,rgb(204,204,204) 100%);
 }
 
-
 .edit-toolgroup.wysiwyg .ui-autocomplete-input {
   font-size: .85em;
   padding: 2px 4px;
+  margin-left: 4px;
 }
