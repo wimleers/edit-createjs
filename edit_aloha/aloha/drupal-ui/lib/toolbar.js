@@ -132,6 +132,9 @@ define([
 
 		$tabsSurfaceContainer: null,
 
+		// @todo: get rid of this by fixing AE plug-ins that incorrectly assume this exists!
+		$surfaceContainer: $( [] ),
+
 		/**
 		 * Initializes the toolbar manager.  Adds the surface container
 		 * element, and sets up floating behaviour settings.
