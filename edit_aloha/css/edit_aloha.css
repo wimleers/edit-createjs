@@ -1,17 +1,31 @@
 /**
- * Aloha Hacks.
+ * Aloha UI overrides.
  */
 
+
+/** Initial custom UI. **/
 /* Quick hack to make our custom Aloha UI fit in quite nicely with the rest of Edit's UI. */
 .aloha .ui-button-icon-only .ui-button-text, .aloha .ui-button-icons-only .ui-button-text {
   padding: .2em;
 }
 
+.aloha .ui-button-text-only .ui-button-text {
+  font-size: .8em;
+}
+
+
+/** Final custom UI: CSS overrides. **/
 .aloha-editable-active, .aloha-editable-active[contenteditable="true"]:focus {
   /* Aloha's outline CSS statement is already marked as important, so we cannot cleanly disable it without also overriding our outline. */
   outline: 0 !important;
 }
 
-.aloha .ui-button-text-only .ui-button-text {
-  font-size: .8em;
+.aloha-editable-active .aloha-block,
+.aloha-block.aloha-block-highlighted {
+  box-shadow: none;
+}
+
+.aloha-block.aloha-block-active,
+.aloha-block.aloha-block-active:hover {
+  box-shadow: 0px 0px 1px 1px #0199FF;
 }
