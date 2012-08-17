@@ -588,6 +588,17 @@ Drupal.edit.editables = {
     {
       $editable.removeClass('edit-wysiwyg-attached');
       Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].detach($editable);
+
+      // Work-around for major AE bug. See:
+      //  - http://drupal.org/node/1725032
+      //  - https://github.com/alohaeditor/Aloha-Editor/issues/693.
+      // Also unbind to make sure this doesn't break anything when using
+      // this version of edit.js with a fixed version of Aloha Editor.
+      $editable
+      .unbind('click.edit')
+      .bind('click.edit', function() {
+        Drupal.edit.editables.startEdit($(this)); return false;
+      });
     }
     else {
       $editable.removeAttr('contenteditable');
