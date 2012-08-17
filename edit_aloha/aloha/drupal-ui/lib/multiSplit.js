@@ -48,6 +48,11 @@ define([
            return;
         }
 
+        // @todo: fix this upstream; this is a typo in AE.
+        if (button.tooltip == 'Pre formated text') {
+          button.tooltip = "Preformatted text";
+        }
+
         // In Drupal's UI, we don't have "large icons". Rename the class name so
         // that the automatic conversion into data icons can happen in ui/utils.
         // button.icon = button.icon.replace('aloha-large-icon-', 'aloha-icon-')
