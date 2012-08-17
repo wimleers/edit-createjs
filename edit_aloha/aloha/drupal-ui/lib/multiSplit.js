@@ -42,8 +42,18 @@ define([
       jQuery.each(this.buttons, function(i, button) {
         var text = button.name.toUpperCase();
 
+        // @todo: this is a quick hack to remove the "remove formatting" button
+        // from the p/h1/... dropdown; we want it to live elsewhere.
+        if (button.name == "removeFormat") {
+           return;
+        }
+
+        // In Drupal's UI, we don't have "large icons". Rename the class name so
+        // that the automatic conversion into data icons can happen in ui/utils.
+        // button.icon = button.icon.replace('aloha-large-icon-', 'aloha-icon-')
         menuItems.push({
-          text: button.name.toUpperCase(),
+          text: button.tooltip,
+          icon: button.icon,
           click: button.click
         });
       });
@@ -57,6 +67,7 @@ define([
 
       // Ensure the button is shown/hidden depending on the current selection.
       this.element = formatMenuButton.element;
+      this.setActiveButton('p'); // @todo: don't make this assumption!
       Surface.trackRange(this.element);
     },
 
@@ -66,8 +77,13 @@ define([
       }
 
       // Set the text of the dropdown button to the newly selected value.
-      jQuery('.aloha-ui-menubutton-expand .ui-button-text', this.element)
-      .text(this.buttons[index].name.toUpperCase());
+      var name = (typeof index === 'string') ? index : this.buttons[index].name;
+      var $context = jQuery('.aloha-ui-menubutton-expand', this.element)
+      jQuery('.ui-button-icon-primary', $context).remove();
+      jQuery('<span>')
+        .addClass('ui-button-icon-primary')
+        .attr('data-icon', Utils.getDataIconForClassName(name))
+      .prependTo($context);
     },
 
     /**
@@ -83,7 +99,7 @@ define([
     /**
      * Closes the multisplit menu
      */
-    close: function () {},
+    close: function () {}
   });
 
   return MultiSplit;

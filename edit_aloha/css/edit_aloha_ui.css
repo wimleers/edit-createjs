@@ -142,3 +142,58 @@
   padding: 2px 4px;
   margin-left: 4px;
 }
+
+
+/* multisplit as dropdown (p/h1/h2/... dropdown) */
+/* @todo: this is just a boatload of HACKS! It also relies on clipping being disabled. */
+.edit-toolgroup.wysiwyg .aloha-ui-component-group .aloha-ui-menubutton-container {
+  display: block;
+}
+
+.edit-toolgroup.wysiwyg .aloha-ui-component-group .aloha-ui-menubutton-container .aloha-ui-menubutton-expand {
+  width: 40px;
+  height: 30px;
+}
+
+.edit-toolgroup.wysiwyg .aloha-ui-component-group .aloha-ui-menubutton-container .aloha-ui-menubutton-expand .ui-button-icon-primary {
+  float: left;
+  padding-left: 4px;
+}
+
+.edit-toolgroup.wysiwyg .aloha-ui-component-group .aloha-ui-menubutton-container .aloha-ui-menubutton-expand .ui-button-icon-secondary {
+  float: left;
+}
+
+.edit-toolgroup.wysiwyg .aloha-ui-component-group .aloha-ui-menubutton-container .aloha-ui-menubutton-menu {
+  background: #FFF;
+  position: absolute;
+  top: 30px;
+  left: 278px;
+  width: 130px;
+  box-shadow: 0 0 8px #999;
+  margin: 0;
+  padding: 0;
+}
+
+.edit-toolgroup.wysiwyg .aloha-ui-component-group .aloha-ui-menubutton-container .aloha-ui-menubutton-menu .ui-menu-item {
+  list-style: none;
+  text-align: left;
+}
+
+.edit-toolgroup.wysiwyg .aloha-ui-component-group .aloha-ui-menubutton-container .aloha-ui-menubutton-menu .ui-menu-item a {
+  display: block;
+  padding: 4px 8px;
+  color: black;
+  text-decoration: none;
+  margin: 0;
+  text-decoration: none;
+  border: none;
+  background: none;
+  font-size: 13px;
+  width: 115px;
+}
+
+.edit-toolgroup.wysiwyg .aloha-ui-component-group .aloha-ui-menubutton-container .aloha-ui-menubutton-menu .ui-menu-item a.ui-state-focus {
+  background-color: #4A92E4;
+  color: white;
+}

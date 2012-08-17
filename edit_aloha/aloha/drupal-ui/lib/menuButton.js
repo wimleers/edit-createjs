@@ -84,11 +84,13 @@ define([
 					return;
 				}
 
-				menu.show().position({
-					my: 'left top',
-					at: 'left bottom',
-					of: action || expand
-				});
+				menu.show();
+				// THIS IS THE ONLY CHANGE TO THIS FILE.
+				// .position({
+				// 	my: 'left top',
+				// 	at: 'left bottom',
+				// 	of: action || expand
+				// });
 
 				// In order to prevent the floating menu from being partially
 				// covered by the ribbon, we use "position: relative" and an

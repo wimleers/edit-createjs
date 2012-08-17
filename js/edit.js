@@ -657,6 +657,8 @@ Drupal.edit.editables = {
       // The clipping (to get rid of the bottom box-shadow) needs to be updated.
       $toolbar
       .delegate('.edit-toolbar', Drupal.edit.const.transitionEnd, function(e) {
+        // @todo: this was disabled to make the AE multiSplit override (p/h1/... dropdown) visible.
+        return;
         var $this = $(this);
         if (!$this.data('edit-toolbar-updating-clipping')) {
           $this.data('edit-toolbar-updating-clipping', true);

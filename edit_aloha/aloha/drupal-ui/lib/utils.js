@@ -16,7 +16,7 @@ define(['jquery', 'jqueryui'], function($) {
 				'strikethrough2': '&#xe00a;',
 				'orderedlist': '&#xe009;',
 				'unorderedlist': '&#xe006;',
-				'p': '&#xe2c;',
+				'p': '&#x2c;',
 				'pre': '&#x2b;',
 				'h1': '&#x2a;',
 				'h2': '&#x29;',
@@ -62,6 +62,11 @@ define(['jquery', 'jqueryui'], function($) {
 			return decodeHTMLEntities;
 		})(),
 
+		getDataIconForClassName: function(className) {
+			var icon = Utils.buttonDataIconsMapping[className];
+			return Utils.decodeEntities(icon);
+		},
+
 		makeButton: function(button, props, hasMenu) {
 			button.button({
 				label: Utils.makeButtonLabel(props),
@@ -86,7 +91,7 @@ define(['jquery', 'jqueryui'], function($) {
 						match,
 						className = null,
 						classNames = [],
-						re = (!imgPlugin) ? /aloha-icon-([\w\-]+)/gi : /aloha-([\w\-]+)/gi;
+						re = (!imgPlugin) ? /aloha-(?:large-)?icon-([\w\-]+)/gi : /aloha-([\w\-]+)/gi;
 
 				// Find all "aloha-(icon|image)-<something>" classes, and remember the
 				// most specific match.
@@ -97,7 +102,6 @@ define(['jquery', 'jqueryui'], function($) {
 
 				// If any match, override the icon.
 				if ( className ) {
-					var icon = Utils.buttonDataIconsMapping[className];
 					var removeClassNames = classNames
 						.map(function( c ) { return (!imgPlugin) ? 'aloha-icon-' + c : ' aloha-' + c; })
 						.join( ' ' );
@@ -107,7 +111,7 @@ define(['jquery', 'jqueryui'], function($) {
 						.removeClass( removeClassNames )
 						.addClass( 'spark-icon' )
 						.attr( 'data-html-tag', className )
-						.attr( 'data-icon', Utils.decodeEntities(icon) );
+						.attr( 'data-icon', Utils.getDataIconForClassName(className) );
 				}
 			}
 

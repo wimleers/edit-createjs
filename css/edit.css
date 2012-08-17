@@ -220,7 +220,7 @@
   position: absolute;
   top: -35px;
   height: 35px;
-  clip: rect(-1000px, 10000px, 35px, -1000px); /* Remove bottom box-shadow. */
+/*  clip: rect(-1000px, 10000px, 35px, -1000px); /* Remove bottom box-shadow. */
   font-family: 'Droid sans', 'Lucida Grande', sans-serif;
 }
 .edit-toolbar.primary {
