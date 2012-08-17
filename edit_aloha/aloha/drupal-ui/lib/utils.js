@@ -30,10 +30,15 @@ define(['jquery', 'jqueryui'], function($) {
 				'align-justify': '&#xe048;',
 				'align-right': '&#xe004;',
 				'align-left': '&#xe005;',
+				'remove-formatting': '&#xe001;',
 				'characterpicker': '&#xe01a;',
 				'imgAlignLeft': '&#x22;',
-				'imgAlignRightt': '&#x23;',
+				'imgAlignRight': '&#x23;',
 				'imgAlignCenter': '&#x24;',
+				// image plug-in
+				'image-insert': '&#xe03b;',
+				'image-align-left': '&#x22;',
+				'image-align-right': '&#x23;'
 		},
 
 		// Source: http://stackoverflow.com/a/9609450.
@@ -75,15 +80,16 @@ define(['jquery', 'jqueryui'], function($) {
 			// custom icons, using data- attributes.
 			var primaryIcon = button.button( 'widget' )
 				.find( '.ui-button-icon-primary' );
-			if ( primaryIcon.hasClass('aloha-icon') ) {
+			if ( primaryIcon.hasClass('aloha-icon') || primaryIcon.hasClass('aloha-img') || primaryIcon.hasClass('aloha-image-insert')) {
+			  var imgPlugin = (primaryIcon.hasClass('aloha-icon') == false);
 				var classString = primaryIcon.attr( 'class' ),
 						match,
 						className = null,
 						classNames = [],
-						re = /aloha-icon-([\w\-]+)/gi;
+						re = (!imgPlugin) ? /aloha-icon-([\w\-]+)/gi : /aloha-([\w\-]+)/gi;
 
-				// Find all "aloha-icon-<something>" classes, and remember the most
-				// specific match.
+				// Find all "aloha-(icon|image)-<something>" classes, and remember the
+				// most specific match.
 				while ( match = re.exec(classString) ) {
 					className = match[1];
 					classNames.push( className );
@@ -93,7 +99,7 @@ define(['jquery', 'jqueryui'], function($) {
 				if ( className ) {
 					var icon = Utils.buttonDataIconsMapping[className];
 					var removeClassNames = classNames
-						.map(function( c ) { return 'aloha-icon-' + c; })
+						.map(function( c ) { return (!imgPlugin) ? 'aloha-icon-' + c : ' aloha-' + c; })
 						.join( ' ' );
 					primaryIcon
 						.removeClass( 'ui-icon' )
