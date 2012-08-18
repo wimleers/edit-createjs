@@ -11,7 +11,7 @@
 function edit_aloha_requirements($phase) {
   // @todo: remove this when http://drupal.org/node/1701784#comment-6363974 has
   // been figured out.
-  return;
+  return array();
 
   $requirements = array();
   $t = get_t();
