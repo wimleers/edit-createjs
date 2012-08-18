@@ -35,7 +35,10 @@ function edit_aloha_library() {
   }
   // CDN package
   elseif (file_exists($library_path . '/lib')) {
-    // No subdirectory -- nice and clean :)
+    // Or mabye a custom build.
+    if (!file_exists($library_path . '/lib/aloha-bare.js')) {
+      $library_file = "aloha.js";
+    }
   }
   // regular package
   elseif (file_exists($library_path)) {
