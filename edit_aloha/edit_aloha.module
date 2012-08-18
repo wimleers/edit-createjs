@@ -20,6 +20,12 @@ function edit_aloha_menu() {
  * Implements hook_library().
  */
 function edit_aloha_library() {
+  // @todo: remove this when http://drupal.org/node/1701784#comment-6363974 has
+  // been figured out.
+  $library_path = drupal_get_path('module', 'edit_aloha') .'/temporary_aloha_build_for_drupal/alohaeditor';
+  $library_file = "aloha.js";
+
+/*
   $library_path = libraries_get_path('alohaeditor');
   $library_file = "aloha-bare.js";
   // It should not be possible to reach this hook without having Aloha Editor
@@ -48,6 +54,7 @@ function edit_aloha_library() {
     drupal_set_message(t('Aloha Editor no longer correctly installed, please look at the status report.'));
     return;
   }
+*/
 
   // @todo update this based on the input format settings.
   $plugins = array(

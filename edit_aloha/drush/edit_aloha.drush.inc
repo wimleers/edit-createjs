@@ -65,6 +65,9 @@ function edit_aloha_drush_help($section) {
  * Command to download Aloha Editor.
  */
 function drush_edit_aloha_download() {
+  // @todo: remove this when http://drupal.org/node/1701784#comment-6363974 has
+  // been figured out.
+  return drush_set_error(dt('Temporarily disabled; Aloha Editor is temporarily shipping with the Edit module.'));
   $target_dir = 'alohaeditor';
   if (!drush_shell_exec('type unzip')) {
     return drush_set_error(dt('Missing dependency: unzip. Install it before using this command.'));

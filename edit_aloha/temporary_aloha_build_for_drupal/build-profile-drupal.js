@@ -206,6 +206,10 @@
 		"listenforcer/css": "../plugins/extra/listenforcer/css",
 		"listenforcer/nls": "../plugins/extra/listenforcer/nls",
 		"listenforcer/res": "../plugins/extra/listenforcer/res",
+		"captioned-image": "../plugins/extra/captioned-image/lib",
+		"captioned-image/css": "../plugins/extra/captioned-image/css",
+		"captioned-image/nls": "../plugins/extra/captioned-image/nls",
+		"captioned-image/res": "../plugins/extra/captioned-image/res"
     },
 
     //Configure CommonJS packages. See http://requirejs.org/docs/api.html#packages
@@ -216,7 +220,7 @@
     //The directory path to save the output. If not specified, then
     //the path will default to be a directory called "build" as a sibling
     //to the build file. All relative paths are relative to the build file.
-    dir: "../../target/build-profile-with-common-extra-plugins/rjs-output",
+    dir: "../../target/build-profile-drupal",
 
     //As of RequireJS 2.0.2, the dir above will be deleted before the
     //build starts again. If you have a big build and are not doing
@@ -416,34 +420,43 @@
 				// all common plugins
 				"ui/ui-plugin",
 				"link/link-plugin",
-				"table/table-plugin",
+				// "table/table-plugin",
 				"format/format-plugin",
 				"list/list-plugin",
 				"image/image-plugin",
 				"highlighteditables/highlighteditables-plugin",
 				"dom-to-xhtml/dom-to-xhtml-plugin",
 				"contenthandler/contenthandler-plugin",
-				"characterpicker/characterpicker-plugin",
+				// "characterpicker/characterpicker-plugin",
 				"commands/commands-plugin",
 				"block/block-plugin",
 				"align/align-plugin",
-				"abbr/abbr-plugin",
-				"horizontalruler/horizontalruler-plugin",
+				// "abbr/abbr-plugin",
+				// "horizontalruler/horizontalruler-plugin",
 				"paste/paste-plugin",
 				// some extra plugins
-				'toc/toc-plugin',
-				'cite/cite-plugin',
-				'flag-icons/flag-icons-plugin',
-				'numerated-headers/numerated-headers-plugin',
-				'formatlesspaste/formatlesspaste-plugin',
-				'linkbrowser/linkbrowser-plugin',
-				'imagebrowser/imagebrowser-plugin',
-				'ribbon/ribbon-plugin',
-				'wai-lang/wai-lang-plugin',
-				'headerids/headerids-plugin',
-				'metaview/metaview-plugin',
-				'listenforcer/listenforcer-plugin',
+				// 'toc/toc-plugin',
+				// 'cite/cite-plugin',
+				// 'flag-icons/flag-icons-plugin',
+				// 'numerated-headers/numerated-headers-plugin',
+				// 'formatlesspaste/formatlesspaste-plugin',
+				// 'linkbrowser/linkbrowser-plugin',
+				// 'imagebrowser/imagebrowser-plugin',
+				// 'ribbon/ribbon-plugin',
+				// 'wai-lang/wai-lang-plugin',
+				// 'headerids/headerids-plugin',
+				// 'metaview/metaview-plugin',
+				// 'listenforcer/listenforcer-plugin',
 			],
+			// Don't include these parts of Aloha Editor's default UI in aloha.js,
+			// because our UI overrides them.
+			excludeShallow: [
+				"ui/multiSplit",
+				"ui/utils",
+				"ui/toolbar",
+				"ui/tab",
+				"ui/menuButton"
+			]
         },
 
         //This module entry combines all the dependencies of foo/bar/bop and foo/bar/bee
