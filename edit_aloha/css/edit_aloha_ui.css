@@ -99,6 +99,7 @@
   margin: 0;
 
   width: 31px;
+  height: 30px;
   padding: 5px 0 4px;
   display: block;
   float: left;
@@ -152,7 +153,6 @@
 
 .edit-toolgroup.wysiwyg .aloha-ui-component-group .aloha-ui-menubutton-container .aloha-ui-menubutton-expand {
   width: 40px;
-  height: 30px;
 }
 
 .edit-toolgroup.wysiwyg .aloha-ui-component-group .aloha-ui-menubutton-container .aloha-ui-menubutton-expand .ui-button-icon-primary {

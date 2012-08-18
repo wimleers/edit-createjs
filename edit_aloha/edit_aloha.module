@@ -232,6 +232,10 @@ function edit_aloha_library() {
       drupal_get_path('module', 'edit_aloha') . '/css/edit_aloha.css',
       drupal_get_path('module', 'edit_aloha') . '/css/edit_aloha_ui.css',
     ),
+    // @todo: try to get rid of this; we only need it for a few CSS styles.
+    'dependencies' => array(
+      array('system', 'ui'),
+    ),
   );
 
   return $libraries;
