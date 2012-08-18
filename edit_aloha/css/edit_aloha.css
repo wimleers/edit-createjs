@@ -26,6 +26,7 @@
 }
 
 .aloha-block.aloha-block-active,
-.aloha-block.aloha-block-active:hover {
+.aloha-block.aloha-block-active:hover,
+.aloha-image-box-active {
   box-shadow: 0px 0px 1px 1px #0199FF;
 }

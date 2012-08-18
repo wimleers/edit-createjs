@@ -8,7 +8,8 @@ define([
 function( Aloha,
             jQuery,
             ContentHandlerManager,
-            console ) {
+            console,
+            Sanitize ) {
 	"use strict";
 
 	var sanitize, setting = {};
