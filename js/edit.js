@@ -567,9 +567,16 @@ Drupal.edit.editables = {
     if (!$field.hasClass('edit-type-direct-with-wysiwyg')) {
       // We cannot use Drupal.behaviors.formUpdated here because we're not dealing
       // with a form!
-      $editable.bind('blur.edit keyup.edit paste.edit', function() {
+      $editable
+      .bind('blur.edit keyup.edit paste.edit', function() {
         if ($editable.html() != $editable.data('edit-content-original')) {
           markContentChanged();
+        }
+      })
+      // Disallow return/enter key when editing titles.
+      .bind('keypress.edit', function(event) {
+        if (event.keyCode == 13) {
+          return false;
         }
       });
     }
@@ -599,7 +606,9 @@ Drupal.edit.editables = {
       });
     }
     else {
-      $editable.removeAttr('contenteditable');
+      $editable
+      .removeAttr('contenteditable')
+      .unbind('keypress.edit');
     }
 
     Drupal.edit.editables._unpadEditable($editable);
@@ -777,25 +786,27 @@ Drupal.edit.editables = {
     }
     // type = direct
     else if ($field.hasClass('edit-type-direct')) {
+      $editable.blur();
+
+      var wysiwyg = $field.hasClass('edit-type-direct-with-wysiwyg')
+          && $editable.hasClass('edit-wysiwyg-attached');
 
       // When using WYSIWYG editing, first detach the WYSIWYG editor to ensure
       // the content has been cleaned up before saving it. (Otherwise,
       // annotations and infrastructure created by the WYSIWYG editor could also
       // get saved).
-      if ($field.hasClass('edit-type-direct-with-wysiwyg')
-          && $editable.hasClass('edit-wysiwyg-attached'))
-      {
+      if (wysiwyg) {
         $editable.removeClass('edit-wysiwyg-attached');
         Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].detach($editable);
       }
 
-      // (This is currently used only for the node title.)
       // We trim the title because otherwise whitespace in the raw HTML ends
       // up in the title as well.
       // TRICKY: Drupal core does not trim the title, so in theory this is
       // out of line with Drupal core's behavior.
-      var value = $.trim($editable.blur().html());
-      console.log(value);
+      var value = (wysiwyg)
+        ? $.trim($editable.html())
+        : $.trim($editable.text());
       $('#edit_backstage form')
       .find(':input[type!="hidden"][type!="submit"]').val(value).end()
       .find('.edit-form-submit').trigger('click.edit');

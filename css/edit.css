@@ -89,6 +89,9 @@
   z-index: 300;
   position: relative;
 }
+.edit-editable:focus {
+  outline: none;
+}
 .edit-editable.edit-entity {
   box-shadow: 0px 0px 1px 1px #FFF;
 }
