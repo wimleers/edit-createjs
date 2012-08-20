@@ -27,6 +27,11 @@ $(function() {
         ajax.$editable
         .data('edit-content-changed', true)
         .trigger('edit-content-changed.edit');
+      })
+      .delegate('input', 'keypress.edit', function(event) {
+        if (event.keyCode == 13) {
+          return false;
+        }
       });
 
       var $submit = Drupal.edit.form.get(ajax.$editable).find('.edit-form-submit');
