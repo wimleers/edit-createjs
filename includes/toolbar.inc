@@ -16,9 +16,10 @@ function edit_page_alter(&$page) {
     return;
   }
 
-  if (isset($page['page_top']['navbar'])) {
-    // If the toolbar is available, add a pre-render function to display the
-    // view/edit mode toggle.
+  // If the toolbar is available, add a pre-render function to display the
+  // view/edit mode toggle, but only on node pages.
+  // @todo: add support for other entity types.
+  if (isset($page['page_top']['navbar']) && arg(0) == 'node') {
     $page['page_top']['navbar']['#pre_render'][] = 'edit_navbar_pre_render';
   }
 }
