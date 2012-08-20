@@ -633,7 +633,7 @@ Drupal.edit.editables = {
 
       // The whole toolbar must move to the top when it's an inline editable.
       if ($editable.css('display') == 'inline') {
-        $toolbar.css('top', Drupal.edit.util.stripPX($toolbar.css('top')) - 5 + 'px');
+        $toolbar.css('top', parseFloat($toolbar.css('top')) - 5 + 'px');
       }
 
       // The primary toolgroups must move to the top and the left.
@@ -662,7 +662,7 @@ Drupal.edit.editables = {
           $this.data('edit-toolbar-updating-clipping', true);
 
           var parts = $this.css('clip').split(' ');
-          parts[2] = Drupal.edit.util.stripPX(parts[2]) - 5 + 'px';
+          parts[2] = parseFloat(parts[2]) - 5 + 'px';
           $this.css('clip', parts.join(' '));
         }
       });
@@ -700,7 +700,7 @@ Drupal.edit.editables = {
 
       // Move the toolbar & toolgroups to their original positions.
       if ($editable.css('display') == 'inline') {
-        $toolbar.css('top', Drupal.edit.util.stripPX($toolbar.css('top')) + 5 + 'px');
+        $toolbar.css('top', parseFloat($toolbar.css('top')) + 5 + 'px');
       }
       $toolbar.find('.edit-toolgroup')
       .removeClass('edit-animate-exception-grow')

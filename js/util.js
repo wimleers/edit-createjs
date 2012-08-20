@@ -62,25 +62,6 @@ Drupal.edit.util.ignoreHoveringVia = function(e, closest, callback) {
 };
 
 /**
- * Strip extraneous information ("px") from a given value in preparation
- * for getPositionProperties().
- */
-Drupal.edit.util.stripPX = function(value) {
-  if (value) {
-    var index = value.indexOf('px');
-    if (index === -1) {
-      return NaN;
-    }
-    else {
-      return Number(value.substring(0, index));
-    }
-  }
-  else {
-    return NaN;
-  }
-};
-
-/**
  * If no position properties defined, replace value with zero.
  */
 Drupal.edit.util.replaceBlankPosition = function(pos) {
@@ -105,7 +86,7 @@ Drupal.edit.util.getPositionProperties = function($e) {
 
   for (var i = 0; i < props.length; i++) {
     p = props[i];
-    r[p] = this.stripPX(this.replaceBlankPosition($e.css(p)));
+    r[p] = parseFloat(this.replaceBlankPosition($e.css(p)));
   }
   return r;
 };

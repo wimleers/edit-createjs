@@ -81,7 +81,7 @@ Drupal.edit.toolbar = {
         if (height != adjustedOffset) {
           $toolbar.find('.edit-toolbar').each(function(i, element) {
             var top = $(element).css('top');
-            $(element).css('top', Drupal.edit.util.stripPX(top) - height + adjustedOffset + 'px');
+            $(element).css('top', parseFloat(top) - height + adjustedOffset + 'px');
           });
           $tertiary
             .css('height', height)
