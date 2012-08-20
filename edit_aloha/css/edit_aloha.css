@@ -14,6 +14,13 @@
 }
 
 
+/* Temporarily disable Aloha Blocks' handles. */
+
+.aloha-block-handle {
+  background: none;
+  border: none;
+}
+
 /** Final custom UI: CSS overrides. **/
 .aloha-editable-active, .aloha-editable-active[contenteditable="true"]:focus {
   /* Aloha's outline CSS statement is already marked as important, so we cannot cleanly disable it without also overriding our outline. */
