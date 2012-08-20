@@ -436,9 +436,7 @@ Drupal.edit.editables = {
     })
     .delegate('a.field-close', 'click.edit', function(e) {
       return self._buttonFieldCloseClicked(e, $editable, $field);
-    })
-    // @TODO: clean up when implementing http://drupal.org/node/1702250.
-    .find('.edit-toolgroup.ops').hide();
+    });
 
     // Changes to $editable based on the type.
     var callback = ($field.hasClass('edit-type-direct'))
