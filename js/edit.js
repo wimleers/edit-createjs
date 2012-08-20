@@ -80,7 +80,7 @@ Drupal.edit.init = function() {
       console.log('Preloading forms that we might need!', Drupal.edit.state.queues.preload);
 
       // Animations.
-      $('#edit_overlay').css('top', Drupal.navbar.height() + Drupal.navbar.drawerHeight());
+      $('#edit_overlay').css('top', $('#navbar').outerHeight());
       $('#edit_overlay').removeClass('edit-animate-invisible');
 
       // Disable contextual links in edit mode.
