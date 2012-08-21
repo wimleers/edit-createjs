@@ -58,8 +58,10 @@ Drupal.edit.toolbar = {
       .bind('edit-toolbar-remove.edit', function(e) {
         $toolbar.remove();
       })
-      .delegate('.edit-toolbar, .edit-toolgroup', 'click.edit mousedown.edit', function() {
-        return false;
+      .delegate('.edit-toolbar, .edit-toolgroup', 'click.edit mousedown.edit', function(e) {
+        if (!$(e.target).is(':input')) {
+          return false;
+        }
       })
       // Accomodate changed content in tertiary toolbar.
       .bind('edit-toolbar-tertiary-changed', function(e) {
