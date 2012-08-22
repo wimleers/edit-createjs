@@ -356,7 +356,7 @@ Drupal.edit.editables = {
       .append(Drupal.theme('editToolgroup', {
         classes: 'info',
         buttons: [
-          { url: '#', label: label, classes: 'blank-button label' },
+          { url: '#', label: label, classes: 'blank-button label', hasButtonRole: false },
         ]
       }))
       .delegate('a.label', 'click.edit', function(e) {

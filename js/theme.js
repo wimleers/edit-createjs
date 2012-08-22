@@ -112,6 +112,8 @@ Drupal.theme.prototype.editToolgroup = function(settings) {
  *     - url: the URL the button should point to
  *     - classes: the classes of the button
  *     - label: the label of the button
+ *     - hasButtonRole: whether this button should have its "role" attribute set
+ *       to "button"
  * @return
  *   The corresponding HTML.
  */
@@ -119,7 +121,13 @@ Drupal.theme.prototype.editButtons = function(settings) {
   var html = ''
   for (var i = 0; i < settings.buttons.length; i++) {
     var button = settings.buttons[i];
-    html += '<a href="' + button.url + '" class="' + button.classes + '">';
+    if (!button.hasOwnProperty('hasButtonRole')) {
+      button.hasButtonRole = true;
+    }
+
+    html += '<a href="' + button.url + '" class="' + button.classes + '"';
+    html += (button.hasButtonRole) ? 'role="button"' : '';
+    html += '>';
     html +=    button.label;
     html += '</a>';
   }
