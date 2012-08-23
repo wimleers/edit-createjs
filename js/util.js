@@ -9,12 +9,16 @@
 Drupal.edit = Drupal.edit || {};
 Drupal.edit.util = Drupal.edit.util || {};
 
+Drupal.edit.util.getID = function(element) {
+  return jQuery(element).data('edit-id');
+};
+
 Drupal.edit.util.getElementSubject = function(element) {
-  return jQuery(element).data('edit-id').split(':').slice(0, 2).join(':');
+  return Drupal.edit.util.getID(element).split(':').slice(0, 2).join(':');
 };
 
 Drupal.edit.util.getElementPredicate = function(element) {
-  return jQuery(element).data('edit-id').split(':').pop();
+  return Drupal.edit.util.getID(element).split(':').pop();
 };
 
 Drupal.edit.util.getElementEntity = function(element, vie) {

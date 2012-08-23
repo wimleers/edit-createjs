@@ -37,7 +37,7 @@ Drupal.edit.init = function() {
   Drupal.edit.state.wysiwygReady = false;
 
   // Build inventory.
-  var IDMapper = function() { return Drupal.edit.getID($(this)); };
+  var IDMapper = function() { return Drupal.edit.util.getID($(this)); };
   Drupal.edit.state.entities = Drupal.edit.findEditableEntities().map(IDMapper);
   Drupal.edit.state.fields = Drupal.edit.findEditableFields().map(IDMapper);
   console.log('Entities:', Drupal.edit.state.entities.length, ';', Drupal.edit.state.entities);
@@ -165,10 +165,6 @@ Drupal.edit.findEditablesForFields = function($fields) {
   $editables = $editables.add($direct.find('h1'));
 
   return $editables;
-};
-
-Drupal.edit.getID = function($field) {
-  return $field.data('edit-id');
 };
 
 Drupal.edit.findFieldForID = function(id, context) {
@@ -394,7 +390,7 @@ Drupal.edit.editables = {
     }, 0);
 
     Drupal.edit.state.fieldBeingHighlighted = $editable;
-    Drupal.edit.state.higlightedEditable = Drupal.edit.getID(Drupal.edit.findFieldForEditable($editable));
+    Drupal.edit.state.higlightedEditable = Drupal.edit.util.getID(Drupal.edit.findFieldForEditable($editable));
   },
 
   stopHighlight: function($editable) {
@@ -470,7 +466,7 @@ Drupal.edit.editables = {
     self._loadForm($editable, $field);
 
     Drupal.edit.state.fieldBeingEdited = $editable;
-    Drupal.edit.state.editedEditable = Drupal.edit.getID($field);
+    Drupal.edit.state.editedEditable = Drupal.edit.util.getID($field);
   },
 
   stopEdit: function($editable) {
@@ -512,7 +508,7 @@ Drupal.edit.editables = {
     // Indicate in the 'info' toolgroup that the form is loading.
     Drupal.edit.toolbar.addClass($editable, 'primary', 'info', 'loading');
 
-    var edit_id = Drupal.edit.getID($field);
+    var edit_id = Drupal.edit.util.getID($field);
     var element_settings = {
       url      : Drupal.edit.util.calcRerenderProcessedTextURL(edit_id),
       event    : 'edit-internal-load-rerender.edit',
@@ -777,7 +773,7 @@ Drupal.edit.editables = {
   },
 
   _loadForm: function($editable, $field) {
-    var edit_id = Drupal.edit.getID($field);
+    var edit_id = Drupal.edit.util.getID($field);
     var element_settings = {
       url      : Drupal.edit.util.calcFormURLForField(edit_id),
       event    : 'edit-internal.edit',
