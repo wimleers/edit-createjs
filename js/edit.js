@@ -10,6 +10,8 @@ Drupal.behaviors.edit = {
   attach: function(context) {
     $('#edit_view-edit-toggles').once('edit-init', Drupal.edit.init);
     $('#edit_view-edit-toggles').once('edit-toggle', Drupal.edit.toggle.render);
+
+    // Remove URLs for the edit toggle links so we don't get redirects
     $("a.edit_view-edit-toggle").attr('href', '#');
   }
 };
@@ -32,8 +34,6 @@ Drupal.edit.init = function() {
   Drupal.edit.state.queues = {};
   Drupal.edit.state.wysiwygReady = false;
 
-  var IDMapper = function() { return Drupal.edit.util.getID($(this)); };
-
   // Load the storage widget to get localStorage support
   $('body').midgardStorage({
     vie: Drupal.edit.vie,
@@ -41,7 +41,9 @@ Drupal.edit.init = function() {
   });
 
   // Form preloader.
-  Drupal.edit.state.queues.preload = Drupal.edit.util.findEditableFields().filter('.edit-type-form').map(IDMapper);
+  Drupal.edit.state.queues.preload = Drupal.edit.util.findEditableFields().filter('.edit-type-form').map(function () {
+    return Drupal.edit.util.getID($(this));
+  });
   console.log('Fields with (server-generated) forms:', Drupal.edit.state.queues.preload);
 
   // Initialize WYSIWYG, if any.
@@ -150,7 +152,10 @@ Drupal.edit.startEditableWidgets = function($fields) {
     });
   });
 
-  var $editables = Drupal.edit.util.findEditablesForFields($fields);
+  Drupal.edit.decorateEditables(Drupal.edit.util.findEditablesForFields($fields));
+};
+
+Drupal.edit.decorateEditables = function($editables) {
   $editables
   .addClass('edit-animate-fast')
   .addClass('edit-candidate edit-editable')
@@ -191,11 +196,12 @@ Drupal.edit.stopEditableWidgets = function($fields) {
 
   $fields
   .removeClass('edit-processed');
+  
+  Drupal.edit.editables.stopEdit($fields);
 
   $editables
   .removeClass('edit-candidate edit-editable edit-highlighted edit-editing edit-belowoverlay')
   .unbind('mouseenter.edit mouseleave.edit click.edit edit-content-changed.edit')
-  .removeAttr('contenteditable')
   .removeData(['edit-content-original', 'edit-content-changed']);
 };
 
