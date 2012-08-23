@@ -8,14 +8,7 @@
 
     enable: function () {
       this.options.disabled = false;
-
-      var self = this;
-      var formLoader = function () {
-        self.loadForm();
-        self.element.unbind('click', formLoader);
-      };
-
-      this.element.bind('click', formLoader);
+      this.loadForm();
     },
 
     loadForm: function () {
@@ -31,7 +24,7 @@
       }
 
       var field = Drupal.edit.util.findFieldForEditable(this.element);
-      Drupal.edit.editables._loadForm(this.element, field);
+      //Drupal.edit.editables._loadForm(this.element, field);
     },
 
     disable: function () {

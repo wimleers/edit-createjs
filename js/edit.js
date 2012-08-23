@@ -10,11 +10,7 @@ Drupal.behaviors.edit = {
   attach: function(context) {
     $('#edit_view-edit-toggles').once('edit-init', Drupal.edit.init);
     $('#edit_view-edit-toggles').once('edit-toggle', Drupal.edit.toggle.render);
-
-    // TODO: remove this; this is to make the current prototype somewhat usable.
-    $('a.edit_view-edit-toggle').click(function() {
-      $(this).trigger('click.edit');
-    });
+    $("a.edit_view-edit-toggle").attr('href', '#');
   }
 };
 
@@ -36,12 +32,7 @@ Drupal.edit.init = function() {
   Drupal.edit.state.queues = {};
   Drupal.edit.state.wysiwygReady = false;
 
-  // Build inventory.
   var IDMapper = function() { return Drupal.edit.util.getID($(this)); };
-  Drupal.edit.state.entities = Drupal.edit.util.findEditableEntities().map(IDMapper);
-  Drupal.edit.state.fields = Drupal.edit.util.findEditableFields().map(IDMapper);
-  console.log('Entities:', Drupal.edit.state.entities.length, ';', Drupal.edit.state.entities);
-  console.log('Fields:', Drupal.edit.state.fields.length, ';', Drupal.edit.state.fields);
 
   // Form preloader.
   Drupal.edit.state.queues.preload = Drupal.edit.util.findEditableFields().filter('.edit-type-form').map(IDMapper);
@@ -68,102 +59,92 @@ Drupal.edit.init = function() {
     $('a.edit_view-edit-toggle.edit-' + (isViewing ? 'view' : 'edit')).parent().addClass('active');
 
     if (wasViewing && !isViewing) {
-      $(Drupal.theme('editOverlay', {}))
-      .appendTo('body')
-      .addClass('edit-animate-slow edit-animate-invisible')
-      .bind('click.edit', Drupal.edit.clickOverlay);;
-
-      var $f = Drupal.edit.util.findEditableFields();
-      Drupal.edit.startEditableFields($f);
-      var $e = Drupal.edit.util.findEditableEntities();
-      // Drupal.edit.startEditableEntities($e);
-
-      // TODO: preload forms. We could do one request per form, but that's more
-      // RTTs than needed. Instead, the server should support batch requests.
-      console.log('Preloading forms that we might need!', Drupal.edit.state.queues.preload);
-
-      // Animations.
-      $('#edit_overlay').css('top', $('#navbar').outerHeight());
-      $('#edit_overlay').removeClass('edit-animate-invisible');
-
-      // Disable contextual links in edit mode.
-      $('.contextual-links-region')
-      .addClass('edit-contextual-links-region')
-      .removeClass('contextual-links-region');
-    }
-    else if (!wasViewing && isViewing) {
-      // Animations.
-      $('#edit_overlay')
-      .addClass('edit-animate-invisible')
-      .bind(Drupal.edit.const.transitionEnd, function(e) {
-        $('#edit_overlay, .edit-form-container, .edit-toolbar-container, #edit_modal, #edit_backstage, .edit-curtain').remove();
-      });
-
-      var $f = Drupal.edit.util.findEditableFields();
-      Drupal.edit.stopEditableFields($f);
-      var $e = Drupal.edit.util.findEditableEntities();
-      Drupal.edit.stopEditableEntities($e);
-
-      // Re-enable contextual links in view mode.
-      $('.edit-contextual-links-region')
-      .addClass('contextual-links-region')
-      .removeClass('edit-contextual-links-region');
-    }
-    else {
-      // No state change.
+      Drupal.edit.enterEditState();
+    } else if (!wasViewing && isViewing) {
+      Drupal.edit.enterViewState();
     }
     return false;
   });
 };
 
-Drupal.edit.startEditableEntities = function($e) {
-  $e
-  .once('edit')
-  .addClass('edit-animate-fast')
-  .addClass('edit-candidate edit-editable')
-  .bind('mouseenter.edit', function(e) {
-    var $e = $(this);
-    Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
-      if (Drupal.edit.state.fieldBeingEdited.length > 0) {
-        return;
-      }
+Drupal.edit.enterEditState = function () {
+  $(Drupal.theme('editOverlay', {}))
+  .appendTo('body')
+  .addClass('edit-animate-slow edit-animate-invisible')
+  .bind('click.edit', Drupal.edit.clickOverlay);;
 
-      console.log('entity:mouseenter');
-      Drupal.edit.entityEditables.startHighlight($e);
-    });
-  })
-  .bind('mouseleave.edit', function(e) {
-    var $e = $(this);
-    Drupal.edit.util.ignoreHoveringVia(e, '.edit-toolbar-container', function() {
-      console.log('entity:mouseleave');
-      Drupal.edit.entityEditables.stopHighlight($e);
-    });
-  })
-  // Hang a curtain over the comments if they're inside the entity.
-  .find('.comment-wrapper').prepend(Drupal.theme('editCurtain', {}))
-  .map(function() {
-    var height = $(this).height();
-    $(this).find('.edit-curtain')
-    .css('height', height)
-    .data('edit-curtain-height', height);
+  var $e = Drupal.edit.util.findEditableFields();
+  Drupal.edit.startEditableWidgets($e);
+
+  // TODO: preload forms. We could do one request per form, but that's more
+  // RTTs than needed. Instead, the server should support batch requests.
+  console.log('Preloading forms that we might need!', Drupal.edit.state.queues.preload);
+
+  // Animations.
+  $('#edit_overlay').css('top', $('#navbar').outerHeight());
+  $('#edit_overlay').removeClass('edit-animate-invisible');
+
+  // Disable contextual links in edit mode.
+  $('.contextual-links-region')
+  .addClass('edit-contextual-links-region')
+  .removeClass('contextual-links-region');
+};
+
+Drupal.edit.enterViewState = function () {
+  // Animations.
+  $('#edit_overlay')
+  .addClass('edit-animate-invisible')
+  .bind(Drupal.edit.const.transitionEnd, function(e) {
+    $('#edit_overlay, .edit-form-container, .edit-toolbar-container, #edit_modal, #edit_backstage, .edit-curtain').remove();
   });
+
+  var $e = Drupal.edit.util.findEditableFields();
+  Drupal.edit.stopEditableWidgets($e);
+
+  // Re-enable contextual links in view mode.
+  $('.edit-contextual-links-region')
+  .addClass('contextual-links-region')
+  .removeClass('edit-contextual-links-region');
 };
 
-Drupal.edit.stopEditableEntities = function($e) {
-  $e
-  .removeClass('edit-processed edit-candidate edit-editable edit-highlighted')
-  .unbind('mouseenter.edit mouseleave.edit')
-  .find('.comment-wrapper .edit-curtain').remove();
-};
+Drupal.edit.startEditableWidgets = function($fields) {
+  var self = this;
 
-Drupal.edit.startEditableFields = function($fields) {
-  var $fields = $fields.once('edit');
-  // Ignore fields that need a WYSIWYG editor if no WYSIWYG editor is present
-  if (!Drupal.settings.edit.wysiwyg) {
-    $fields = $fields.filter(':not(.edit-type-direct-with-wysiwyg)');
-  }
+  var enabler = function () {
+    if (Drupal.edit.state.isViewing) {
+      $(this).unbind('click', enabler);
+      return;
+    }
+
+    // Make the fields editable
+    Drupal.edit.editables.startEdit($(this));
+    return false;
+  };
+
+  $fields
+  .each(function() {
+    var $field = jQuery(this);
+
+    $field.bind('createeditableenable', function (event, data) {
+      $field.unbind('click.edit', enabler);
+      Drupal.edit.editables._updateDirectEditable($field);
+    });
+
+    $field.bind('createeditabledisable', function (event, data) {
+      $field.bind('click.edit', enabler);
+      $field.removeClass('ui-state-disabled');
+      Drupal.edit.editables._restoreDirectEditable($field);
+    });
+
+    var entity = Drupal.edit.util.getElementEntity(this, Drupal.edit.vie);
+    $field.createEditable({
+      model: entity,
+      vie: Drupal.edit.vie,
+      disabled: true
+    });
+  });
+
   var $editables = Drupal.edit.util.findEditablesForFields($fields);
-
   $editables
   .addClass('edit-animate-fast')
   .addClass('edit-candidate edit-editable')
@@ -193,16 +174,13 @@ Drupal.edit.startEditableFields = function($fields) {
       e.stopPropagation();
     });
   })
-  .bind('click.edit', function() {
-    Drupal.edit.editables.startEdit($(this)); return false;
-  })
   // Some transformations are editable-specific.
   .map(function() {
     $(this).data('edit-background-color', Drupal.edit.util.getBgColor($(this)));
   });
 };
 
-Drupal.edit.stopEditableFields = function($fields) {
+Drupal.edit.stopEditableWidgets = function($fields) {
   var $editables = Drupal.edit.util.findEditablesForFields($fields);
 
   $fields
@@ -237,7 +215,6 @@ Drupal.edit.clickOverlay = function(e) {
 // Entity editables.
 Drupal.edit.entityEditables = {
   startHighlight: function($editable) {
-    return;
     console.log('entityEditables.startHighlight');
     if (Drupal.edit.toolbar.create($editable)) {
       var label = Drupal.t('Edit !entity', { '!entity': $editable.data('edit-entity-label') });
@@ -335,14 +312,14 @@ Drupal.edit.editables = {
     Drupal.edit.state.highlightedEditable = null;
   },
 
-  startEdit: function($editable) {
+  startEdit: function($field) {
+    $editable = Drupal.edit.util.findEditablesForFields($field);
     if ($editable.hasClass('edit-editing')) {
       return;
     }
 
     console.log('editables.startEdit: ', $editable);
     var self = this;
-    var $field = Drupal.edit.util.findFieldForEditable($editable);
 
     // Highlight if not already highlighted.
     if (Drupal.edit.state.fieldBeingHighlighted[0] != $editable[0]) {
@@ -383,24 +360,22 @@ Drupal.edit.editables = {
       return self._buttonFieldCloseClicked(e, $editable, $field);
     });
 
-    // Changes to $editable based on the type.
-    var callback = ($field.hasClass('edit-type-direct'))
-      ? self._updateDirectEditable
-      : self._updateFormEditable;
-    callback($editable);
+    // Start the editable widget
+    $field.createEditable({disabled: false});
 
     // Regardless of the type, load the form for this field. We always use forms
     // to submit the changes.
+    // FIXME: This should be handled by Backbone.sync
     self._loadForm($editable, $field);
 
     Drupal.edit.state.fieldBeingEdited = $editable;
     Drupal.edit.state.editedEditable = Drupal.edit.util.getID($field);
   },
 
-  stopEdit: function($editable) {
+  stopEdit: function($field) {
+    $editable = Drupal.edit.util.findEditablesForFields($field);
     console.log('editables.stopEdit: ', $editable);
     var self = this;
-    var $field = Drupal.edit.util.findFieldForEditable($editable);
     if ($editable.length == 0) {
       return;
     }
@@ -419,11 +394,8 @@ Drupal.edit.editables = {
                    .find('.comment-wrapper .edit-curtain');
     $curtain.height($curtain.data('edit-curtain-height'));
 
-    // Changes to $editable based on the type.
-    var callback = ($field.hasClass('edit-type-direct'))
-      ? self._restoreDirectEditable
-      : self._restoreFormEditable;
-    callback($editable);
+    // Start the editable widget
+    $field.createEditable({disabled: true});
 
     Drupal.edit.toolbar.remove($editable);
     Drupal.edit.form.remove($editable);
@@ -456,16 +428,16 @@ Drupal.edit.editables = {
   // Attach, activate and show the WYSIWYG editor.
   _wysiwygify: function($editable) {
     $editable.addClass('edit-wysiwyg-attached');
-    Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].attach($editable);
-    Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].activate($editable);
+    // Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].attach($editable);
+    // Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].activate($editable);
     Drupal.edit.toolbar.show($editable, 'secondary', 'wysiwyg-tabs');
     Drupal.edit.toolbar.show($editable, 'tertiary', 'wysiwyg');
   },
 
-  _updateDirectEditable: function($editable) {
+  _updateDirectEditable: function($field) {
+    $editable = Drupal.edit.util.findEditablesForFields($field);
     Drupal.edit.editables._padEditable($editable);
 
-    var $field = Drupal.edit.util.findFieldForEditable($editable);
     if ($field.hasClass('edit-type-direct-with-wysiwyg')) {
       Drupal.edit.toolbar.get($editable)
       .find('.edit-toolbar.secondary:not(:has(.edit-toolgroup.wysiwyg-tabs))')
@@ -496,64 +468,26 @@ Drupal.edit.editables = {
         }, 0);
       }
     }
-    else {
-      $editable.attr('contenteditable', true);
-    }
 
     $editable
     .data('edit-content-original', $editable.html())
     .data('edit-content-changed', false);
 
-    // Detect content changes ourselves only when not using a WYSIWYG editor.
-    var markContentChanged = function() {
+    $field.bind('createeditablechanged', function() {
       $editable.data('edit-content-changed', true);
       $editable.trigger('edit-content-changed.edit');
-    };
-    if (!$field.hasClass('edit-type-direct-with-wysiwyg')) {
-      // We cannot use Drupal.behaviors.formUpdated here because we're not dealing
-      // with a form!
-      $editable
-      .bind('blur.edit keyup.edit paste.edit', function() {
-        if ($editable.html() != $editable.data('edit-content-original')) {
-          markContentChanged();
-        }
-      })
-      // Disallow return/enter key when editing titles.
-      .bind('keypress.edit', function(event) {
-        if (event.keyCode == 13) {
-          return false;
-        }
-      });
-    }
-    else {
-      $editable.bind('edit-wysiwyg-content-changed.edit', function() {
-        markContentChanged();
-      });
-    }
+    });
   },
 
-  _restoreDirectEditable: function($editable) {
+  _restoreDirectEditable: function($field) {
+    $editable = Drupal.edit.util.findEditablesForFields($field);
+    if (!$editable.data('edit-content-original')) {
+      return;
+    }
     if (Drupal.edit.util.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')
         && $editable.hasClass('edit-wysiwyg-attached'))
     {
       $editable.removeClass('edit-wysiwyg-attached');
-      Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].detach($editable);
-
-      // Work-around for major AE bug. See:
-      //  - http://drupal.org/node/1725032
-      //  - https://github.com/alohaeditor/Aloha-Editor/issues/693.
-      // Also unbind to make sure this doesn't break anything when using
-      // this version of edit.js with a fixed version of Aloha Editor.
-      $editable
-      .unbind('click.edit')
-      .bind('click.edit', function() {
-        Drupal.edit.editables.startEdit($(this)); return false;
-      });
-    }
-    else {
-      $editable
-      .removeAttr('contenteditable')
-      .unbind('keypress.edit');
     }
 
     Drupal.edit.editables._unpadEditable($editable);
@@ -680,26 +614,6 @@ Drupal.edit.editables = {
     }, 0);
   },
 
-  // Creates a form container; when the $editable is inline, it will inherit CSS
-  // properties from the toolbar container, so the toolbar must already exist.
-  _updateFormEditable: function($editable) {
-    if (Drupal.edit.form.create($editable)) {
-      $editable
-      .addClass('edit-belowoverlay')
-      .removeClass('edit-highlighted edit-editable');
-
-      Drupal.edit.form.get($editable)
-      .find('.edit-form')
-      .addClass('edit-editable edit-highlighted edit-editing')
-      .css('background-color', $editable.data('edit-background-color'));
-    }
-  },
-
-  _restoreFormEditable: function($editable) {
-    // No need to do anything here; all of the field HTML will be overwritten
-    // with the freshly rendered version from the server anyway!
-  },
-
   _loadForm: function($editable, $field) {
     var edit_id = Drupal.edit.util.getID($field);
     var element_settings = {
@@ -775,7 +689,7 @@ Drupal.edit.editables = {
         $editable.html($editable.data('edit-content-original-transformed'));
       }
 
-      Drupal.edit.editables.stopEdit($editable);
+      Drupal.edit.editables.stopEdit($field);
     }
     // Content changed: show modal.
     else {

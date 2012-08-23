@@ -134,9 +134,7 @@ Drupal.edit.toolbar = {
   },
 
   _id: function($editable) {
-    var edit_id = ($editable.hasClass('edit-entity'))
-      ? Drupal.edit.util.getID($editable)
-      : Drupal.edit.util.getID(Drupal.edit.util.findFieldForEditable($editable));
+    var edit_id = Drupal.edit.util.getID($editable);
     return 'edit-toolbar-for-' + edit_id.split(':').join('_');
   }
 };
@@ -190,9 +188,7 @@ Drupal.edit.form = {
   },
 
   _id: function($editable) {
-    var edit_id = ($editable.hasClass('edit-entity'))
-      ? Drupal.edit.util.getID($editable)
-      : Drupal.edit.util.getID(Drupal.edit.util.findFieldForEditable($editable));
+    var edit_id = Drupal.edit.util.getID($editable);
     return 'edit-form-for-' + edit_id.split(':').join('_');
   }
 };

@@ -9,18 +9,22 @@
       this.vie = this.options.vie;
 
       this.options.editors.direct = {
+        widget: 'editWidget',
+        options: {}
+      };
+      this.options.editors.directWysiwyg = {
         widget: 'alohaWidget',
         options: {}
-      }
+      };
       this.options.editors.form = {
         widget: 'drupalFormWidget',
         options: {}
-      }
+      };
     },
 
     findEditableElements: function (callback) {
       var model = this.options.model;
-      var fields = Drupal.edit.util.findEditableFields(this.element).filter(function () {
+      var fields = Drupal.edit.util.findEditableFields(this.element).andSelf().filter(function () {
         return Drupal.edit.util.getElementSubject(jQuery(this)) == model.getSubjectUri();
       });
       Drupal.edit.util.findEditablesForFields(fields).each(callback);
@@ -31,7 +35,10 @@
     },
 
     _editorName: function (data) {
-      if (Drupal.settings.edit.wysiwyg && jQuery(data.element).hasClass('edit-type-direct')) {
+      if (Drupal.settings.edit.wysiwyg && jQuery(this.element).hasClass('edit-type-direct')) {
+        if (jQuery(this.element).hasClass('edit-type-direct-with-wysiwyg')) {
+          return 'directWysiwyg';
+        }
         return 'direct';
       }
       return 'form';

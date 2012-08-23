@@ -110,7 +110,7 @@ $(function() {
       }
 
       // Make the freshly rendered field(s) in-place-editable again.
-      Drupal.edit.startEditableFields(Drupal.edit.util.findEditableFields($parent));
+      Drupal.edit.startEditableWidgets(Drupal.edit.util.findEditableFields($parent));
     }
   };
 });
