@@ -112,6 +112,19 @@ function edit_library() {
   $wysiwyg_module = variable_get(EDIT_WYSIWYG_VARIABLE, EDIT_WYSIWYG_DEFAULT);
 
   $path = drupal_get_path('module', 'edit');
+
+  $libraries['edit.createjs'] = array(
+    'title' => 'CreateJS and deps',
+    'website' => 'http://createjs.org',
+    'version' => NULL,
+    'js' => array(
+      libraries_get_path('underscore') . '/underscore-min.js' => array(),
+      libraries_get_path('backbone') . '/backbone-min.js' => array(),
+      drupal_get_path('module', 'edit') . '/js/vie.js' => array(),
+      // libraries_get_path('vie') .'/vie-min.js',
+      // libraries_get_path('create') .'/create-min.js',
+    )
+  );
   $libraries['edit.frontend'] = array(
     'title' => 'Edit: front-end',
     'website' => 'http://drupal.org/project/edit',
@@ -154,6 +167,7 @@ function edit_library() {
       array('system', 'jquery.form'),
       array('system', 'drupal.form'),
       array('system', 'drupal.ajax'),
+      array('edit', 'edit.createjs'),
     ),
   );
 
