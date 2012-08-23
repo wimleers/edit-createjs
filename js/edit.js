@@ -24,7 +24,6 @@ Drupal.edit.const.transitionEnd = "transitionEnd.edit webkitTransitionEnd.edit t
 Drupal.edit.init = function() {
   // VIE instance for Editing
   Drupal.edit.vie = new VIE();
-  Drupal.edit.vie.use(new Drupal.edit.vie.RdfaService());
 
   Drupal.edit.state = {};
   // We always begin in view mode.
@@ -118,16 +117,29 @@ Drupal.edit.init = function() {
 };
 
 Drupal.edit.findEditableEntities = function(context) {
-  return Drupal.edit.vie.service('rdfa').readEntities(context || Drupal.settings.edit.context);
+  var entityElements = $('.edit-entity.edit-allowed', context || Drupal.settings.edit.context);
+  entityElements.each(function () {
+    // Register the entity with VIE
+    Drupal.edit.vie.entities.addOrUpdate({
+      '@subject': jQuery(this).data('edit-id'),
+      '@type': jQuery(this).data('edit-entity-label')
+    });
+  });
+  return entityElements;
 };
 
 Drupal.edit.findEditableFields = function(context) {
-  var entities = Drupal.edit.findEditableEntities(context);
-  var fields = [];
-  _.each(entities, function (entity) {
-    fields.push(Drupal.edit.vie.service('rdfa').findPredicateElements(entity.getSubject(), context));
+  var propertyElements = $('.edit-field.edit-allowed', context || Drupal.settings.edit.context);
+  propertyElements.each(function () {
+    // Register with VIE
+    var propertyName = jQuery(this).data('edit-id').split(':').pop();
+    var entityData = {
+      '@subject': jQuery(this).data('edit-id').split(':').slice(0, 2).join(':'),
+    };
+    entityData[propertyName] = jQuery('.field-item', this).html();
+    Drupal.edit.vie.entities.addOrUpdate(entityData);
   });
-  return fields;
+  return propertyElements;
 };
 
 /*
