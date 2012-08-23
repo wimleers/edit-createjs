@@ -26,6 +26,15 @@ Drupal.edit.util.getElementPredicate = function(element) {
   return Drupal.edit.util.getID(element).split(':').pop();
 };
 
+Drupal.edit.util.getElementValue = function(element) {
+  var valueElement = jQuery('.field-item', element);
+  if (valueElement.length === 0) {
+    // Handle page title
+    valueElement = jQuery('h1', element);
+  }
+  return $.trim(valueElement.html());
+};
+
 Drupal.edit.util.getElementEntity = function(element, vie) {
   return vie.entities.get(Drupal.edit.util.getElementSubject(element));
 };
@@ -52,7 +61,7 @@ Drupal.edit.util.findEditableFields = function(context) {
     var entityData = {
       '@subject': Drupal.edit.util.getElementSubject(jQuery(this))
     };
-    entityData[propertyName] = jQuery('.field-item', this).html();
+    entityData[propertyName] = Drupal.edit.util.getElementValue(jQuery(this));
     Drupal.edit.vie.entities.addOrUpdate(entityData, {
       overrideAttributes: true
     });
