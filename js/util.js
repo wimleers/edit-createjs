@@ -10,7 +10,11 @@ Drupal.edit = Drupal.edit || {};
 Drupal.edit.util = Drupal.edit.util || {};
 
 Drupal.edit.util.getID = function(element) {
-  return jQuery(element).data('edit-id');
+  var id = jQuery(element).data('edit-id');
+  if (!id) {
+    id = jQuery(element).closest('[data-edit-id]').data('edit-id');
+  }
+  return id;
 };
 
 Drupal.edit.util.getElementSubject = function(element) {
