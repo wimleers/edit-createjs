@@ -22,6 +22,10 @@ Drupal.edit.const = {};
 Drupal.edit.const.transitionEnd = "transitionEnd.edit webkitTransitionEnd.edit transitionend.edit msTransitionEnd.edit oTransitionEnd.edit";
 
 Drupal.edit.init = function() {
+  // VIE instance for Editing
+  Drupal.edit.vie = new VIE();
+  Drupal.edit.vie.use(new Drupal.edit.vie.RdfaService());
+
   Drupal.edit.state = {};
   // We always begin in view mode.
   Drupal.edit.state.isViewing = true;
@@ -114,11 +118,16 @@ Drupal.edit.init = function() {
 };
 
 Drupal.edit.findEditableEntities = function(context) {
-  return $('.edit-entity.edit-allowed', context || Drupal.settings.edit.context);
+  return Drupal.edit.vie.service('rdfa').readEntities(context || Drupal.settings.edit.context);
 };
 
 Drupal.edit.findEditableFields = function(context) {
-  return $('.edit-field.edit-allowed', context || Drupal.settings.edit.context);
+  var entities = Drupal.edit.findEditableEntities(context);
+  var fields = [];
+  _.each(entities, function (entity) {
+    fields.push(Drupal.edit.vie.service('rdfa').findPredicateElements(entity.getSubject(), context));
+  });
+  return fields;
 };
 
 /*
