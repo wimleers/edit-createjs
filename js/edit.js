@@ -133,7 +133,7 @@ Drupal.edit.findEditableEntities = function(context) {
   entityElements.each(function () {
     // Register the entity with VIE
     Drupal.edit.vie.entities.addOrUpdate({
-      '@subject': Drupal.edit.getElementSubject(element),
+      '@subject': Drupal.edit.getElementSubject(jQuery(this)),
       '@type': jQuery(this).data('edit-entity-label')
     });
   });
@@ -144,9 +144,9 @@ Drupal.edit.findEditableFields = function(context) {
   var propertyElements = $('.edit-field.edit-allowed', context || Drupal.settings.edit.context);
   propertyElements.each(function () {
     // Register with VIE
-    var propertyName = jQuery(this).data('edit-id').split(':').pop();
+    var propertyName = Drupal.edit.getElementPredicate(jQuery(this));
     var entityData = {
-      '@subject': Drupal.edit.getElementSubject(element)
+      '@subject': Drupal.edit.getElementSubject(jQuery(this))
     };
     entityData[propertyName] = jQuery('.field-item', this).html();
     Drupal.edit.vie.entities.addOrUpdate(entityData);
@@ -844,7 +844,6 @@ Drupal.edit.editables = {
       var predicate = Drupal.edit.getElementPredicate($field);
       var entity = Drupal.edit.getElementEntity($field);
       entity.set(predicate, value);
-      entity.save();
 
       $('#edit_backstage form')
       .find(':input[type!="hidden"][type!="submit"]').val(value).end()
