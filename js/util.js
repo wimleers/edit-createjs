@@ -26,7 +26,7 @@ Drupal.edit.util.getElementPredicate = function(element) {
 };
 
 Drupal.edit.util.getElementEntity = function(element, vie) {
-  return vie.entities.get(Drupal.edit.getElementSubject(element));
+  return vie.entities.get(Drupal.edit.util.getElementSubject(element));
 };
 
 Drupal.edit.util.findEditableEntities = function(context) {
