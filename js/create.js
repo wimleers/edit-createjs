@@ -2071,7 +2071,7 @@
       });
 
       // Restore original object properties
-      if (jQuery.isEmptyObject(model.changedAttributes())) {
+      if (!model.changedAttributes()) {
         if (model._originalAttributes) {
           model.set(model._originalAttributes);
         }

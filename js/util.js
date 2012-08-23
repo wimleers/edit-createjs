@@ -8,6 +8,7 @@
 
 Drupal.edit = Drupal.edit || {};
 Drupal.edit.util = Drupal.edit.util || {};
+Drupal.edit.util.views = {};
 
 Drupal.edit.util.getID = function(element) {
   var id = jQuery(element).data('edit-id');
@@ -36,6 +37,8 @@ Drupal.edit.util.findEditableEntities = function(context) {
     Drupal.edit.vie.entities.addOrUpdate({
       '@subject': Drupal.edit.util.getElementSubject(jQuery(this)),
       '@type': jQuery(this).data('edit-entity-label')
+    }, {
+      overrideAttributes: true
     });
   });
   return entityElements;
@@ -50,7 +53,9 @@ Drupal.edit.util.findEditableFields = function(context) {
       '@subject': Drupal.edit.util.getElementSubject(jQuery(this))
     };
     entityData[propertyName] = jQuery('.field-item', this).html();
-    Drupal.edit.vie.entities.addOrUpdate(entityData);
+    Drupal.edit.vie.entities.addOrUpdate(entityData, {
+      overrideAttributes: true
+    });
   });
   return propertyElements;
 };

@@ -23,16 +23,17 @@ Drupal.edit.init = function() {
   // VIE instance for Editing
   Drupal.edit.vie = new VIE();
 
-  Drupal.edit.state = {};
   // We always begin in view mode.
-  Drupal.edit.state.isViewing = true;
-  Drupal.edit.state.entityBeingHighlighted = [];
-  Drupal.edit.state.fieldBeingHighlighted = [];
-  Drupal.edit.state.fieldBeingEdited = [];
-  Drupal.edit.state.higlightedEditable = null;
-  Drupal.edit.state.editedEditable = null;
-  Drupal.edit.state.queues = {};
-  Drupal.edit.state.wysiwygReady = false;
+  Drupal.edit.state = {
+    isViewing: true,
+    entityBeingHighlighted: [],
+    fieldBeingHighlighted: [],
+    fieldBeingEdited: [],
+    higlightedEditable: null,
+    editedEditable: null,
+    queues: {},
+    wysiwygReady: false
+  };
 
   // Load the storage widget to get localStorage support
   $('body').midgardStorage({
@@ -185,6 +186,13 @@ Drupal.edit.decorateEditables = function($editables) {
       e.stopPropagation();
     });
   })
+  .each(function() {
+    var editableView = new Drupal.edit.views.EditableView({
+      model: Drupal.edit.util.getElementEntity(jQuery(this), Drupal.edit.vie),
+      el: jQuery(this),
+      predicate: Drupal.edit.util.getElementPredicate(jQuery(this))
+    });
+  })
   // Some transformations are editable-specific.
   .map(function() {
     $(this).data('edit-background-color', Drupal.edit.util.getBgColor($(this)));
@@ -202,7 +210,6 @@ Drupal.edit.stopEditableWidgets = function($fields) {
   $editables
   .removeClass('edit-candidate edit-editable edit-highlighted edit-editing edit-belowoverlay')
   .unbind('mouseenter.edit mouseleave.edit click.edit edit-content-changed.edit')
-  .removeData(['edit-content-original', 'edit-content-changed']);
 };
 
 Drupal.edit.clickOverlay = function(e) {
@@ -262,7 +269,6 @@ Drupal.edit.entityEditables = {
   },
 
   stopHighlight: function($editable) {
-    return;
     console.log('entityEditables.stopHighlight');
 
     // Animations.
@@ -440,8 +446,6 @@ Drupal.edit.editables = {
   // Attach, activate and show the WYSIWYG editor.
   _wysiwygify: function($editable) {
     $editable.addClass('edit-wysiwyg-attached');
-    // Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].attach($editable);
-    // Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].activate($editable);
     Drupal.edit.toolbar.show($editable, 'secondary', 'wysiwyg-tabs');
     Drupal.edit.toolbar.show($editable, 'tertiary', 'wysiwyg');
   },
@@ -469,8 +473,6 @@ Drupal.edit.editables = {
       // it without the transformation filters.
       if ($field.hasClass('edit-text-with-transformation-filters')) {
         Drupal.edit.editables._loadRerenderedProcessedText($editable, $field);
-        // Also store the "real" original content, i.e. the transformed one.
-        $editable.data('edit-content-original-transformed', $editable.html())
       }
       // When no transformation filters have been applied: start WYSIWYG editing
       // immediately!
@@ -482,7 +484,6 @@ Drupal.edit.editables = {
     }
 
     $editable
-    .data('edit-content-original', $editable.html())
     .data('edit-content-changed', false);
 
     $field.bind('createeditablechanged', function() {
@@ -493,7 +494,7 @@ Drupal.edit.editables = {
 
   _restoreDirectEditable: function($field) {
     $editable = Drupal.edit.util.findEditablesForFields($field);
-    if (!$editable.data('edit-content-original')) {
+    if ($editable.data('edit-content-changed') !== undefined) {
       return;
     }
     if (Drupal.edit.util.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')
@@ -505,7 +506,6 @@ Drupal.edit.editables = {
     Drupal.edit.editables._unpadEditable($editable);
 
     $editable
-    .removeData(['edit-content-original', 'edit-content-changed', 'edit-content-original-transformed'])
     .unbind('blur.edit keyup.edit paste.edit edit-content-changed.edit');
 
     // Not only clean up the changes to $editable, but also clean up the
@@ -659,29 +659,12 @@ Drupal.edit.editables = {
     else if ($field.hasClass('edit-type-direct')) {
       $editable.blur();
 
-      var wysiwyg = $field.hasClass('edit-type-direct-with-wysiwyg')
-          && $editable.hasClass('edit-wysiwyg-attached');
-
-      // When using WYSIWYG editing, first detach the WYSIWYG editor to ensure
-      // the content has been cleaned up before saving it. (Otherwise,
-      // annotations and infrastructure created by the WYSIWYG editor could also
-      // get saved).
-      if (wysiwyg) {
-        $editable.removeClass('edit-wysiwyg-attached');
-        Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].detach($editable);
-      }
-
-      // We trim the title because otherwise whitespace in the raw HTML ends
-      // up in the title as well.
-      // TRICKY: Drupal core does not trim the title, so in theory this is
-      // out of line with Drupal core's behavior.
-      var value = (wysiwyg)
-        ? $.trim($editable.html())
-        : $.trim($editable.text());
-
-      var predicate = Drupal.edit.util.getElementPredicate($field);
       var entity = Drupal.edit.util.getElementEntity($field, Drupal.edit.vie);
-      entity.set(predicate, value);
+      var value = entity.get(Drupal.edit.util.getElementPredicate($editable));
+
+      // TODO: Use Backbone.sync so we can support the Drupal 8 API 
+      // without code changes in Spark
+      // entity.save();
 
       $('#edit_backstage form')
       .find(':input[type!="hidden"][type!="submit"]').val(value).end()
@@ -691,20 +674,12 @@ Drupal.edit.editables = {
   },
 
   _buttonFieldCloseClicked: function(e, $editable, $field) {
-    // Content not changed: stop editing field.
-    if (!$editable.data('edit-content-changed')) {
-      // Restore to original content. When dealing with processed text, it's
-      // possible that one or more transformation filters are used. Then, the
-      // "real" original content (i.e. the transformed one) is stored separately
-      // from the "original content" that we use to detect changes.
-      if (typeof $editable.data('edit-content-original-transformed') !== 'undefined') {
-        $editable.html($editable.data('edit-content-original-transformed'));
-      }
-
+    if (!Drupal.edit.util.getElementEntity($field, Drupal.edit.vie).hasChanged()) {
+      // Content not changed: stop editing field.
+      // The view will restore contents automatically when we disable editor
       Drupal.edit.editables.stopEdit($field);
-    }
-    // Content changed: show modal.
-    else {
+    } else {
+      // Content changed: show modal.
       Drupal.edit.modal.create(
         Drupal.t('You have unsaved changes'),
         Drupal.theme('editButtons', { 'buttons' : [
