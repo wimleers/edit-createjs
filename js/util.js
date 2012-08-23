@@ -9,6 +9,18 @@
 Drupal.edit = Drupal.edit || {};
 Drupal.edit.util = Drupal.edit.util || {};
 
+Drupal.edit.util.getElementSubject = function(element) {
+  return jQuery(element).data('edit-id').split(':').slice(0, 2).join(':');
+};
+
+Drupal.edit.util.getElementPredicate = function(element) {
+  return jQuery(element).data('edit-id').split(':').pop();
+};
+
+Drupal.edit.util.getElementEntity = function(element, vie) {
+  return vie.entities.get(Drupal.edit.getElementSubject(element));
+};
+
 Drupal.edit.util.calcFormURLForField = function(id) {
   var parts = id.split(':');
   var urlFormat = decodeURIComponent(Drupal.settings.edit.fieldFormURL);

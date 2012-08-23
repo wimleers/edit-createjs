@@ -116,24 +116,12 @@ Drupal.edit.init = function() {
   });
 };
 
-Drupal.edit.getElementSubject = function(element) {
-  return jQuery(element).data('edit-id').split(':').slice(0, 2).join(':');
-};
-
-Drupal.edit.getElementPredicate = function(element) {
-  return jQuery(element).data('edit-id').split(':').pop();
-};
-
-Drupal.edit.getElementEntity = function(element) {
-  return Drupal.edit.vie.entities.get(Drupal.edit.getElementSubject(element));
-};
-
 Drupal.edit.findEditableEntities = function(context) {
   var entityElements = $('.edit-entity.edit-allowed', context || Drupal.settings.edit.context);
   entityElements.each(function () {
     // Register the entity with VIE
     Drupal.edit.vie.entities.addOrUpdate({
-      '@subject': Drupal.edit.getElementSubject(jQuery(this)),
+      '@subject': Drupal.edit.util.getElementSubject(jQuery(this)),
       '@type': jQuery(this).data('edit-entity-label')
     });
   });
@@ -144,9 +132,9 @@ Drupal.edit.findEditableFields = function(context) {
   var propertyElements = $('.edit-field.edit-allowed', context || Drupal.settings.edit.context);
   propertyElements.each(function () {
     // Register with VIE
-    var propertyName = Drupal.edit.getElementPredicate(jQuery(this));
+    var propertyName = Drupal.edit.util.getElementPredicate(jQuery(this));
     var entityData = {
-      '@subject': Drupal.edit.getElementSubject(jQuery(this))
+      '@subject': Drupal.edit.util.getElementSubject(jQuery(this))
     };
     entityData[propertyName] = jQuery('.field-item', this).html();
     Drupal.edit.vie.entities.addOrUpdate(entityData);
@@ -841,8 +829,8 @@ Drupal.edit.editables = {
         ? $.trim($editable.html())
         : $.trim($editable.text());
 
-      var predicate = Drupal.edit.getElementPredicate($field);
-      var entity = Drupal.edit.getElementEntity($field);
+      var predicate = Drupal.edit.util.getElementPredicate($field);
+      var entity = Drupal.edit.util.getElementEntity($field, Drupal.edit.vie);
       entity.set(predicate, value);
 
       $('#edit_backstage form')
