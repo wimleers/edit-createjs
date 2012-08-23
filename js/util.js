@@ -25,6 +25,32 @@ Drupal.edit.util.getElementEntity = function(element, vie) {
   return vie.entities.get(Drupal.edit.getElementSubject(element));
 };
 
+Drupal.edit.util.findEditableEntities = function(context) {
+  var entityElements = $('.edit-entity.edit-allowed', context || Drupal.settings.edit.context);
+  entityElements.each(function () {
+    // Register the entity with VIE
+    Drupal.edit.vie.entities.addOrUpdate({
+      '@subject': Drupal.edit.util.getElementSubject(jQuery(this)),
+      '@type': jQuery(this).data('edit-entity-label')
+    });
+  });
+  return entityElements;
+};
+
+Drupal.edit.util.findEditableFields = function(context) {
+  var propertyElements = $('.edit-field.edit-allowed', context || Drupal.settings.edit.context);
+  propertyElements.each(function () {
+    // Register with VIE
+    var propertyName = Drupal.edit.util.getElementPredicate(jQuery(this));
+    var entityData = {
+      '@subject': Drupal.edit.util.getElementSubject(jQuery(this))
+    };
+    entityData[propertyName] = jQuery('.field-item', this).html();
+    Drupal.edit.vie.entities.addOrUpdate(entityData);
+  });
+  return propertyElements;
+};
+
 Drupal.edit.util.calcFormURLForField = function(id) {
   var parts = id.split(':');
   var urlFormat = decodeURIComponent(Drupal.settings.edit.fieldFormURL);

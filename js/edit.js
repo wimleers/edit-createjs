@@ -38,13 +38,13 @@ Drupal.edit.init = function() {
 
   // Build inventory.
   var IDMapper = function() { return Drupal.edit.util.getID($(this)); };
-  Drupal.edit.state.entities = Drupal.edit.findEditableEntities().map(IDMapper);
-  Drupal.edit.state.fields = Drupal.edit.findEditableFields().map(IDMapper);
+  Drupal.edit.state.entities = Drupal.edit.util.findEditableEntities().map(IDMapper);
+  Drupal.edit.state.fields = Drupal.edit.util.findEditableFields().map(IDMapper);
   console.log('Entities:', Drupal.edit.state.entities.length, ';', Drupal.edit.state.entities);
   console.log('Fields:', Drupal.edit.state.fields.length, ';', Drupal.edit.state.fields);
 
   // Form preloader.
-  Drupal.edit.state.queues.preload = Drupal.edit.findEditableFields().filter('.edit-type-form').map(IDMapper);
+  Drupal.edit.state.queues.preload = Drupal.edit.util.findEditableFields().filter('.edit-type-form').map(IDMapper);
   console.log('Fields with (server-generated) forms:', Drupal.edit.state.queues.preload);
 
   // Initialize WYSIWYG, if any.
@@ -73,9 +73,9 @@ Drupal.edit.init = function() {
       .addClass('edit-animate-slow edit-animate-invisible')
       .bind('click.edit', Drupal.edit.clickOverlay);;
 
-      var $f = Drupal.edit.findEditableFields();
+      var $f = Drupal.edit.util.findEditableFields();
       Drupal.edit.startEditableFields($f);
-      var $e = Drupal.edit.findEditableEntities();
+      var $e = Drupal.edit.util.findEditableEntities();
       // Drupal.edit.startEditableEntities($e);
 
       // TODO: preload forms. We could do one request per form, but that's more
@@ -99,9 +99,9 @@ Drupal.edit.init = function() {
         $('#edit_overlay, .edit-form-container, .edit-toolbar-container, #edit_modal, #edit_backstage, .edit-curtain').remove();
       });
 
-      var $f = Drupal.edit.findEditableFields();
+      var $f = Drupal.edit.util.findEditableFields();
       Drupal.edit.stopEditableFields($f);
-      var $e = Drupal.edit.findEditableEntities();
+      var $e = Drupal.edit.util.findEditableEntities();
       Drupal.edit.stopEditableEntities($e);
 
       // Re-enable contextual links in view mode.
@@ -116,31 +116,6 @@ Drupal.edit.init = function() {
   });
 };
 
-Drupal.edit.findEditableEntities = function(context) {
-  var entityElements = $('.edit-entity.edit-allowed', context || Drupal.settings.edit.context);
-  entityElements.each(function () {
-    // Register the entity with VIE
-    Drupal.edit.vie.entities.addOrUpdate({
-      '@subject': Drupal.edit.util.getElementSubject(jQuery(this)),
-      '@type': jQuery(this).data('edit-entity-label')
-    });
-  });
-  return entityElements;
-};
-
-Drupal.edit.findEditableFields = function(context) {
-  var propertyElements = $('.edit-field.edit-allowed', context || Drupal.settings.edit.context);
-  propertyElements.each(function () {
-    // Register with VIE
-    var propertyName = Drupal.edit.util.getElementPredicate(jQuery(this));
-    var entityData = {
-      '@subject': Drupal.edit.util.getElementSubject(jQuery(this))
-    };
-    entityData[propertyName] = jQuery('.field-item', this).html();
-    Drupal.edit.vie.entities.addOrUpdate(entityData);
-  });
-  return propertyElements;
-};
 
 /*
  * findEditableFields() just looks for fields that are editable, i.e. for the
