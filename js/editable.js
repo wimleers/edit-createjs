@@ -23,7 +23,7 @@
       var fields = Drupal.edit.util.findEditableFields(this.element).filter(function () {
         return Drupal.edit.util.getElementSubject(jQuery(this)) == model.getSubjectUri();
       });
-      Drupal.edit.findEditablesForFields(fields).each(callback);
+      Drupal.edit.util.findEditablesForFields(fields).each(callback);
     },
 
     getElementPredicate: function (element) {

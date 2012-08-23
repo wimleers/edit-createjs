@@ -30,12 +30,14 @@
         .css('background-color', this.element.data('edit-background-color'));
       }
 
-      var field = Drupal.edit.findFieldForEditable(this.element);
+      var field = Drupal.edit.util.findFieldForEditable(this.element);
       Drupal.edit.editables._loadForm(this.element, field);
     },
 
     disable: function () {
       this.options.disabled = true;
+
+      Drupal.edit.form.get(this.element).remove();
     },
 
     _initialize: function () {

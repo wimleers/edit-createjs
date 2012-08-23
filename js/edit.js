@@ -116,53 +116,6 @@ Drupal.edit.init = function() {
   });
 };
 
-
-/*
- * findEditableFields() just looks for fields that are editable, i.e. for the
- * field *wrappers*. Depending on the field, however, either the whole field wrapper
- * will be marked as editable (in this case, an inline form will be used for editing),
- * *or* a specific (field-specific even!) DOM element within that field wrapper will be
- * marked as editable.
- * This function is for finding the *editables* themselves, given the *editable fields*.
- */
-Drupal.edit.findEditablesForFields = function($fields) {
-  var $editables = $();
-
-  // type = form
-  $editables = $editables.add($fields.filter('.edit-type-form'));
-
-  // type = direct
-  var $direct = $fields.filter('.edit-type-direct');
-  $editables = $editables.add($direct.find('.field-item'));
-  // Edge case: "title" pseudofield on pages with lists of nodes.
-  $editables = $editables.add($direct.filter('h2').find('a'));
-  // Edge case: "title" pseudofield on node pages.
-  $editables = $editables.add($direct.find('h1'));
-
-  return $editables;
-};
-
-Drupal.edit.findFieldForID = function(id, context) {
-  return $('[data-edit-id="' + id + '"]', context || $('#content'));
-};
-
-Drupal.edit.findFieldForEditable = function($editable) {
-  return $editable.filter('.edit-type-form').length ? $editable : $editable.closest('.edit-type-direct');
-};
-
-Drupal.edit.findEntityForField = function($f) {
-  var $e = $f.closest('.edit-entity');
-  if ($e.length == 0) {
-    var entity_edit_id = $f.data('edit-id').split(':').slice(0,2).join(':');
-    $e = $('.edit-entity[data-edit-id="' + entity_edit_id + '"]');
-  }
-  return $e;
-};
-
-Drupal.edit.findEntityForEditable = function($editable) {
-  return Drupal.edit.findEntityForField(Drupal.edit.findFieldForEditable($editable));
-};
-
 Drupal.edit.startEditableEntities = function($e) {
   $e
   .once('edit')
@@ -209,7 +162,7 @@ Drupal.edit.startEditableFields = function($fields) {
   if (!Drupal.settings.edit.wysiwyg) {
     $fields = $fields.filter(':not(.edit-type-direct-with-wysiwyg)');
   }
-  var $editables = Drupal.edit.findEditablesForFields($fields);
+  var $editables = Drupal.edit.util.findEditablesForFields($fields);
 
   $editables
   .addClass('edit-animate-fast')
@@ -233,7 +186,7 @@ Drupal.edit.startEditableFields = function($fields) {
         Drupal.edit.editables.stopHighlight($editable);
         // Leaving a field won't trigger the mouse enter event for the entity
         // because the entity contains the field. Hence, do it manually.
-        var $e = Drupal.edit.findEntityForEditable($editable);
+        var $e = Drupal.edit.util.findEntityForEditable($editable);
         Drupal.edit.entityEditables.startHighlight($e);
       }
       // Prevent triggering the entity's mouse leave event.
@@ -250,7 +203,7 @@ Drupal.edit.startEditableFields = function($fields) {
 };
 
 Drupal.edit.stopEditableFields = function($fields) {
-  var $editables = Drupal.edit.findEditablesForFields($fields);
+  var $editables = Drupal.edit.util.findEditablesForFields($fields);
 
   $fields
   .removeClass('edit-processed');
@@ -336,7 +289,7 @@ Drupal.edit.editables = {
   startHighlight: function($editable) {
     console.log('editables.startHighlight');
     if (Drupal.edit.state.entityBeingHighlighted.length > 0) {
-      var $e = Drupal.edit.findEntityForEditable($editable);
+      var $e = Drupal.edit.util.findEntityForEditable($editable);
       Drupal.edit.entityEditables.stopHighlight($e);
     }
     if (Drupal.edit.toolbar.create($editable)) {
@@ -365,7 +318,7 @@ Drupal.edit.editables = {
     }, 0);
 
     Drupal.edit.state.fieldBeingHighlighted = $editable;
-    Drupal.edit.state.higlightedEditable = Drupal.edit.util.getID(Drupal.edit.findFieldForEditable($editable));
+    Drupal.edit.state.higlightedEditable = Drupal.edit.util.getID(Drupal.edit.util.findFieldForEditable($editable));
   },
 
   stopHighlight: function($editable) {
@@ -389,7 +342,7 @@ Drupal.edit.editables = {
 
     console.log('editables.startEdit: ', $editable);
     var self = this;
-    var $field = Drupal.edit.findFieldForEditable($editable);
+    var $field = Drupal.edit.util.findFieldForEditable($editable);
 
     // Highlight if not already highlighted.
     if (Drupal.edit.state.fieldBeingHighlighted[0] != $editable[0]) {
@@ -410,7 +363,7 @@ Drupal.edit.editables = {
     $('.edit-candidate').not('.edit-editing').removeClass('edit-editable');
     // Hide the curtain while editing, the above already prevents comments from
     // showing up.
-    Drupal.edit.findEntityForField($field).find('.comment-wrapper .edit-curtain').height(0);
+    Drupal.edit.util.findEntityForField($field).find('.comment-wrapper .edit-curtain').height(0);
 
     // Toolbar (already created in the highlight).
     Drupal.edit.toolbar.get($editable)
@@ -447,7 +400,7 @@ Drupal.edit.editables = {
   stopEdit: function($editable) {
     console.log('editables.stopEdit: ', $editable);
     var self = this;
-    var $field = Drupal.edit.findFieldForEditable($editable);
+    var $field = Drupal.edit.util.findFieldForEditable($editable);
     if ($editable.length == 0) {
       return;
     }
@@ -462,7 +415,7 @@ Drupal.edit.editables = {
     // Make the other fields and entities editable again.
     $('.edit-candidate').addClass('edit-editable');
     // Restore curtain to original height.
-    var $curtain = Drupal.edit.findEntityForEditable($editable)
+    var $curtain = Drupal.edit.util.findEntityForEditable($editable)
                    .find('.comment-wrapper .edit-curtain');
     $curtain.height($curtain.data('edit-curtain-height'));
 
@@ -512,7 +465,7 @@ Drupal.edit.editables = {
   _updateDirectEditable: function($editable) {
     Drupal.edit.editables._padEditable($editable);
 
-    var $field = Drupal.edit.findFieldForEditable($editable);
+    var $field = Drupal.edit.util.findFieldForEditable($editable);
     if ($field.hasClass('edit-type-direct-with-wysiwyg')) {
       Drupal.edit.toolbar.get($editable)
       .find('.edit-toolbar.secondary:not(:has(.edit-toolgroup.wysiwyg-tabs))')
@@ -580,7 +533,7 @@ Drupal.edit.editables = {
   },
 
   _restoreDirectEditable: function($editable) {
-    if (Drupal.edit.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')
+    if (Drupal.edit.util.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')
         && $editable.hasClass('edit-wysiwyg-attached'))
     {
       $editable.removeClass('edit-wysiwyg-attached');
