@@ -116,12 +116,24 @@ Drupal.edit.init = function() {
   });
 };
 
+Drupal.edit.getElementSubject = function(element) {
+  return jQuery(element).data('edit-id').split(':').slice(0, 2).join(':');
+};
+
+Drupal.edit.getElementPredicate = function(element) {
+  return jQuery(element).data('edit-id').split(':').pop();
+};
+
+Drupal.edit.getElementEntity = function(element) {
+  return Drupal.edit.vie.entities.get(Drupal.edit.getElementSubject(element));
+};
+
 Drupal.edit.findEditableEntities = function(context) {
   var entityElements = $('.edit-entity.edit-allowed', context || Drupal.settings.edit.context);
   entityElements.each(function () {
     // Register the entity with VIE
     Drupal.edit.vie.entities.addOrUpdate({
-      '@subject': jQuery(this).data('edit-id'),
+      '@subject': Drupal.edit.getElementSubject(element),
       '@type': jQuery(this).data('edit-entity-label')
     });
   });
@@ -134,7 +146,7 @@ Drupal.edit.findEditableFields = function(context) {
     // Register with VIE
     var propertyName = jQuery(this).data('edit-id').split(':').pop();
     var entityData = {
-      '@subject': jQuery(this).data('edit-id').split(':').slice(0, 2).join(':'),
+      '@subject': Drupal.edit.getElementSubject(element)
     };
     entityData[propertyName] = jQuery('.field-item', this).html();
     Drupal.edit.vie.entities.addOrUpdate(entityData);
@@ -828,6 +840,12 @@ Drupal.edit.editables = {
       var value = (wysiwyg)
         ? $.trim($editable.html())
         : $.trim($editable.text());
+
+      var predicate = Drupal.edit.getElementPredicate($field);
+      var entity = Drupal.edit.getElementEntity($field);
+      entity.set(predicate, value);
+      entity.save();
+
       $('#edit_backstage form')
       .find(':input[type!="hidden"][type!="submit"]').val(value).end()
       .find('.edit-form-submit').trigger('click.edit');
