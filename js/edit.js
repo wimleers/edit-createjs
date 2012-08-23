@@ -34,6 +34,12 @@ Drupal.edit.init = function() {
 
   var IDMapper = function() { return Drupal.edit.util.getID($(this)); };
 
+  // Load the storage widget to get localStorage support
+  $('body').midgardStorage({
+    vie: Drupal.edit.vie,
+    editableNs: 'createeditable'
+  });
+
   // Form preloader.
   Drupal.edit.state.queues.preload = Drupal.edit.util.findEditableFields().filter('.edit-type-form').map(IDMapper);
   console.log('Fields with (server-generated) forms:', Drupal.edit.state.queues.preload);
@@ -71,7 +77,7 @@ Drupal.edit.enterEditState = function () {
   $(Drupal.theme('editOverlay', {}))
   .appendTo('body')
   .addClass('edit-animate-slow edit-animate-invisible')
-  .bind('click.edit', Drupal.edit.clickOverlay);;
+  .bind('click.edit', Drupal.edit.clickOverlay);
 
   var $e = Drupal.edit.util.findEditableFields();
   Drupal.edit.startEditableWidgets($e);
