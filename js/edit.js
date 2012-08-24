@@ -73,7 +73,7 @@ Drupal.edit.prepareStateModel = function () {
       entityBeingHighlighted: [],
       fieldBeingHighlighted: [],
       fieldBeingEdited: [],
-      higlightedEditable: null,
+      highlightedEditable: null,
       editedEditable: null,
       queues: {},
       wysiwygReady: false
@@ -175,55 +175,7 @@ Drupal.edit.clickOverlay = function(e) {
 */
 // Field editables.
 Drupal.edit.editables = {
-/*
-  startHighlight: function($editable) {
-    console.log('editables.startHighlight');
-    if (Drupal.edit.state.get('entityBeingHighlighted').length > 0) {
-      var $e = Drupal.edit.util.findEntityForEditable($editable);
-      Drupal.edit.entityEditables.stopHighlight($e);
-    }
-    if (Drupal.edit.toolbar.create($editable)) {
-      var label = Drupal.edit.util.getPredicateLabel($editable);
-
-      Drupal.edit.toolbar.get($editable)
-      .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.info))')
-      .append(Drupal.theme('editToolgroup', {
-        classes: 'info',
-        buttons: [
-          { url: '#', label: label, classes: 'blank-button label', hasButtonRole: false },
-        ]
-      }))
-      .delegate('a.label', 'click.edit', function(e) {
-        // Clicking the label equals clicking the editable itself.
-        $editable.trigger('click.edit');
-        return false;
-      });
-    }
-
-    // Animations.
-    setTimeout(function() {
-      $editable.addClass('edit-highlighted');
-      Drupal.edit.toolbar.show($editable, 'primary', 'info');
-    }, 0);
-
-    Drupal.edit.state.set('fieldBeingHighlighted', $editable);
-    Drupal.edit.state.set('higlightedEditable', Drupal.edit.util.getID(Drupal.edit.util.findFieldForEditable($editable)));
-  },
-
-  stopHighlight: function($editable) {
-    console.log('editables.stopHighlight');
-    if ($editable.length == 0) {
-      return;
-    }
-
-    // Animations.
-    Drupal.edit.toolbar.remove($editable);
-    $editable.removeClass('edit-highlighted');
-
-    Drupal.edit.state.set('fieldBeingHighlighted', []);
-    Drupal.edit.state.set('highlightedEditable', null);
-  },
-
+  /*
   startEdit: function($field) {
     $editable = Drupal.edit.util.findEditablesForFields($field);
     if ($editable.hasClass('edit-editing')) {
@@ -385,137 +337,6 @@ Drupal.edit.editables = {
       $editable.trigger('edit-content-changed.edit');
     });
   },
-
-  _restoreDirectEditable: function($field) {
-    $editable = Drupal.edit.util.findEditablesForFields($field);
-    if (Drupal.edit.util.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')
-        && $editable.hasClass('edit-wysiwyg-attached'))
-    {
-      $editable.removeClass('edit-wysiwyg-attached');
-    }
-
-    Drupal.edit.editables._unpadEditable($editable);
-
-    $editable
-    .unbind('blur.edit keyup.edit paste.edit edit-content-changed.edit');
-
-    // Not only clean up the changes to $editable, but also clean up the
-    // backstage area, where we hid the form that we used to send the changes.
-    $('#edit_backstage form').remove();
-  },
-
-  _padEditable: function($editable) {
-    // Add 5px padding for readability. This means we'll freeze the current
-    // width and *then* add 5px padding, hence ensuring the padding is added "on
-    // the outside".
-    // 1) Freeze the width (if it's not already set); don't use animations.
-    if ($editable[0].style.width === "") {
-      $editable
-      .data('edit-width-empty', true)
-      .addClass('edit-animate-disable-width')
-      .css('width', $editable.width());
-    }
-    // 2) Add padding; use animations.
-    var posProp = Drupal.edit.util.getPositionProperties($editable);
-    var $toolbar = Drupal.edit.toolbar.get($editable);
-    setTimeout(function() {
-      // Re-enable width animations (padding changes affect width too!).
-      $editable.removeClass('edit-animate-disable-width');
-
-      // The whole toolbar must move to the top when it's an inline editable.
-      if ($editable.css('display') == 'inline') {
-        $toolbar.css('top', parseFloat($toolbar.css('top')) - 5 + 'px');
-      }
-
-      // The primary toolgroups must move to the top and the left.
-      $toolbar.find('.edit-toolbar.primary .edit-toolgroup')
-      .addClass('edit-animate-exception-grow')
-      .css({'position': 'relative', 'top': '-5px', 'left': '-5px'});
-
-      // The secondary toolgroups must move to the top and the right.
-      $toolbar.find('.edit-toolbar.secondary .edit-toolgroup')
-      .addClass('edit-animate-exception-grow')
-      .css({'position': 'relative', 'top': '-5px', 'left': '5px'});
-
-      // The tertiary toolgroups must move to the top and the left, and must
-      // increase their width.
-      $toolbar.find('.edit-toolbar.tertiary .edit-toolgroup')
-      .addClass('edit-animate-exception-grow')
-      .css({'position': 'relative', 'top': '-5px', 'left': '-5px', 'width': $editable.width() + 5});
-
-      // The clipping (to get rid of the bottom box-shadow) needs to be updated.
-      $toolbar
-      .delegate('.edit-toolbar', Drupal.edit.const.transitionEnd, function(e) {
-        // @todo: this was disabled to make the AE multiSplit override (p/h1/... dropdown) visible.
-        return;
-        var $this = $(this);
-        if (!$this.data('edit-toolbar-updating-clipping')) {
-          $this.data('edit-toolbar-updating-clipping', true);
-
-          var parts = $this.css('clip').split(' ');
-          parts[2] = parseFloat(parts[2]) - 5 + 'px';
-          $this.css('clip', parts.join(' '));
-        }
-      });
-
-      // Pad the editable.
-      $editable
-      .css({
-        'position': 'relative',
-        'top':  posProp['top']  - 5 + 'px',
-        'left': posProp['left'] - 5 + 'px',
-        'padding-top'   : posProp['padding-top']    + 5 + 'px',
-        'padding-left'  : posProp['padding-left']   + 5 + 'px',
-        'padding-right' : posProp['padding-right']  + 5 + 'px',
-        'padding-bottom': posProp['padding-bottom'] + 5 + 'px',
-        'margin-bottom':  posProp['margin-bottom'] - 10 + 'px',
-      });
-    }, 0);
-  },
-
-  _unpadEditable: function($editable) {
-    // 1) Set the empty width again.
-    if ($editable.data('edit-width-empty') === true) {
-      console.log('restoring width');
-      $editable
-      .addClass('edit-animate-disable-width')
-      .css('width', '');
-    }
-    // 2) Remove padding; use animations (these will run simultaneously with)
-    // the fading out of the toolbar as its gets removed).
-    var posProp = Drupal.edit.util.getPositionProperties($editable);
-    var $toolbar = Drupal.edit.toolbar.get($editable);
-    setTimeout(function() {
-      // Re-enable width animations (padding changes affect width too!).
-      $editable.removeClass('edit-animate-disable-width');
-
-      // Move the toolbar & toolgroups to their original positions.
-      if ($editable.css('display') == 'inline') {
-        $toolbar.css('top', parseFloat($toolbar.css('top')) + 5 + 'px');
-      }
-      $toolbar.find('.edit-toolgroup')
-      .removeClass('edit-animate-exception-grow')
-      .css({'position': '', 'top': '', 'left': '', 'width': ''});
-
-      // Undo our changes to the clipping (to prevent the bottom box-shadow).
-      $toolbar
-      .undelegate('.edit-toolbar', Drupal.edit.const.transitionEnd)
-      .find('.edit-toolbar').css('clip', '');
-
-      // Unpad the editable.
-      $editable
-      .css({
-        'position': 'relative',
-        'top':  posProp['top']  + 5 + 'px',
-        'left': posProp['left'] + 5 + 'px',
-        'padding-top'   : posProp['padding-top']    - 5 + 'px',
-        'padding-left'  : posProp['padding-left']   - 5 + 'px',
-        'padding-right' : posProp['padding-right']  - 5 + 'px',
-        'padding-bottom': posProp['padding-bottom'] - 5 + 'px',
-        'margin-bottom': posProp['margin-bottom'] + 10 + 'px'
-      });
-    }, 0);
-  },
 */
   _loadForm: function($editable, $field) {
     var edit_id = Drupal.edit.util.getID($field);
@@ -535,11 +356,6 @@ Drupal.edit.editables = {
     $editable.trigger('edit-internal.edit');
   },
 /*
-  _buttonFieldSaveToBlue: function(e, $editable, $field) {
-    Drupal.edit.toolbar.get($editable)
-    .find('a.save').addClass('blue-button').removeClass('gray-button');
-  },
-
   _buttonFieldSaveClicked: function(e, $editable, $field) {
     // type = form
     if ($field.hasClass('edit-type-form')) {

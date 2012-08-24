@@ -82,6 +82,7 @@
     editable: false,
     editing: false,
     vie: null,
+    editableViews: [],
 
     events: {
       'mouseenter': 'mouseEnter',
@@ -97,6 +98,18 @@
 
       this.state.on('change:isViewing', this.stateChange);
       this.state.on('change:fieldBeingHighlighted', this.checkHighlight);
+
+    },
+
+    buildEditableView: function () {
+      var self = this;
+      Drupal.edit.util.findEditablesForFields(this.$el).each(function () {
+        self.editableViews.push(new Drupal.edit.views.EditableView({
+          model: self.model,
+          el: this,
+          predicate: self.predicate
+        }));
+      });
     },
 
     stateChange: function () {
@@ -155,7 +168,6 @@
       var self = this;
 
       if (Drupal.edit.toolbar.create(this.$el)) {
-
         Drupal.edit.toolbar.get(this.$el)
         .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.info))')
         .append(Drupal.theme('editToolgroup', {
@@ -176,13 +188,14 @@
         });
       }
 
+      // Animations.
       setTimeout(function () {
         self.$el.addClass('edit-highlighted');
         Drupal.edit.toolbar.show(self.$el, 'primary', 'info');
       }, 0);
 
       this.state.set('fieldBeingHighlighted', this.$el);
-      this.state.set('higlightedEditable', this.model.id + ':' + this.predicate);
+      this.state.set('highlightedEditable', this.model.id + ':' + this.predicate);
     },
 
     stopHighlight: function () {
@@ -193,7 +206,7 @@
       this.$el.removeClass('edit-highlighted');
 
       this.state.set('fieldBeingHighlighted', []);
-      this.state.set('higlightedEditable', null);
+      this.state.set('highlightedEditable', null);
     },
 
     checkHighlight: function () {
@@ -277,7 +290,6 @@
       event.stopPropagation();
       event.preventDefault();
 
-      // TODO: startEdit
       this.startHighlight();
 
       this.$el
@@ -302,6 +314,9 @@
 
     enableEditableWidget: function () {
       this.$el.createEditable({disabled: false});
+
+      // FIXME: This should be done by Backbone.sync
+      Drupal.edit.editables._loadForm(Drupal.edit.util.findEditablesForFields(this.$el), this.$el);
     },
 
     enableToolbar: function () {
@@ -384,16 +399,107 @@
     },
 
     padEditable: function () {
-      // Add a 5px padding for readability
-      if (this.$el[0].style.width === '') {
+      var self = this;
+      // Add 5px padding for readability. This means we'll freeze the current
+      // width and *then* add 5px padding, hence ensuring the padding is added "on
+      // the outside".
+      // 1) Freeze the width (if it's not already set); don't use animations.
+      if (this.$el[0].style.width === "") {
         this.$el
         .data('edit-width-empty', true)
         .addClass('edit-animate-disable-width')
         .css('width', this.$el.width());
       }
+
+      // 2) Add padding; use animations.
+      var posProp = Drupal.edit.util.getPositionProperties(this.$el);
+      var $toolbar = Drupal.edit.toolbar.get(this.$el);
+      setTimeout(function() {
+        // Re-enable width animations (padding changes affect width too!).
+        self.$el.removeClass('edit-animate-disable-width');
+
+        // The whole toolbar must move to the top when it's an inline editable.
+        if (self.$el.css('display') == 'inline') {
+          $toolbar.css('top', parseFloat($toolbar.css('top')) - 5 + 'px');
+        }
+
+        // The primary toolgroups must move to the top and the left.
+        $toolbar.find('.edit-toolbar.primary .edit-toolgroup')
+        .addClass('edit-animate-exception-grow')
+        .css({'position': 'relative', 'top': '-5px', 'left': '-5px'});
+
+        // The secondary toolgroups must move to the top and the right.
+        $toolbar.find('.edit-toolbar.secondary .edit-toolgroup')
+        .addClass('edit-animate-exception-grow')
+        .css({'position': 'relative', 'top': '-5px', 'left': '5px'});
+
+        // The tertiary toolgroups must move to the top and the left, and must
+        // increase their width.
+        $toolbar.find('.edit-toolbar.tertiary .edit-toolgroup')
+        .addClass('edit-animate-exception-grow')
+        .css({'position': 'relative', 'top': '-5px', 'left': '-5px', 'width': self.$el.width() + 5});
+
+        // Pad the editable.
+        self.$el
+        .css({
+          'position': 'relative',
+          'top':  posProp['top']  - 5 + 'px',
+          'left': posProp['left'] - 5 + 'px',
+          'padding-top'   : posProp['padding-top']    + 5 + 'px',
+          'padding-left'  : posProp['padding-left']   + 5 + 'px',
+          'padding-right' : posProp['padding-right']  + 5 + 'px',
+          'padding-bottom': posProp['padding-bottom'] + 5 + 'px',
+          'margin-bottom':  posProp['margin-bottom'] - 10 + 'px',
+        });
+      }, 0);
     },
 
     unpadEditable: function () {
+      var self = this;
+
+      // 1) Set the empty width again.
+      if (this.$el.data('edit-width-empty') === true) {
+        console.log('restoring width');
+        this.$el
+        .addClass('edit-animate-disable-width')
+        .css('width', '');
+      }
+
+      // 2) Remove padding; use animations (these will run simultaneously with)
+      // the fading out of the toolbar as its gets removed).
+      var posProp = Drupal.edit.util.getPositionProperties(this.$el);
+      var $toolbar = Drupal.edit.toolbar.get(this.$el);
+
+      setTimeout(function() {
+        // Re-enable width animations (padding changes affect width too!).
+        self.$el.removeClass('edit-animate-disable-width');
+
+        // Move the toolbar & toolgroups to their original positions.
+        if (self.$el.css('display') == 'inline') {
+          $toolbar.css('top', parseFloat($toolbar.css('top')) + 5 + 'px');
+        }
+        $toolbar.find('.edit-toolgroup')
+        .removeClass('edit-animate-exception-grow')
+        .css({'position': '', 'top': '', 'left': '', 'width': ''});
+
+        // Undo our changes to the clipping (to prevent the bottom box-shadow).
+        $toolbar
+        .undelegate('.edit-toolbar', Drupal.edit.const.transitionEnd)
+        .find('.edit-toolbar').css('clip', '');
+
+        // Unpad the editable.
+        self.$el
+        .css({
+          'position': 'relative',
+          'top':  posProp['top']  + 5 + 'px',
+          'left': posProp['left'] + 5 + 'px',
+          'padding-top'   : posProp['padding-top']    - 5 + 'px',
+          'padding-left'  : posProp['padding-left']   - 5 + 'px',
+          'padding-right' : posProp['padding-right']  - 5 + 'px',
+          'padding-bottom': posProp['padding-bottom'] - 5 + 'px',
+          'margin-bottom': posProp['margin-bottom'] + 10 + 'px'
+        });
+      }, 0);
     },
 
     editorDisabled: function () {
@@ -408,6 +514,11 @@
     contentChanged: function () {
       this.$el.data('edit-content-changed', true);
       this.$el.trigger('edit-content-changed.edit');
+
+      Drupal.edit.toolbar.get(this.$el)
+      .find('a.save')
+      .addClass('blue-button')
+      .removeClass('gray-button')
     }
   });
 
