@@ -23,17 +23,22 @@ Drupal.edit.init = function() {
   // VIE instance for Editing
   Drupal.edit.vie = new VIE();
 
+  // The state of Spark Edit is handled in a Backbone model
+  Drupal.edit.StateModel = Backbone.Model.extend({
+    defaults: {
+      isViewing: true,
+      entityBeingHighlighted: [],
+      fieldBeingHighlighted: [],
+      fieldBeingEdited: [],
+      higlightedEditable: null,
+      editedEditable: null,
+      queues: {},
+      wysiwygReady: false
+    }
+  });
+
   // We always begin in view mode.
-  Drupal.edit.state = {
-    isViewing: true,
-    entityBeingHighlighted: [],
-    fieldBeingHighlighted: [],
-    fieldBeingEdited: [],
-    higlightedEditable: null,
-    editedEditable: null,
-    queues: {},
-    wysiwygReady: false
-  };
+  Drupal.edit.state = new Drupal.edit.StateModel();
 
   // Load the storage widget to get localStorage support
   $('body').midgardStorage({
@@ -42,15 +47,17 @@ Drupal.edit.init = function() {
   });
 
   // Form preloader.
-  Drupal.edit.state.queues.preload = Drupal.edit.util.findEditableFields().filter('.edit-type-form').map(function () {
-    return Drupal.edit.util.getID($(this));
+  Drupal.edit.state.set('queues', {
+    preload: Drupal.edit.util.findEditableFields().filter('.edit-type-form').map(function () {
+      return Drupal.edit.util.getID($(this));
+    })
   });
-  console.log('Fields with (server-generated) forms:', Drupal.edit.state.queues.preload);
+  console.log('Fields with (server-generated) forms:', Drupal.edit.state.get('queues').preload);
 
   // Initialize WYSIWYG, if any.
   if (Drupal.settings.edit.wysiwyg) {
     $(document).bind('edit-wysiwyg-ready.edit', function() {
-      Drupal.edit.state.wysiwygReady = true;
+      Drupal.edit.state.set('wysiwygReady', true);
       console.log('edit: WYSIWYG ready');
     });
     Drupal.edit.wysiwyg[Drupal.settings.edit.wysiwyg].init();
@@ -61,8 +68,10 @@ Drupal.edit.init = function() {
 
   // Transition between view/edit states.
   $("a.edit_view-edit-toggle").bind('click.edit', function() {
-    var wasViewing = Drupal.edit.state.isViewing;
-    var isViewing  = Drupal.edit.state.isViewing = $(this).hasClass('edit-view');
+    var wasViewing = Drupal.edit.state.get('isViewing');
+    var isViewing = $(this).hasClass('edit-view');
+    Drupal.edit.state.set('isViewing', isViewing);
+
     // Swap active class among the two links.
     $('a.edit_view-edit-toggle').parent().removeClass('active');
     $('a.edit_view-edit-toggle.edit-' + (isViewing ? 'view' : 'edit')).parent().addClass('active');
@@ -87,7 +96,7 @@ Drupal.edit.enterEditState = function () {
 
   // TODO: preload forms. We could do one request per form, but that's more
   // RTTs than needed. Instead, the server should support batch requests.
-  console.log('Preloading forms that we might need!', Drupal.edit.state.queues.preload);
+  console.log('Preloading forms that we might need!', Drupal.edit.state.get('queues').preload);
 
   // Animations.
   $('#edit_overlay').css('top', $('#navbar').outerHeight());
@@ -120,7 +129,7 @@ Drupal.edit.startEditableWidgets = function($fields) {
   var self = this;
 
   var enabler = function () {
-    if (Drupal.edit.state.isViewing) {
+    if (Drupal.edit.state.get('isViewing')) {
       $(this).unbind('click', enabler);
       return;
     }
@@ -216,7 +225,7 @@ Drupal.edit.clickOverlay = function(e) {
   console.log('clicked overlay');
 
   if (Drupal.edit.modal.get().length == 0) {
-    Drupal.edit.toolbar.get(Drupal.edit.state.fieldBeingEdited)
+    Drupal.edit.toolbar.get(Drupal.edit.state.get('fieldBeingEdited'))
     .find('a.close').trigger('click.edit');
   }
 };
@@ -265,7 +274,7 @@ Drupal.edit.entityEditables = {
       Drupal.edit.toolbar.show($editable, 'primary', 'entity');
     }, 0);
 
-    Drupal.edit.state.entityBeingHighlighted = $editable;
+    Drupal.edit.state.set('entityBeingHighlighted', $editable);
   },
 
   stopHighlight: function($editable) {
@@ -275,7 +284,7 @@ Drupal.edit.entityEditables = {
     $editable.removeClass('edit-highlighted');
     Drupal.edit.toolbar.remove($editable);
 
-    Drupal.edit.state.entityBeingHiglighted = [];
+    Drupal.edit.state.set('entityBeingHiglighted', []);
   }
 };
 
@@ -283,7 +292,7 @@ Drupal.edit.entityEditables = {
 Drupal.edit.editables = {
   startHighlight: function($editable) {
     console.log('editables.startHighlight');
-    if (Drupal.edit.state.entityBeingHighlighted.length > 0) {
+    if (Drupal.edit.state.get('entityBeingHighlighted').length > 0) {
       var $e = Drupal.edit.util.findEntityForEditable($editable);
       Drupal.edit.entityEditables.stopHighlight($e);
     }
@@ -312,8 +321,8 @@ Drupal.edit.editables = {
       Drupal.edit.toolbar.show($editable, 'primary', 'info');
     }, 0);
 
-    Drupal.edit.state.fieldBeingHighlighted = $editable;
-    Drupal.edit.state.higlightedEditable = Drupal.edit.util.getID(Drupal.edit.util.findFieldForEditable($editable));
+    Drupal.edit.state.set('fieldBeingHighlighted', $editable);
+    Drupal.edit.state.set('higlightedEditable', Drupal.edit.util.getID(Drupal.edit.util.findFieldForEditable($editable)));
   },
 
   stopHighlight: function($editable) {
@@ -326,8 +335,8 @@ Drupal.edit.editables = {
     Drupal.edit.toolbar.remove($editable);
     $editable.removeClass('edit-highlighted');
 
-    Drupal.edit.state.fieldBeingHighlighted = [];
-    Drupal.edit.state.highlightedEditable = null;
+    Drupal.edit.state.set('fieldBeingHighlighted', []);
+    Drupal.edit.state.set('highlightedEditable', null);
   },
 
   startEdit: function($field) {
@@ -340,7 +349,7 @@ Drupal.edit.editables = {
     var self = this;
 
     // Highlight if not already highlighted.
-    if (Drupal.edit.state.fieldBeingHighlighted[0] != $editable[0]) {
+    if (Drupal.edit.state.get('fieldBeingHighlighted')[0] != $editable[0]) {
       Drupal.edit.editables.startHighlight($editable);
     }
 
@@ -386,8 +395,8 @@ Drupal.edit.editables = {
     // FIXME: This should be handled by Backbone.sync
     self._loadForm($editable, $field);
 
-    Drupal.edit.state.fieldBeingEdited = $editable;
-    Drupal.edit.state.editedEditable = Drupal.edit.util.getID($field);
+    Drupal.edit.state.set('fieldBeingEdited', $editable);
+    Drupal.edit.state.set('editedEditable', Drupal.edit.util.getID($field));
   },
 
   stopEdit: function($field) {
@@ -418,8 +427,8 @@ Drupal.edit.editables = {
     Drupal.edit.toolbar.remove($editable);
     Drupal.edit.form.remove($editable);
 
-    Drupal.edit.state.fieldBeingEdited = [];
-    Drupal.edit.state.editedEditable = null;
+    Drupal.edit.state.set('fieldBeingEdited', []);
+    Drupal.edit.state.set('editedEditable', null);
   },
 
   _loadRerenderedProcessedText: function($editable, $field) {
