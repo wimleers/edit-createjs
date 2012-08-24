@@ -297,8 +297,7 @@ Drupal.edit.editables = {
       Drupal.edit.entityEditables.stopHighlight($e);
     }
     if (Drupal.edit.toolbar.create($editable)) {
-      var label = $editable.filter('.edit-type-form').data('edit-field-label')
-        || $editable.closest('.edit-type-direct').data('edit-field-label');
+      var label = Drupal.edit.util.getPredicateLabel($editable);
 
       Drupal.edit.toolbar.get($editable)
       .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.info))')

@@ -26,6 +26,14 @@ Drupal.edit.util.getElementPredicate = function(element) {
   return Drupal.edit.util.getID(element).split(':').pop();
 };
 
+Drupal.edit.util.getPredicateLabel = function(element) {
+  var label = element.filter('.edit-type-form').data('edit-field-label');
+  if (label) {
+    return label;
+  }
+  return element.closest('.edit-type-direct').data('edit-field-label');
+};
+
 Drupal.edit.util.getElementValue = function(element) {
   var valueElement = jQuery('.field-item', element);
   if (valueElement.length === 0) {
