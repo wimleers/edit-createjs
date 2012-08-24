@@ -23,36 +23,14 @@ Drupal.edit.init = function() {
   // VIE instance for Editing
   Drupal.edit.vie = new VIE();
 
-  // The state of Spark Edit is handled in a Backbone model
-  Drupal.edit.StateModel = Backbone.Model.extend({
-    defaults: {
-      isViewing: true,
-      entityBeingHighlighted: [],
-      fieldBeingHighlighted: [],
-      fieldBeingEdited: [],
-      higlightedEditable: null,
-      editedEditable: null,
-      queues: {},
-      wysiwygReady: false
-    }
-  });
-
-  // We always begin in view mode.
-  Drupal.edit.state = new Drupal.edit.StateModel();
+  Drupal.edit.state = Drupal.edit.prepareStateModel();
+  Drupal.edit.state.set('queues', Drupal.edit.prepareQueues());
 
   // Load the storage widget to get localStorage support
   $('body').midgardStorage({
     vie: Drupal.edit.vie,
     editableNs: 'createeditable'
   });
-
-  // Form preloader.
-  Drupal.edit.state.set('queues', {
-    preload: Drupal.edit.util.findEditableFields().filter('.edit-type-form').map(function () {
-      return Drupal.edit.util.getID($(this));
-    })
-  });
-  console.log('Fields with (server-generated) forms:', Drupal.edit.state.get('queues').preload);
 
   // Initialize WYSIWYG, if any.
   if (Drupal.settings.edit.wysiwyg) {
@@ -67,24 +45,7 @@ Drupal.edit.init = function() {
   $(Drupal.theme('editBackstage', {})).appendTo('body');
 
   // Instantiate FieldViews
-  var fieldViews = [];
-  Drupal.edit.util.findEditableFields().each(function () {
-
-    var fieldViewType = Drupal.edit.views.EditableFieldView;
-    if (!jQuery(this).hasClass('edit-type-direct')) {
-      fieldViewType = Drupal.edit.views.FormEditableFieldView;
-    }
-
-    var fieldView = new fieldViewType({
-      state: Drupal.edit.state,
-      el: this,
-      model: Drupal.edit.util.getElementEntity(this, Drupal.edit.vie),
-      predicate: Drupal.edit.util.getElementPredicate(this),
-      vie: Drupal.edit.vie
-    });
-
-    fieldViews.push(fieldView);
-  });
+  Drupal.edit.util.findEditableFields().each(Drupal.edit.prepareFieldView);
 
   // Instantiate overlayview
   var overlayView = new Drupal.edit.views.OverlayView({
@@ -101,6 +62,51 @@ Drupal.edit.init = function() {
     $('a.edit_view-edit-toggle.edit-' + (isViewing ? 'view' : 'edit')).parent().addClass('active');
 
     return false;
+  });
+};
+
+Drupal.edit.prepareStateModel = function () {
+  // The state of Spark Edit is handled in a Backbone model
+  Drupal.edit.StateModel = Backbone.Model.extend({
+    defaults: {
+      isViewing: true,
+      entityBeingHighlighted: [],
+      fieldBeingHighlighted: [],
+      fieldBeingEdited: [],
+      higlightedEditable: null,
+      editedEditable: null,
+      queues: {},
+      wysiwygReady: false
+    }
+  });
+
+  // We always begin in view mode.
+  return new Drupal.edit.StateModel();
+};
+
+Drupal.edit.prepareQueues = function () {
+  // Form preloader.
+  var queues = {
+    preload: Drupal.edit.util.findEditableFields().filter('.edit-type-form').map(function () {
+      return Drupal.edit.util.getID($(this));
+    })
+  };
+  console.log('Fields with (server-generated) forms:', queues.preload);
+  return queues;
+};
+
+Drupal.edit.prepareFieldView = function () {
+  var fieldViewType = Drupal.edit.views.EditableFieldView;
+  if (!jQuery(this).hasClass('edit-type-direct')) {
+    fieldViewType = Drupal.edit.views.FormEditableFieldView;
+  }
+
+  var fieldView = new fieldViewType({
+    state: Drupal.edit.state,
+    el: this,
+    model: Drupal.edit.util.getElementEntity(this, Drupal.edit.vie),
+    predicate: Drupal.edit.util.getElementPredicate(this),
+    vie: Drupal.edit.vie
   });
 };
 
