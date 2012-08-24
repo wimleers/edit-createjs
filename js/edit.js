@@ -66,9 +66,33 @@ Drupal.edit.init = function() {
   // Create a backstage area.
   $(Drupal.theme('editBackstage', {})).appendTo('body');
 
+  // Instantiate FieldViews
+  var fieldViews = [];
+  Drupal.edit.util.findEditableFields().each(function () {
+
+    var fieldViewType = Drupal.edit.views.EditableFieldView;
+    if (!jQuery(this).hasClass('edit-type-direct')) {
+      fieldViewType = Drupal.edit.views.FormEditableFieldView;
+    }
+
+    var fieldView = new fieldViewType({
+      state: Drupal.edit.state,
+      el: this,
+      model: Drupal.edit.util.getElementEntity(this, Drupal.edit.vie),
+      predicate: Drupal.edit.util.getElementPredicate(this),
+      vie: Drupal.edit.vie
+    });
+
+    fieldViews.push(fieldView);
+  });
+
+  // Instantiate overlayview
+  var overlayView = new Drupal.edit.views.OverlayView({
+    state: Drupal.edit.state
+  });
+
   // Transition between view/edit states.
   $("a.edit_view-edit-toggle").bind('click.edit', function() {
-    var wasViewing = Drupal.edit.state.get('isViewing');
     var isViewing = $(this).hasClass('edit-view');
     Drupal.edit.state.set('isViewing', isViewing);
 
@@ -76,95 +100,11 @@ Drupal.edit.init = function() {
     $('a.edit_view-edit-toggle').parent().removeClass('active');
     $('a.edit_view-edit-toggle.edit-' + (isViewing ? 'view' : 'edit')).parent().addClass('active');
 
-    if (wasViewing && !isViewing) {
-      Drupal.edit.enterEditState();
-    } else if (!wasViewing && isViewing) {
-      Drupal.edit.enterViewState();
-    }
     return false;
   });
 };
 
-Drupal.edit.enterEditState = function () {
-  $(Drupal.theme('editOverlay', {}))
-  .appendTo('body')
-  .addClass('edit-animate-slow edit-animate-invisible')
-  .bind('click.edit', Drupal.edit.clickOverlay);
-
-  var $e = Drupal.edit.util.findEditableFields();
-  Drupal.edit.startEditableWidgets($e);
-
-  // TODO: preload forms. We could do one request per form, but that's more
-  // RTTs than needed. Instead, the server should support batch requests.
-  console.log('Preloading forms that we might need!', Drupal.edit.state.get('queues').preload);
-
-  // Animations.
-  $('#edit_overlay').css('top', $('#navbar').outerHeight());
-  $('#edit_overlay').removeClass('edit-animate-invisible');
-
-  // Disable contextual links in edit mode.
-  $('.contextual-links-region')
-  .addClass('edit-contextual-links-region')
-  .removeClass('contextual-links-region');
-};
-
-Drupal.edit.enterViewState = function () {
-  // Animations.
-  $('#edit_overlay')
-  .addClass('edit-animate-invisible')
-  .bind(Drupal.edit.const.transitionEnd, function(e) {
-    $('#edit_overlay, .edit-form-container, .edit-toolbar-container, #edit_modal, #edit_backstage, .edit-curtain').remove();
-  });
-
-  var $e = Drupal.edit.util.findEditableFields();
-  Drupal.edit.stopEditableWidgets($e);
-
-  // Re-enable contextual links in view mode.
-  $('.edit-contextual-links-region')
-  .addClass('contextual-links-region')
-  .removeClass('edit-contextual-links-region');
-};
-
-Drupal.edit.startEditableWidgets = function($fields) {
-  var self = this;
-
-  var enabler = function () {
-    if (Drupal.edit.state.get('isViewing')) {
-      $(this).unbind('click', enabler);
-      return;
-    }
-
-    // Make the fields editable
-    Drupal.edit.editables.startEdit($(this));
-    return false;
-  };
-
-  $fields
-  .each(function() {
-    var $field = jQuery(this);
-
-    $field.bind('createeditableenable', function (event, data) {
-      $field.unbind('click.edit', enabler);
-      Drupal.edit.editables._updateDirectEditable($field);
-    });
-
-    $field.bind('createeditabledisable', function (event, data) {
-      $field.bind('click.edit', enabler);
-      $field.removeClass('ui-state-disabled');
-      Drupal.edit.editables._restoreDirectEditable($field);
-    });
-
-    var entity = Drupal.edit.util.getElementEntity(this, Drupal.edit.vie);
-    $field.createEditable({
-      model: entity,
-      vie: Drupal.edit.vie,
-      disabled: true
-    });
-  });
-
-  Drupal.edit.decorateEditables(Drupal.edit.util.findEditablesForFields($fields));
-};
-
+/*
 Drupal.edit.decorateEditables = function($editables) {
   $editables
   .addClass('edit-animate-fast')
@@ -208,19 +148,6 @@ Drupal.edit.decorateEditables = function($editables) {
   });
 };
 
-Drupal.edit.stopEditableWidgets = function($fields) {
-  var $editables = Drupal.edit.util.findEditablesForFields($fields);
-
-  $fields
-  .removeClass('edit-processed');
-  
-  Drupal.edit.editables.stopEdit($fields);
-
-  $editables
-  .removeClass('edit-candidate edit-editable edit-highlighted edit-editing edit-belowoverlay')
-  .unbind('mouseenter.edit mouseleave.edit click.edit edit-content-changed.edit')
-};
-
 Drupal.edit.clickOverlay = function(e) {
   console.log('clicked overlay');
 
@@ -229,6 +156,7 @@ Drupal.edit.clickOverlay = function(e) {
     .find('a.close').trigger('click.edit');
   }
 };
+*/
 
 /*
 1. Editable Entities
@@ -238,58 +166,10 @@ Drupal.edit.clickOverlay = function(e) {
        can be either:
          a. type=direct, here some child element of the Field element is marked as editable
          b. type=form, here the field itself is marked as editable, upon edit, a form is used
- */
-
-// Entity editables.
-Drupal.edit.entityEditables = {
-  startHighlight: function($editable) {
-    console.log('entityEditables.startHighlight');
-    if (Drupal.edit.toolbar.create($editable)) {
-      var label = Drupal.t('Edit !entity', { '!entity': $editable.data('edit-entity-label') });
-      var $toolbar = Drupal.edit.toolbar.get($editable);
-
-      $toolbar
-      .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.entity))')
-      .append(Drupal.theme('editToolgroup', {
-        classes: 'entity',
-        buttons: [
-          { url: $editable.data('edit-entity-edit-url'), label: label, classes: 'blue-button label' },
-        ]
-      }))
-      .delegate('a.label', 'click.edit', function(e) {
-        // Disable edit mode, then let the normal behavior (i.e. open the full
-        // entity edit form) go through.
-        $('#edit_view-edit-toggle input[value="view"]').trigger('click.edit');
-      });
-
-      // TODO: improve this; currently just a hack for Garland compatibility.
-      if ($editable.css('margin-left')) {
-        $toolbar.css('margin-left', $editable.css('margin-left'));
-      }
-    }
-
-    // Animations.
-    setTimeout(function() {
-      $editable.addClass('edit-highlighted');
-      Drupal.edit.toolbar.show($editable, 'primary', 'entity');
-    }, 0);
-
-    Drupal.edit.state.set('entityBeingHighlighted', $editable);
-  },
-
-  stopHighlight: function($editable) {
-    console.log('entityEditables.stopHighlight');
-
-    // Animations.
-    $editable.removeClass('edit-highlighted');
-    Drupal.edit.toolbar.remove($editable);
-
-    Drupal.edit.state.set('entityBeingHiglighted', []);
-  }
-};
-
+*/
 // Field editables.
 Drupal.edit.editables = {
+/*
   startHighlight: function($editable) {
     console.log('editables.startHighlight');
     if (Drupal.edit.state.get('entityBeingHighlighted').length > 0) {
@@ -630,7 +510,7 @@ Drupal.edit.editables = {
       });
     }, 0);
   },
-
+*/
   _loadForm: function($editable, $field) {
     var edit_id = Drupal.edit.util.getID($field);
     var element_settings = {
@@ -648,7 +528,7 @@ Drupal.edit.editables = {
     Drupal.ajax[edit_id] = new Drupal.ajax(edit_id, $editable, element_settings);
     $editable.trigger('edit-internal.edit');
   },
-
+/*
   _buttonFieldSaveToBlue: function(e, $editable, $field) {
     Drupal.edit.toolbar.get($editable)
     .find('a.save').addClass('blue-button').removeClass('gray-button');
@@ -697,6 +577,7 @@ Drupal.edit.editables = {
     };
     return false;
   }
+*/
 };
 
 })(jQuery);
