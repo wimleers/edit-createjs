@@ -494,9 +494,6 @@ Drupal.edit.editables = {
 
   _restoreDirectEditable: function($field) {
     $editable = Drupal.edit.util.findEditablesForFields($field);
-    if ($editable.data('edit-content-changed') !== undefined) {
-      return;
-    }
     if (Drupal.edit.util.findFieldForEditable($editable).hasClass('edit-type-direct-with-wysiwyg')
         && $editable.hasClass('edit-wysiwyg-attached'))
     {
