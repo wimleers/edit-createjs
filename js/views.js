@@ -154,6 +154,10 @@
       if (!this.editable) {
         return;
       }
+      if (this.state.get('editedFieldView')) {
+        // Some field is being edited, ignore
+        return;
+      }
       var self = this;
       Drupal.edit.util.ignoreHoveringVia(event, '.edit-toolbar-container', function () {
         if (!self.editing) {
@@ -166,6 +170,10 @@
 
     mouseLeave: function (event) {
       if (!this.editable) {
+        return;
+      }
+      if (this.state.get('editedFieldView')) {
+        // Some field is being edited, ignore
         return;
       }
       var self = this;
@@ -303,8 +311,10 @@
         return;
       }
 
-      event.stopPropagation();
-      event.preventDefault();
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
 
       this.startHighlight();
 
@@ -312,8 +322,10 @@
       .addClass('edit-editing')
       .css('background-color', this.$el.data('edit-background-color'));
 
-      // TODO: Ensure others are not editable why we are
-      // Should be done by state
+      // Ensure others are not editable when we are
+      if (this.state.get('editedFieldView')) {
+        this.state.get('editedFieldView').disableEditor();
+      }
       
       // Hide the curtain while editing
       //Drupal.edit.util.findEntityForField(this.$el).find('.comment-wrapper .edit-curtain').height(0);
@@ -326,6 +338,7 @@
 
       this.state.set('fieldBeingEdited', this.$el);
       this.state.set('editedEditable', Drupal.edit.util.getID(this.$el));
+      this.state.set('editedFieldView', this);
     },
 
     enableEditableWidget: function () {
@@ -380,6 +393,7 @@
 
       this.state.set('fieldBeingEdited', []);
       this.state.set('editedEditable', null);
+      this.state.set('editedFieldView', null);
     },
 
     disableEditableWidget: function () {
@@ -418,6 +432,9 @@
     saveClicked: function (event) {
       this.$el.blur();
 
+      event.stopPropagation();
+      event.preventDefault();
+
       // TODO: Use Backbone.sync so we can support the Drupal 8 API
       // without changes in Spark
       // this.model.save();
@@ -426,14 +443,13 @@
 
       // The old way of saving: submit the form
       $('#edit_backstage form')
-      .find(':input[type!="hidden"][type!="submit]').val(value).end()
+      .find(':input[type!="hidden"][type!="submit"]').val(value).end()
       .find('.edit-form-submit').trigger('click.edit');
-
-      event.stopPropagation();
-      event.preventDefault();
     },
 
-    closeClicked: function () {
+    closeClicked: function (event) {
+      event.stopPropagation();
+      event.preventDefault();
     },
 
     padEditable: function () {

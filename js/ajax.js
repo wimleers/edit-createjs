@@ -95,11 +95,15 @@ $(function() {
     console.log('edit_field_form_saved', ajax, response, status);
 
     // Stop the editing.
-    Drupal.edit.editables.stopEdit(ajax.$editable);
+    var currentEditorView = Drupal.edit.state.get('editedFieldView');
+    if (currentEditorView) {
+      currentEditorView.disableEditor();
+    }
 
     // Response.data contains the updated rendering of the field, if any.
     if (response.data) {
       // Replace the old content with the new content.
+      // FIXME: Update the VIE entity instead
       var $field = $('.edit-field[data-edit-id="' + response.id  + '"]');
       var $parent = $field.parent();
       if ($field.css('display') == 'inline') {
@@ -110,7 +114,9 @@ $(function() {
       }
 
       // Make the freshly rendered field(s) in-place-editable again.
-      Drupal.edit.startEditableWidgets(Drupal.edit.util.findEditableFields($parent));
+      if (currentEditorView) {
+        currentEditorView.enableEditor();
+      }
     }
   };
 });

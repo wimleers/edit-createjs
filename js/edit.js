@@ -75,6 +75,7 @@ Drupal.edit.prepareStateModel = function () {
       fieldBeingEdited: [],
       highlightedEditable: null,
       editedEditable: null,
+      editedFieldView: null,
       queues: {},
       wysiwygReady: false
     }
