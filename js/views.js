@@ -325,7 +325,7 @@
       this.enableEditableWidget();
 
       this.state.set('fieldBeingEdited', this.$el);
-      this.state.set('editedEditable', this);
+      this.state.set('editedEditable', Drupal.edit.util.getID(this.$el));
     },
 
     enableEditableWidget: function () {
@@ -333,6 +333,7 @@
 
       // FIXME: This should be done by Backbone.sync
       Drupal.edit.editables._loadForm(Drupal.edit.util.findEditablesForFields(this.$el), this.$el);
+      console.log('Backstage contains', $('#edit_backstage'));
     },
 
     enableToolbar: function () {
@@ -412,6 +413,27 @@
       this.$el.data('edit-content-changed', false);
 
       this.editing = true;
+    },
+
+    saveClicked: function (event) {
+      this.$el.blur();
+
+      // TODO: Use Backbone.sync so we can support the Drupal 8 API
+      // without changes in Spark
+      // this.model.save();
+
+      var value = this.model.get(this.predicate);
+
+      // The old way of saving: submit the form
+      $('#edit_backstage form')
+      .find(':input[type!="hidden"][type!="submit]').val(value).end()
+      .find('.edit-form-submit').trigger('click.edit');
+
+      event.stopPropagation();
+      event.preventDefault();
+    },
+
+    closeClicked: function () {
     },
 
     padEditable: function () {
@@ -552,8 +574,12 @@
     disableEditableWidget: function () {
       this.$el.createEditable({disabled: true});
       $('#edit_backstage form').remove();
-    }
+    },
 
+    saveClicked: function () {
+      Drupal.edit.form.get(this.$el).find('form')
+      .find('.edit-form-submit').trigger('click.edit');
+    }
 
   });
 

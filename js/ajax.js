@@ -9,10 +9,10 @@
 // Hide these in a ready to ensure that Drupal.ajax is set up first.
 $(function() {
   Drupal.ajax.prototype.commands.edit_field_form = function(ajax, response, status) {
-    console.log('edit_field_form', ajax, response, status);
+    console.log('edit_field_form', Drupal.edit.state.get('editedEditable'), ajax, response, status);
 
     // Only apply the form immediately if this form is currently being edited.
-    if (Drupal.edit.state.editedEditable == response.id && ajax.$field.hasClass('edit-type-form')) {
+    if (Drupal.edit.state.get('editedEditable') == response.id && ajax.$field.hasClass('edit-type-form')) {
       Drupal.ajax.prototype.commands.insert(ajax, {
         data: response.data,
         selector: '.edit-form-container .placeholder'
@@ -50,8 +50,8 @@ $(function() {
       // Give focus to the first input in the form.
       //$('.edit-form').find('form :input:visible:enabled:first').focus()
     }
-    else if (Drupal.edit.state.editedEditable == response.id && ajax.$field.hasClass('edit-type-direct')) {
-      Drupal.edit.state.directEditableFormResponse = response;
+    else if (Drupal.edit.state.get('editedEditable') == response.id && ajax.$field.hasClass('edit-type-direct')) {
+      Drupal.edit.state.set('directEditableFormResponse', response);
       $('#edit_backstage').append(response.data);
 
       var $submit = $('#edit_backstage form .edit-form-submit');
@@ -78,7 +78,7 @@ $(function() {
   Drupal.ajax.prototype.commands.edit_field_rendered_without_transformation_filters = function(ajax, response, status) {
     console.log('edit_field_rendered_without_transformation_filters', ajax, response, status);
 
-    if (Drupal.edit.state.editedEditable == response.id
+    if (Drupal.edit.state.get('editedEditable') == response.id
         && ajax.$field.hasClass('edit-type-direct')
         && ajax.$field.hasClass('edit-text-with-transformation-filters')
         )
