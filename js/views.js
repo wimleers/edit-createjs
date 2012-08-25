@@ -5,9 +5,13 @@
   Drupal.edit.views.OverlayView = Backbone.View.extend({
     state: null,
 
+    events: {
+      'click': 'escapeEditor'
+    },
+
     initialize: function (options) {
       this.state = options.state;
-      _.bindAll(this, 'stateChange');
+      _.bindAll(this, 'stateChange', 'escapeEditor');
       this.state.bind('change:isViewing', this.stateChange);
     },
 
@@ -45,6 +49,18 @@
       $('.edit-contextual-links-region')
       .addClass('contextual-links-region')
       .removeClass('edit-contextual-links-region');
+    },
+
+    escapeEditor: function () {
+      var editor = this.state.get('fieldBeingEdited');
+      if (Drupal.edit.modal.get().length > 0 || editor.length === 0) {
+        return;
+      }
+      // No modals open and user is in edit state, close editor by
+      // triggering a click to the cancel button
+      Drupal.edit.toolbar.get(editor)
+      .find('a.close')
+      .trigger('click.edit');
     }
   })
 
