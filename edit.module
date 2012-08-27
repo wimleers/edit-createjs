@@ -474,6 +474,13 @@ function edit_preprocess_page(&$variables) {
         'data-edit-field-label' => $node_type->title_label,
         'data-edit-id' => 'node:' . $node->nid . ':title',
       );
+
+      // Add RDFa markup to the title of the node.
+      if (!empty($node->rdf_mapping['title']['predicates'])) {
+        $attributes['about'] = url('node/' . $node->nid);
+        $attributes['property'] = $node->rdf_mapping['title']['predicates'];
+      }
+
       $variables['title_prefix']['edit']['#markup'] = '<div' . drupal_attributes($attributes) . '>';
       $variables['title_suffix']['edit']['#markup'] = '</div>';
     }
