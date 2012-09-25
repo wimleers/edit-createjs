@@ -90,18 +90,48 @@
       }
       entity['@subject'] = subject;
       if (type) {
-        entity['@type'] = type;
+        entity['@type'] = this._registerType(type, element);
       }
 
       // Register with VIE
-      var entityInstance = new this.vie.Entity(entity);
-      entityInstance = this.vie.entities.addOrUpdate(entityInstance, {
+      return this._registerEntity(entity);
+    },
+
+    _registerEntity: function (entityData) {
+      var entityInstance = new this.vie.Entity(entityData);
+      return this.vie.entities.addOrUpdate(entityInstance, {
         updateOptions: {
           silent: true
         }
       });
+    },
 
-      return entityInstance;
+    _registerType: function (typeId, element) {
+      typeId = '<http://viejs.org/ns/' + typeId + '>';
+      var type = this.vie.types.get(typeId);
+      if (!type) {
+        this.vie.types.add(typeId, []);
+        type = this.vie.types.get(typeId);
+      }
+
+      var predicate = this.getElementPredicate(element);
+      if (type.attributes.get(predicate)) {
+        return type;
+      }
+
+      var label = element.data('edit-field-label');
+      var range = 'Form';
+      if (element.hasClass('edit-type-direct')) {
+        range = 'Direct';
+      }
+      if (element.hasClass('edit-type-direct-with-wysiwyg')) {
+        range = 'Wysiwyg';
+      }
+      type.attributes.add(predicate, [range], 0, 1, {
+        label: element.data('edit-field-label')
+      });
+
+      return type;
     },
 
     _readEntityPredicates: function (subject, element, emptyValues) {
