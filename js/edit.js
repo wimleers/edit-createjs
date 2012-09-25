@@ -58,15 +58,15 @@ Drupal.edit.init = function() {
   });
 
   // Transition between view/edit states.
-  $("a.edit_view-edit-toggle").bind('click.edit', function() {
+  $("a.edit_view-edit-toggle").bind('click.edit', function(event) {
+    event.preventDefault();
+
     var isViewing = $(this).hasClass('edit-view');
     Drupal.edit.state.set('isViewing', isViewing);
 
     // Swap active class among the two links.
     $('a.edit_view-edit-toggle').parent().removeClass('active');
     $('a.edit_view-edit-toggle.edit-' + (isViewing ? 'view' : 'edit')).parent().addClass('active');
-
-    return false;
   });
 };
 
