@@ -120,9 +120,9 @@ function edit_library() {
     'js' => array(
       libraries_get_path('underscore') . '/underscore-min.js' => array(),
       libraries_get_path('backbone') . '/backbone-min.js' => array(),
-      drupal_get_path('module', 'edit') . '/js/vie.js' => array(),
+      drupal_get_path('module', 'edit') . '/js/lib/vie.js' => array(),
       drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/jquery.ui.widget.js' => array(),
-      drupal_get_path('module', 'edit') . '/js/create.js' => array(),
+      drupal_get_path('module', 'edit') . '/js/lib/create.js' => array(),
       // libraries_get_path('vie') .'/vie-min.js',
       // libraries_get_path('create') .'/create-min.js',
     )
