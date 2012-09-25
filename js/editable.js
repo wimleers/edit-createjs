@@ -8,6 +8,8 @@
     _create: function () {
       this.vie = this.options.vie;
 
+      this.options.domService = 'edit';
+
       this.options.editors.direct = {
         widget: 'editWidget',
         options: {}
@@ -20,6 +22,8 @@
         widget: 'drupalFormWidget',
         options: {}
       };
+
+      jQuery.Midgard.midgardEditable.prototype._create.call(this);
     },
 
     findEditableElements: function (callback) {

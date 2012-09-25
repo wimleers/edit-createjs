@@ -132,6 +132,8 @@ function edit_library() {
     'website' => 'http://drupal.org/project/edit',
     'version' => NULL, // @TODO Figure out the correct way to do this.
     'js' => array(
+      $path . '/js/SparkEditService.js' => array(
+      ),
       $path . '/js/editable.js' => array(
       ),
       $path . '/js/formwidget.js' => array(

@@ -22,6 +22,7 @@ Drupal.edit.const.transitionEnd = "transitionEnd.edit webkitTransitionEnd.edit t
 Drupal.edit.init = function() {
   // VIE instance for Editing
   Drupal.edit.vie = new VIE();
+  Drupal.edit.vie.use(new Drupal.edit.vie.SparkEditService());
 
   Drupal.edit.state = Drupal.edit.prepareStateModel();
   Drupal.edit.state.set('queues', Drupal.edit.prepareQueues());
