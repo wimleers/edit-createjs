@@ -9,6 +9,7 @@
       this.vie = this.options.vie;
 
       this.options.domService = 'edit';
+      this.options.predicateSelector = '*'; //'.edit-field.edit-allowed';
 
       this.options.editors.direct = {
         widget: 'editWidget',
@@ -26,17 +27,21 @@
       jQuery.Midgard.midgardEditable.prototype._create.call(this);
     },
 
+      /*
     findEditableElements: function (callback) {
+      jQuery.Midgard.midgardEditable.prototype.findEditableElements.call(this, function (elements) {
+        console.log(elements);
+        callback(elements);
+      });
       var model = this.options.model;
       var fields = Drupal.edit.util.findEditableFields(this.element).andSelf().filter(function () {
         return Drupal.edit.util.getElementSubject(jQuery(this)) == model.getSubjectUri();
       });
       Drupal.edit.util.findEditablesForFields(fields).each(callback);
     },
-
     getElementPredicate: function (element) {
        return Drupal.edit.util.getElementPredicate(jQuery(element));
-    },
+    },*/
 
     _editorName: function (data) {
       if (Drupal.settings.edit.wysiwyg && jQuery(this.element).hasClass('edit-type-direct')) {

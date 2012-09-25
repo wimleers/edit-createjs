@@ -22,7 +22,9 @@ Drupal.edit.const.transitionEnd = "transitionEnd.edit webkitTransitionEnd.edit t
 Drupal.edit.init = function() {
   // VIE instance for Editing
   Drupal.edit.vie = new VIE();
+  // Use our custom DOM parsing service until RDFa is available
   Drupal.edit.vie.use(new Drupal.edit.vie.SparkEditService());
+  Drupal.edit.domService = Drupal.edit.vie.service('edit');
 
   Drupal.edit.state = Drupal.edit.prepareStateModel();
   Drupal.edit.state.set('queues', Drupal.edit.prepareQueues());
@@ -32,6 +34,8 @@ Drupal.edit.init = function() {
     vie: Drupal.edit.vie,
     editableNs: 'createeditable'
   });
+  // TODO: Check localStorage for unsaved changes
+  // $('body').midgardStorage('checkRestore');
 
   // Initialize WYSIWYG, if any.
   if (Drupal.settings.edit.wysiwyg) {
@@ -46,7 +50,7 @@ Drupal.edit.init = function() {
   $(Drupal.theme('editBackstage', {})).appendTo('body');
 
   // Instantiate FieldViews
-  Drupal.edit.util.findEditableFields().each(Drupal.edit.prepareFieldView);
+  Drupal.edit.domService.findSubjectElements().each(Drupal.edit.prepareFieldView);
 
   // Instantiate overlayview
   var overlayView = new Drupal.edit.views.OverlayView({
@@ -88,8 +92,9 @@ Drupal.edit.prepareStateModel = function () {
 
 Drupal.edit.prepareQueues = function () {
   // Form preloader.
+  
   var queues = {
-    preload: Drupal.edit.util.findEditableFields().filter('.edit-type-form').map(function () {
+    preload: Drupal.edit.domService.findSubjectElements().filter('.edit-type-form').map(function () {
       return Drupal.edit.util.getID($(this));
     })
   };
@@ -98,17 +103,29 @@ Drupal.edit.prepareQueues = function () {
 };
 
 Drupal.edit.prepareFieldView = function () {
+  var element = jQuery(this);
   var fieldViewType = Drupal.edit.views.EditableFieldView;
-  if (!jQuery(this).hasClass('edit-type-direct')) {
+  if (!element.hasClass('edit-type-direct')) {
     fieldViewType = Drupal.edit.views.FormEditableFieldView;
   }
 
-  var fieldView = new fieldViewType({
-    state: Drupal.edit.state,
-    el: this,
-    model: Drupal.edit.util.getElementEntity(this, Drupal.edit.vie),
-    predicate: Drupal.edit.util.getElementPredicate(this),
-    vie: Drupal.edit.vie
+  Drupal.edit.vie.load({
+    element: element
+  }).using('edit').execute().done(function (entities) {
+    var subject = Drupal.edit.domService.getElementSubject(element);
+    var predicate = Drupal.edit.domService.getElementPredicate(element);
+    var entity = entities[0];
+    if (!entity) {
+      return;
+    }
+
+    var fieldView = new fieldViewType({
+      state: Drupal.edit.state,
+      el: element,
+      model: entity,
+      predicate: predicate,
+      vie: Drupal.edit.vie
+    });
   });
 };
 

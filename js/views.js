@@ -280,7 +280,6 @@
     // Entered edit state
     startEditable: function () {
       this.editable = true;
-
       this.$el.createEditable({
         model: this.model,
         vie: this.vie,
@@ -342,9 +341,13 @@
     },
 
     enableEditableWidget: function () {
-      this.$el.createEditable({disabled: false});
+      this.$el.createEditable({
+        vie: this.vie,
+        disabled: false
+      });
 
       // FIXME: This should be done by Backbone.sync
+      $('#edit_backstage').empty();
       Drupal.edit.editables._loadForm(Drupal.edit.util.findEditablesForFields(this.$el), this.$el);
       console.log('Backstage contains', $('#edit_backstage'));
     },
@@ -397,7 +400,10 @@
     },
 
     disableEditableWidget: function () {
-      this.$el.createEditable({disabled: true});
+      this.$el.createEditable({
+        vie: this.vie,
+        disabled: true
+      });
     },
 
     editorEnabled: function () {
@@ -583,12 +589,19 @@
   Drupal.edit.views.FormEditableFieldView = Drupal.edit.views.EditableFieldView.extend({
 
     enableEditableWidget: function () {
-      this.$el.createEditable({disabled: false});
+      this.$el.createEditable({
+        vie: this.vie,
+        disabled: false
+      });
+      $('#edit_backstage').empty();
       Drupal.edit.editables._loadForm(Drupal.edit.util.findEditablesForFields(this.$el), this.$el);
     },
 
     disableEditableWidget: function () {
-      this.$el.createEditable({disabled: true});
+      this.$el.createEditable({
+        vie: this.vie,
+        disabled: true
+      });
       $('#edit_backstage form').remove();
     },
 
