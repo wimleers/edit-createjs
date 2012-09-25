@@ -191,6 +191,13 @@
       console.log('startHighlight', this.model.id, this.predicate);
       var self = this;
 
+      // We get the label to show from VIE's type system
+      var label = this.predicate;
+      var attributeDef = this.model.get('@type').attributes.get(this.predicate);
+      if (attributeDef && attributeDef.metadata) {
+        label = attributeDef.metadata.label;
+      }
+
       if (Drupal.edit.toolbar.create(this.$el)) {
         Drupal.edit.toolbar.get(this.$el)
         .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.info))')
@@ -199,7 +206,7 @@
           buttons: [
             {
               url: '#',
-              label: Drupal.edit.util.getPredicateLabel(this.$el),
+              label: label,
               classes: 'blank-button label',
               hasButtonRole: false
             }
