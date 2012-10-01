@@ -81,7 +81,7 @@
     },
 
     render: function () {
-      this.$el.html(this.model.get(this.predicate)); 
+      this.$el.html(this.model.get(this.predicate));
       return this;
     }
   });
@@ -104,7 +104,7 @@
       'mouseenter': 'mouseEnter',
       'mouseleave': 'mouseLeave'
     },
-    
+
     initialize: function (options) {
       this.state = this.options.state;
       this.predicate = this.options.predicate;
@@ -129,6 +129,7 @@
     },
 
     stateChange: function () {
+      console.log('stateChange');
       if (this.state.get('isViewing')) {
         this.editable = false;
         this.undecorate();
@@ -146,8 +147,9 @@
     },
 
     undecorate: function () {
+      // @todo: clarify: undecorating shouldn't remove edit-editable?
       this.$el
-      .removeClass('edit-candidate edit-editable edit-highlighted edit-editing edit-belowoverlay');
+        .removeClass('edit-candidate edit-editable edit-highlighted edit-editing edit-belowoverlay');
     },
 
     mouseEnter: function (event) {
@@ -191,14 +193,14 @@
       console.log('startHighlight', this.model.id, this.predicate);
       var self = this;
 
-      // We get the label to show from VIE's type system
-      var label = this.predicate;
-      var attributeDef = this.model.get('@type').attributes.get(this.predicate);
-      if (attributeDef && attributeDef.metadata) {
-        label = attributeDef.metadata.label;
-      }
-
       if (Drupal.edit.toolbar.create(this.$el)) {
+        // We get the label to show from VIE's type system
+        var label = this.predicate;
+        var attributeDef = this.model.get('@type').attributes.get(this.predicate);
+        if (attributeDef && attributeDef.metadata) {
+          label = attributeDef.metadata.label;
+        }
+
         Drupal.edit.toolbar.get(this.$el)
         .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.info))')
         .append(Drupal.theme('editToolgroup', {
@@ -287,11 +289,12 @@
     // Entered edit state
     startEditable: function () {
       this.editable = true;
-      this.$el.createEditable({
-        model: this.model,
-        vie: this.vie,
-        disabled: true
-      });
+
+       this.$el.createEditable({
+          model: this.model,
+          vie: this.vie,
+          disabled: true
+        });
 
       this.decorate();
     },
@@ -301,8 +304,10 @@
       if (!this.editable) {
         return;
       }
+
       this.editable = false;
 
+      this.disableEditor();
       this.undecorate();
     },
 
@@ -332,7 +337,7 @@
       if (this.state.get('editedFieldView')) {
         this.state.get('editedFieldView').disableEditor();
       }
-      
+
       // Hide the curtain while editing
       //Drupal.edit.util.findEntityForField(this.$el).find('.comment-wrapper .edit-curtain').height(0);
 
@@ -352,11 +357,6 @@
         vie: this.vie,
         disabled: false
       });
-
-      // FIXME: This should be done by Backbone.sync
-      $('#edit_backstage').empty();
-      Drupal.edit.editables._loadForm(Drupal.edit.util.findEditablesForFields(this.$el), this.$el);
-      console.log('Backstage contains', $('#edit_backstage'));
     },
 
     enableToolbar: function () {
@@ -388,14 +388,14 @@
     },
 
     disableEditor: function () {
-      console.log('stopEdit', this.model.id, this.predicate);
+      console.log('disableEditor', this.model.id, this.predicate);
 
       this.$el
-      .removeClass('edit-highlighted edit-editing edit-belowoverlay')
+      .removeClass('edit-editing')
       .css('background-color', '');
 
       // TODO: Restore curtain height
-      
+
       // Stop the Create.js editable widget
       this.disableEditableWidget();
 
@@ -404,6 +404,8 @@
       this.state.set('fieldBeingEdited', []);
       this.state.set('editedEditable', null);
       this.state.set('editedFieldView', null);
+
+
     },
 
     disableEditableWidget: function () {
@@ -430,39 +432,38 @@
           classes: 'wysiwyg',
           buttons: []
         }));
+        this.$el.addClass('edit-wysiwyg-attached');
       }
-
-      // TODO: Load processed text
-      this.$el.addClass('edit-wysiwyg-attached');
       Drupal.edit.toolbar.show(this.$el, 'secondary', 'wysiwyg-tabs');
       Drupal.edit.toolbar.show(this.$el, 'tertiary', 'wysiwyg');
-      
+      // Show the ops (save, close) as well.
+      Drupal.edit.toolbar.show(this.$el, 'secondary', 'ops');
+      // hmm, why in the DOM?
       this.$el.data('edit-content-changed', false);
-
+      this.$el.trigger('edit-form-loaded.edit');
       this.editing = true;
     },
 
     saveClicked: function (event) {
       this.$el.blur();
-
-      event.stopPropagation();
-      event.preventDefault();
-
-      // TODO: Use Backbone.sync so we can support the Drupal 8 API
-      // without changes in Spark
-      // this.model.save();
-
-      var value = this.model.get(this.predicate);
-
-      // The old way of saving: submit the form
-      $('#edit_backstage form')
-      .find(':input[type!="hidden"][type!="submit"]').val(value).end()
-      .find('.edit-form-submit').trigger('click.edit');
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+      // Find entity and predicate.
+      var entity = Drupal.edit.vie.entities.get(Drupal.edit.util.getElementSubject(this.$el));
+      var predicate = this.predicate;
+      // Drupal.edit.form.saveForm loads and saves form if necessary.
+      Drupal.edit.form.saveForm(entity, predicate, this.$el, this.model.get(this.predicate), function() {
+        // Editable has been saved.
+      });
     },
 
     closeClicked: function (event) {
       event.stopPropagation();
       event.preventDefault();
+      // @TODO - handle dirty state.
+      this.stopEditable();
     },
 
     padEditable: function () {
@@ -600,8 +601,6 @@
         vie: this.vie,
         disabled: false
       });
-      $('#edit_backstage').empty();
-      Drupal.edit.editables._loadForm(Drupal.edit.util.findEditablesForFields(this.$el), this.$el);
     },
 
     disableEditableWidget: function () {
@@ -612,9 +611,21 @@
       $('#edit_backstage form').remove();
     },
 
-    saveClicked: function () {
-      Drupal.edit.form.get(this.$el).find('form')
-      .find('.edit-form-submit').trigger('click.edit');
+    saveClicked: function (event) {
+      // Stop events.
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+
+      var value = this.model.get(this.predicate);
+      var entity = Drupal.edit.vie.entities.get(Drupal.edit.util.getElementSubject(this.$el));
+      var that = this;
+
+      Drupal.edit.form.saveForm(entity, this.predicate, this.$el, null, function(error, $el) {
+        // Restart the editable.
+        that.startEditable();
+      });
     }
 
   });
