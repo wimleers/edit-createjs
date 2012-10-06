@@ -129,7 +129,6 @@
     },
 
     stateChange: function () {
-      console.log('stateChange');
       if (this.state.get('isViewing')) {
         this.editable = false;
         this.undecorate();
@@ -417,7 +416,10 @@
 
     editorEnabled: function () {
       console.log("editorenabled", this.model.id, this.predicate);
-      this.padEditable();
+      // Avoid re-"padding" of editable.
+      if (!this.editing) {
+        this.padEditable();
+      }
 
       if (this.$el.hasClass('edit-type-direct-with-wysiwyg')) {
         Drupal.edit.toolbar.get(this.$el)
@@ -517,7 +519,7 @@
           'padding-left'  : posProp['padding-left']   + 5 + 'px',
           'padding-right' : posProp['padding-right']  + 5 + 'px',
           'padding-bottom': posProp['padding-bottom'] + 5 + 'px',
-          'margin-bottom':  posProp['margin-bottom'] - 10 + 'px',
+          'margin-bottom':  posProp['margin-bottom'] - 10 + 'px'
         });
       }, 0);
     },
@@ -571,8 +573,10 @@
     },
 
     editorDisabled: function () {
-      console.log("editordisabled", this.model.id, this.predicate);
-      this.unpadEditable();
+      // Avoid re-"unpadding" of editable.
+      if (this.editing) {
+        this.unpadEditable();
+      }
       this.$el.removeClass('ui-state-disabled');
       this.$el.removeClass('edit-wysiwyg-attached');
 
