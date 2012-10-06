@@ -35,8 +35,11 @@
       Drupal.edit.form.get(this.element).remove();
       $('#edit_backstage form').remove();
 
-      // Lift the element.
-      this.element.removeClass('edit-belowoverlay');
+      // Revert the changes to classes applied in the the enable/loadForm
+      // methods above.
+      this.element
+        .removeClass('edit-belowoverlay')
+        .addClass('edit-highlighted edit-editable');
     },
 
     _initialize: function () {

@@ -465,7 +465,9 @@
       event.stopPropagation();
       event.preventDefault();
       // @TODO - handle dirty state.
-      this.stopEditable();
+      // Disable the editor for the time being, but allow the editable to be
+      // re-enabled on click if needed.
+      this.disableEditor();
     },
 
     padEditable: function () {
