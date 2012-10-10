@@ -42,7 +42,7 @@
       $('#edit_overlay')
       .addClass('edit-animate-invisible')
       .bind(Drupal.edit.const.transitionEnd, function (event) {
-        $('#edit_overlay, .edit-form-container, .edit-toolbar-container, #edit_modal, #edit_backstage, .edit-curtain').remove();
+        $('#edit_overlay, .edit-form-container, .edit-toolbar-container, #edit_modal, .edit-curtain').remove();
       });
 
       // Enable contextual links in edit mode.
