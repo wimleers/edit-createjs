@@ -11,31 +11,9 @@
  * entities, enabling them for in-place editing.
  */
 
-/**
- * Loads the logic for altering the toolbar.
- */
-module_load_include('inc', 'edit', 'includes/toolbar');
-/**
- * Loads the proposed modifications to Drupal core's Filter module.
- */
-module_load_include('inc', 'edit', 'includes/filter');
-/**
- * Loads the "captioned image" filter; the server-side equivalent of the
- * CaptionedImage Aloha Editor plug-in.
- */
-module_load_include('inc', 'edit', 'includes/caption');
-
-/**
- * Loads the logic for integrating Edit's WYSIWYG editor on the back-end.
- */
-// @TODO: make the UI work on the back-end, otherwise this is just plain
-// confusing!
-// module_load_include('inc', 'edit', 'includes/backend');
-
-
 define('EDIT_WYSIWYG_VARIABLE', 'edit_wysiwyg');
 // @TODO: provide a UI so users can switch to
-define('EDIT_WYSIWYG_DEFAULT', 'edit_aloha');
+define('EDIT_WYSIWYG_DEFAULT', 'aloha');
 
 /**
  * Implements hook_menu()
@@ -69,13 +47,52 @@ function edit_menu() {
 }
 
 /**
- * Implements hook_menu_alter().
+ * Implements hook_page_alter().
  */
-function edit_menu_alter(&$items) {
-  if (isset($items['node/%node/edit'])) {
-    // Rename to advanced edit, our UI provides in-place editing.
-    $items['node/%node/edit']['title'] = 'Advanced edit';
+function edit_page_alter(&$page) {
+  // Don't provide a view/edit toggle on admin pages, node/add and node/%/edit pages.
+  if (arg(0) == 'admin' || (arg(0) == 'node' && arg(1) == 'add') || (arg(0) == 'node' && arg(2) == 'edit')) {
+    return;
   }
+
+  // @todo: fix http://drupal.org/node/1798458, this is a stopgap measure
+  if (!(arg(0) == 'node' && is_numeric(arg(1)))) {
+    return;
+  }
+
+  $page['page_top']['edit'] = array(
+    'view_edit_toggle' => array(
+      '#prefix' => '<div id="editbar"><h2 class="element-invisible">' . t('In-place edit operations') . '</h2><ul id="edit_view-edit-toggles">',
+      '#suffix' => '</ul></div>',
+      'content' => array(
+        array(
+          '#theme' => 'menu_local_task',
+          '#link' => array('title' => t('View'), 'href' => $_GET['q'], 'localized_options' => array('attributes' => array('class' => array('edit_view-edit-toggle', 'edit-view')))),
+          '#active' => TRUE,
+        ),
+        array(
+          '#theme' => 'menu_local_task',
+          '#link' => array('title' => t('Quick edit'), 'href' => '#', 'localized_options' => array('attributes' => array('class' => array('edit_view-edit-toggle', 'edit-edit')))),
+        ),
+      ),
+      '#attached' => array(
+        'library' => array(
+          array('edit', 'edit'),
+        ),
+      ),
+    ),
+    '#post_render' => array(
+      'edit_editbar_post_render',
+    ),
+  );
+}
+
+/**
+ * Post-render function to remove the editbar if nothing editable is present.
+ */
+function edit_editbar_post_render($html) {
+  global $editbar;
+  return ($editbar !== TRUE) ? '' : $html;
 }
 
 /**
@@ -92,15 +109,6 @@ function edit_theme() {
         'attributes' => array(),
       ),
     ),
-    'edit_captioned_image' => array(
-      'file' => 'includes/caption.inc',
-      'variables' => array(
-        'image'   => NULL,
-        'caption' => NULL,
-        'align'   => NULL,
-        'width'   => NULL,
-      )
-    )
   );
 }
 
@@ -118,28 +126,23 @@ function edit_library() {
     'website' => 'http://createjs.org',
     'version' => NULL,
     'js' => array(
-      libraries_get_path('underscore') . '/underscore-min.js' => array(),
-      libraries_get_path('backbone') . '/backbone-min.js' => array(),
-      drupal_get_path('module', 'edit') . '/js/lib/vie.js' => array(),
       drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/jquery.ui.widget.js' => array(),
-      drupal_get_path('module', 'edit') . '/js/lib/create.js' => array(),
-      // libraries_get_path('vie') .'/vie-min.js',
-      // libraries_get_path('create') .'/create-min.js',
+      libraries_get_path('underscore') . '/underscore-min.js' => array('defer' => TRUE),
+      libraries_get_path('backbone') . '/backbone-min.js' => array('defer' => TRUE),
+      $path . '/js/lib/vie.js' => array('defer' => TRUE),
+      $path . '/js/lib/create.js' => array('defer' => TRUE),
+      $path . '/js/SparkEditService.js' => array('defer' => TRUE),
+      $path . '/js/editable.js' => array('defer' => TRUE),
+      $path . '/js/formwidget.js' => array('defer' => TRUE),
+      $path . '/js/views.js' => array('defer' => TRUE),
     )
   );
-  $libraries['edit.frontend'] = array(
-    'title' => 'Edit: front-end',
+
+  $libraries['edit'] = array(
+    'title' => 'Edit: in-place editing',
     'website' => 'http://drupal.org/project/edit',
     'version' => NULL, // @TODO Figure out the correct way to do this.
     'js' => array(
-      $path . '/js/SparkEditService.js' => array(
-      ),
-      $path . '/js/editable.js' => array(
-      ),
-      $path . '/js/formwidget.js' => array(
-      ),
-      $path . '/js/views.js' => array(
-      ),
       $path . '/js/edit.js' => array(
         // @TODO Make sure that a subset of the JavaScript is loaded ASAP, so
         // that the view/edit mode toggle works immediately.
@@ -183,23 +186,7 @@ function edit_library() {
 
   // Only add dependencies on the WYSIWYG editor when it's actually available.
   if (module_exists($wysiwyg_module)) {
-    // WYSIWYG modules for the Edit module must implement hook_library() so that
-    // we can load them by merely adding a dependency on it here.
-    $libraries['edit.frontend']['dependencies'][] = array($wysiwyg_module, "$wysiwyg_module.edit");
-
-    $libraries['edit.backend'] = array(
-      'title' => 'Edit: back-end',
-      'website' => 'http://drupal.org/project/edit',
-      'version' => NULL, // @TODO Figure out the correct way to do this.
-      'js' => array(
-        $path . '/js/edit-backend.js' => array(
-          'defer' => TRUE,
-        ),
-      ),
-      'dependencies' => array(
-        array($wysiwyg_module, "$wysiwyg_module.edit"),
-      ),
-    );
+    $libraries['edit']['dependencies'][] = array($wysiwyg_module, "$wysiwyg_module.edit");
   }
 
   return $libraries;
@@ -209,6 +196,10 @@ function edit_library() {
  * Implements hook_field_attach_view_alter().
  */
 function edit_field_attach_view_alter(&$output, $context) {
+  if (!module_exists('filter_true_wysiwyg')) {
+    return;
+  }
+
   // Special case for this special mode.
   if ($context['display'] == 'edit-render-without-transformation-filters') {
     $field = reset(element_children($output));
@@ -216,31 +207,8 @@ function edit_field_attach_view_alter(&$output, $context) {
     foreach (array_keys($output[$field]['#items']) as $item) {
       $text      = $output[$field]['#items'][$item]['value'];
       $format_id = $output[$field]['#items'][$item]['format'];
-      $wrapped_and_untransformed = check_markup2($text, $format_id, $langcode, FALSE, TRUE, TRUE);
+      $wrapped_and_untransformed = check_markup2($text, $format_id, $langcode, FALSE, array(FILTER_TYPE_TRANSFORM_DOM, FILTER_TYPE_TRANSFORM_TEXT));
       $output[$field][$item]['#markup'] = $wrapped_and_untransformed;
-    }
-
-    return;
-  }
-
-  // @TODO: this is too late in the rendering process!
-  $fields = element_children($output);
-  // @TODO: only do this when the user has access to do so.
-  foreach ($fields as $field) {
-    $output[$field]['#edit_mode'] = TRUE;
-  }
-
-  // @TODO: because the above does not work, we have to override it here.
-  foreach ($fields as $field) {
-    $langcode = $output[$field]['#language'];
-    foreach (array_keys($output[$field]['#items']) as $item) {
-      // @TODO: support more formatters than just "text_default"
-      if ($output[$field]['#formatter'] == 'text_default') {
-        $text      = $output[$field]['#items'][$item]['value'];
-        $format_id = $output[$field]['#items'][$item]['format'];
-        $wrapped = check_markup2($text, $format_id, $langcode, FALSE, TRUE);
-        $output[$field][$item]['#markup'] = $wrapped;
-      }
     }
   }
 }
@@ -354,69 +322,6 @@ function edit_field_formatter_info_alter(&$info) {
 }
 
 /**
- * Implements hook_filter_info_alter().
- */
-function edit_filter_info_alter(&$info) {
-  $wysiwyg_metadata = array(
-    // php.module
-    'php_code' => FALSE,
-    // filter.module
-    'filter_html'          => TRUE,
-    'filter_autop'         => TRUE,
-    'filter_url'           => TRUE,
-    'filter_htmlcorrector' => TRUE,
-    // token_filter.module
-    'filter_tokens' => TRUE,
-    // image_resize_filter.module
-    'image_resize_filter' => TRUE,
-    // edit.module
-    'edit_filter_captioned_image' => TRUE,
-  );
-  $allowed_tags_metadata = array(
-    'filter_html' => 'allowed_html',
-  );
-  $macro_tags_metadata = array(
-    'filter_tokens',
-  );
-  // Classify filters according to http://drupal.org/node/807996#comment-6302188.
-  // Special cases due to this hacky implementation:
-  // 1) filter_htmlcorrector, which wouldn't exist anymore in the above
-  // 2) macro filters shouldn't exist anymore, if they do, they would fall under
-  //    transformation filters, but we have another way to deal with them
-  //    ($wrap_macro_tags = TRUE), so put them in their own class.
-  $classification_metadata = array(
-    // php.module
-    'php_code' => 'html',
-    // filter.module
-    'filter_html'          => 'security',
-    'filter_autop'         => 'html',
-    'filter_url'           => 'html',
-    'filter_htmlcorrector' => 'security', // special case
-    'filter_html_escape'   => 'html',
-    // token_filter.module
-    'filter_tokens' => 'macro', // special case
-    // image_resize_filter.module
-    'image_resize_filter' => 'transformation',
-    // edit.module
-    'edit_filter_captioned_image' => 'transformation',
-    // typogrify.module
-    'typogrify' => 'transformation',
-  );
-
-  foreach ($wysiwyg_metadata as $filter => $wysiwyg) {
-    if (empty($info[$filter])) {
-      continue;
-    }
-    $info[$filter]['edit'] = array(
-      'wysiwyg'      => ($wysiwyg !== FALSE),
-      'allowed_tags' => (isset($allowed_tags_metadata[$filter])) ? $allowed_tags_metadata[$filter] : FALSE,
-      'macro_tags'   => (isset($macro_tags_metadata[$filter])),
-      'classification' => $classification_metadata[$filter],
-    );
-  }
-}
-
-/**
  * Implements hook_preprocess_panels_pane().
  */
 function edit_preprocess_panels_pane(&$variables) {
@@ -434,6 +339,10 @@ function edit_preprocess_panels_pane(&$variables) {
 
   // Ensure the user has access to update the node.
   if (entity_access('update', 'node', $node)) {
+    // Make sure the editbar is created.
+    global $editbar;
+    $editbar = TRUE;
+
     $node_type = node_type_get_type($node->type);
     if ($node_type->has_title) {
       $variables['title_attributes_array']['class'][] = 'edit-pseudofield';
@@ -466,6 +375,10 @@ function edit_preprocess_page(&$variables) {
     $node_type = node_type_get_type($node->type);
 
     if ($node_type->has_title) {
+      // Make sure the editbar is created.
+      global $editbar;
+      $editbar = TRUE;
+
       $attributes = array(
         'class' => array(
           'edit-pseudofield',
@@ -476,13 +389,6 @@ function edit_preprocess_page(&$variables) {
         'data-edit-field-label' => $node_type->title_label,
         'data-edit-id' => 'node:' . $node->nid . ':title',
       );
-
-      // Add RDFa markup to the title of the node.
-      if (!empty($node->rdf_mapping['title']['predicates'])) {
-        $attributes['about'] = url('node/' . $node->nid);
-        $attributes['property'] = $node->rdf_mapping['title']['predicates'];
-      }
-
       $variables['title_prefix']['edit']['#markup'] = '<div' . drupal_attributes($attributes) . '>';
       $variables['title_suffix']['edit']['#markup'] = '</div>';
     }
@@ -497,19 +403,11 @@ function edit_preprocess_node(&$variables) {
   $entity      = $variables['elements']['#node'];
 
   if (entity_access('update', $entity_type, $entity)) {
+    // Make sure the editbar is created.
+    global $editbar;
+    $editbar = TRUE;
+
     list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
-
-    $entity_info = entity_get_info($entity_type);
-    $bundle_label = $entity_info['bundles'][$bundle]['label'];
-
-    // Provide metadata using data- attributes.
-    $variables['attributes_array']['data-edit-id'] = "node:$id";
-    $variables['attributes_array']['data-edit-entity-label'] = $bundle_label;
-    $variables['attributes_array']['data-edit-entity-edit-url'] = url("node/$id/edit");
-
-    // Mark this entity as editable.
-    $variables['classes_array'][] = 'edit-entity';
-    $variables['classes_array'][] = 'edit-allowed';
 
     // Pseudo-field: title.
     $node_type = node_type_get_type($bundle);
@@ -632,6 +530,16 @@ function edit_preprocess_field(&$variables) {
     }
   }
 
+  // Only perform the necessary checks (in the next if-test) to see whether
+  // direct, WYSIWYG-based editing is possible if the filter_true_wysiwyg module
+  // and the indicated WYSIWYG module are installed.
+  if ($editability == 'direct' && $wysiwyg) {
+    $wysiwyg_module = variable_get(EDIT_WYSIWYG_VARIABLE, EDIT_WYSIWYG_DEFAULT);
+    if (module_exists('filter_true_wysiwyg') && !module_exists($wysiwyg_module)) {
+      $editability = 'form';
+    }
+  }
+
   // If still directly editable and the formatter is marked to support WYSIWYG,
   // then check whether we can actually use WYSIWYG.
   if ($editability == 'direct' && $wysiwyg) {
@@ -650,6 +558,10 @@ function edit_preprocess_field(&$variables) {
   $entity_access = entity_access('update', $entity_type, $entity);
   $field_access = field_access('edit', $field_name, $entity_type, $entity);
   if ($entity_access && $field_access) {
+    // Make sure the editbar is created.
+    global $editbar;
+    $editbar = TRUE;
+
     list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
 
     $instance_info = field_info_instance($entity_type, $field_name, $bundle);
@@ -667,14 +579,13 @@ function edit_preprocess_field(&$variables) {
       $format_id = $field[$language][0]['format'];
 
       // Let the WYSIWYG editor know the allowed tags.
-      // @TODO: make the WYSIWYG editor actually *use* this information.
-      $allowed_tags = edit_wysiwyg_analyze_allowed_tags($format_id);
-      $variables['attributes_array']['data-edit-allowed-tags'] = implode(',', $allowed_tags);
+      $allowed_tags = filter_get_allowed_tags_by_format($format_id);
+      $variables['attributes_array']['data-allowed-tags'] = ($allowed_tags === TRUE) ? '' : implode(',', $allowed_tags);
 
       // Let the JavaScript logic know whether transformation filters are used
       // in this format, so it can decide whether to re-render the text or not.
-      $filter_classifications = edit_wysiwyg_format_get_filter_classifications($format_id);
-      if (in_array('transformation', $filter_classifications)) {
+      $filter_types = filter_get_filter_types_by_format($format_id);
+      if (count(array_intersect(array(FILTER_TYPE_TRANSFORM_DOM, FILTER_TYPE_TRANSFORM_TEXT), $filter_types))) {
         $variables['classes_array'][] = 'edit-text-with-transformation-filters';
       }
       else {

@@ -27,6 +27,7 @@ $(function() {
 
       // Update the HTML of the editable and enable WYSIWYG editing on it.
       ajax.$editable.html(response.data);
+      // @todo: this object doesn't exist anymore.
       Drupal.edit.editables._wysiwygify(ajax.$editable);
     }
   };
