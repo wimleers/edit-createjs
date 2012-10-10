@@ -128,28 +128,6 @@ Drupal.edit.prepareFieldView = function () {
   });
 };
 
-// Field editables.
-Drupal.edit.editables = {
-  _loadForm: function($editable, $field) {
-    var edit_id = Drupal.edit.util.getID($field);
-    var element_settings = {
-      url      : Drupal.edit.util.calcFormURLForField(edit_id),
-      event    : 'edit-internal.edit',
-      $field   : $field,
-      $editable: $editable,
-      submit   : { nocssjs : ($field.hasClass('edit-type-direct')) },
-      progress : { type : null }, // No progress indicator.
-    };
-    if (Drupal.ajax.hasOwnProperty(edit_id)) {
-      delete Drupal.ajax[edit_id];
-      $editable.unbind('edit-internal.edit');
-    }
-    Drupal.ajax[edit_id] = new Drupal.ajax(edit_id, $editable, element_settings);
-    $editable.trigger('edit-internal.edit');
-  }
-};
-
-
 })(jQuery);
 
 $ = jQuery;
