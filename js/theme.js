@@ -10,7 +10,7 @@
  *   The corresponding HTML.
  */
 Drupal.theme.prototype.editOverlay = function(settings) {
-  var html = ''
+  var html = '';
   html += '<div id="edit_overlay" />';
   return html;
 };
@@ -25,7 +25,7 @@ Drupal.theme.prototype.editOverlay = function(settings) {
  *   The corresponding HTML.
  */
 Drupal.theme.prototype.editBackstage = function(settings) {
-  var html = ''
+  var html = '';
   html += '<div id="edit_backstage" />';
   return html;
 };
@@ -40,7 +40,7 @@ Drupal.theme.prototype.editBackstage = function(settings) {
  *   The corresponding HTML.
  */
 Drupal.theme.prototype.editCurtain = function(settings) {
-  var html = ''
+  var html = '';
   html += '<div class="edit-curtain" />';
   return html;
 };
@@ -55,7 +55,7 @@ Drupal.theme.prototype.editCurtain = function(settings) {
  */
 Drupal.theme.prototype.editModal = function(settings) {
   var classes = 'edit-animate-slow edit-animate-invisible edit-animate-delay-veryfast';
-  var html = ''
+  var html = '';
   html += '<div id="edit_modal" class="' + classes + '">';
   html += '  <div class="main"><p></p></div>';
   html += '  <div class="actions"></div>';
@@ -95,7 +95,7 @@ Drupal.theme.prototype.editToolbarContainer = function(settings) {
  */
 Drupal.theme.prototype.editToolgroup = function(settings) {
   var classes = 'edit-toolgroup edit-animate-slow edit-animate-invisible edit-animate-delay-veryfast';
-  var html = ''
+  var html = '';
   html += '<div class="' + classes + ' ' + settings.classes + '">';
   html += Drupal.theme('editButtons', { buttons: settings.buttons });
   html += '</div>';
@@ -119,7 +119,7 @@ Drupal.theme.prototype.editToolgroup = function(settings) {
  *   The corresponding HTML.
  */
 Drupal.theme.prototype.editButtons = function(settings) {
-  var html = ''
+  var html = '';
   for (var i = 0; i < settings.buttons.length; i++) {
     var button = settings.buttons[i];
     if (!button.hasOwnProperty('hasButtonRole')) {
@@ -146,7 +146,7 @@ Drupal.theme.prototype.editButtons = function(settings) {
  *   The corresponding HTML.
  */
 Drupal.theme.prototype.editFormContainer = function(settings) {
-  var html = ''
+  var html = '';
   html += '<div id="' + settings.id + '" class="edit-form-container">';
   html += '  <div class="edit-form">';
   html += '    <div class="placeholder">';
