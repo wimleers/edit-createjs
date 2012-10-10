@@ -9,6 +9,14 @@ For some background on this approach, refer to [Decoupling Content Management](h
 
 The work of porting existing Spark edit code to Create.js was initially undertaken by [Wim Leers](http://wimleers.com/) and [Henri Bergius](http://bergie.iki.fi/) during [DrupalCon Munich 2012](http://munich2012.drupal.org/).
 
+## How to install.
+
+* Download the spark distribution (currently works with 7.x-1.0-alpha6) from the [project page](http://drupal.org/project/spark).
+* Replace edit.module with edit-createjs.module (cd profiles/spark/modules/contrib ; rm -rf edit/ ; git clone https://github.com/wimleers/edit-createjs.git).
+* Create directories sites/all/libraries/backbone/ and sites/all/libraries/underscore/. Move the minified files to the respective directories and make sure sites/all/libraries/backbone/backbone-min.js and sites/all/libraries/underscore-min.js subsequently exist.
+* Install Spark (e.g. if you have drush installed $ cd {SPARK-DIRECTORY} ; drush si spark --db-url="mysql://{USER}:{PWD}@localhost/{DBNAME}").
+* Download [Backbone](http://backbonejs.org/backbone-min.js) and [Underscore](http://documentcloud.github.com/underscore/underscore-min.js).
+
 ## How does this work?
 
 Bootstrapping:
