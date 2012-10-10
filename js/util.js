@@ -185,7 +185,7 @@ Drupal.edit.util.getPositionProperties = function($e) {
   var p,
       r = {},
       props = [
-        'top', 'left',
+        'top', 'left', 'bottom', 'right',
         'padding-top', 'padding-left', 'padding-right', 'padding-bottom',
         'margin-bottom'
       ];

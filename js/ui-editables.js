@@ -33,6 +33,12 @@ Drupal.edit.toolbar = {
         $toolbar.insertBefore($editable);
       }
 
+      // Animate the toolbar into visibility.
+      setTimeout(function() {
+        $toolbar.removeClass('edit-animate-invisible');
+      }, 0);
+
+
       // Remove any and all existing toolbars, except for any that are for a
       // currently being edited field.
       $('.edit-toolbar-container:not(:has(.edit-editing))')
@@ -107,6 +113,7 @@ Drupal.edit.toolbar = {
 
     // Remove after animation.
     $toolbar
+    .addClass('edit-animate-invisible')
     // Prevent this toolbar from being detected *while* it is being removed.
     .removeAttr('id')
     .find('.edit-toolbar .edit-toolgroup')
@@ -117,21 +124,21 @@ Drupal.edit.toolbar = {
   },
 
   // Animate into view.
-  show: function($editable, toolbar, toolgroup) {
-    this._find($editable, toolbar, toolgroup).removeClass('edit-animate-invisible');
+  show: function($editable, toolgroup) {
+    this._find($editable, toolgroup).removeClass('edit-animate-invisible');
   },
 
-  addClass: function($editable, toolbar, toolgroup, classes) {
-    this._find($editable, toolbar, toolgroup).addClass(classes);
+  addClass: function($editable, toolgroup, classes) {
+    this._find($editable, toolgroup).addClass(classes);
   },
 
-  removeClass: function($editable, toolbar, toolgroup, classes) {
-    this._find($editable, toolbar, toolgroup).removeClass(classes);
+  removeClass: function($editable, toolgroup, classes) {
+    this._find($editable, toolgroup).removeClass(classes);
   },
 
-  _find: function($editable, toolbar, toolgroup) {
+  _find: function($editable, toolgroup) {
     return Drupal.edit.toolbar.get($editable)
-           .find('.edit-toolbar.' + toolbar + ' .edit-toolgroup.' + toolgroup);
+           .find('.edit-toolbar .edit-toolgroup.' + toolgroup);
   },
 
   _id: function($editable) {
