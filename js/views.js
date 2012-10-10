@@ -201,7 +201,7 @@
         }
 
         Drupal.edit.toolbar.get(this.$el)
-        .find('.edit-toolbar.primary:not(:has(.edit-toolgroup.info))')
+        .find('.edit-toolbar:not(:has(.edit-toolgroup.info))')
         .append(Drupal.theme('editToolgroup', {
           classes: 'info',
           buttons: [
@@ -223,7 +223,7 @@
       // Animations.
       setTimeout(function () {
         self.$el.addClass('edit-highlighted');
-        Drupal.edit.toolbar.show(self.$el, 'primary', 'info');
+        Drupal.edit.toolbar.show(self.$el, 'info');
       }, 0);
 
       this.state.set('fieldBeingHighlighted', this.$el);
@@ -362,7 +362,7 @@
       var self = this;
       Drupal.edit.toolbar.get(this.$el)
       .addClass('edit-editing')
-      .find('.edit-toolbar.secondary:not(:has(.edit-toolgroup.ops))')
+      .find('.edit-toolbar:not(:has(.edit-toolgroup.ops))')
       .append(Drupal.theme('editToolgroup', {
         classes: 'ops',
         buttons: [
@@ -423,23 +423,23 @@
 
       if (this.$el.hasClass('edit-type-direct-with-wysiwyg')) {
         Drupal.edit.toolbar.get(this.$el)
-        .find('.edit-toolbar.secondary:not(:has(.edit-toolbar-wysiwyg-tabs))')
+        .find('.edit-toolbar:not(:has(.edit-toolbar-wysiwyg-tabs))')
         .append(Drupal.theme('editToolgroup', {
           classes: 'wysiwyg-tabs',
           buttons: []
         }))
         .end()
-        .find('.edit-toolbar.tertiary:not(:has(.edit-toolgroup.wysiwyg))')
+        .find('.edit-toolbar:not(:has(.edit-toolgroup.wysiwyg))')
         .append(Drupal.theme('editToolgroup', {
           classes: 'wysiwyg',
           buttons: []
         }));
         this.$el.addClass('edit-wysiwyg-attached');
       }
-      Drupal.edit.toolbar.show(this.$el, 'secondary', 'wysiwyg-tabs');
-      Drupal.edit.toolbar.show(this.$el, 'tertiary', 'wysiwyg');
+      Drupal.edit.toolbar.show(this.$el, 'wysiwyg-tabs');
+      Drupal.edit.toolbar.show(this.$el, 'wysiwyg');
       // Show the ops (save, close) as well.
-      Drupal.edit.toolbar.show(this.$el, 'secondary', 'ops');
+      Drupal.edit.toolbar.show(this.$el, 'ops');
       // hmm, why in the DOM?
       this.$el.data('edit-content-changed', false);
       this.$el.trigger('edit-form-loaded.edit');
@@ -495,21 +495,16 @@
           $toolbar.css('top', parseFloat($toolbar.css('top')) - 5 + 'px');
         }
 
-        // The primary toolgroups must move to the top and the left.
-        $toolbar.find('.edit-toolbar.primary .edit-toolgroup')
-        .addClass('edit-animate-exception-grow')
-        .css({'position': 'relative', 'top': '-5px', 'left': '-5px'});
-
-        // The secondary toolgroups must move to the top and the right.
-        $toolbar.find('.edit-toolbar.secondary .edit-toolgroup')
-        .addClass('edit-animate-exception-grow')
-        .css({'position': 'relative', 'top': '-5px', 'left': '5px'});
-
-        // The tertiary toolgroups must move to the top and the left, and must
-        // increase their width.
-        $toolbar.find('.edit-toolbar.tertiary .edit-toolgroup')
-        .addClass('edit-animate-exception-grow')
-        .css({'position': 'relative', 'top': '-5px', 'left': '-5px', 'width': self.$el.width() + 5});
+        // @todo: adjust this according to the new
+        // Drupal.theme.prototype.editToolbarContainer
+        // The toolbar must move to the top and the left.
+        var $hf = $toolbar.find('.edit-toolbar-heightfaker');
+        $hf.css({ bottom: '6px', left: '-5px' });
+        // When using a WYSIWYG editor, the width of the toolbar must match the
+        // width of the editable.
+        if (self.$el.hasClass('edit-type-direct-with-wysiwyg')) {
+          $hf.css({ width: $editable.width() + 10 });
+        }
 
         // Pad the editable.
         self.$el
@@ -546,14 +541,14 @@
         // Re-enable width animations (padding changes affect width too!).
         self.$el.removeClass('edit-animate-disable-width');
 
-        // Move the toolbar & toolgroups to their original positions.
-        if (self.$el.css('display') == 'inline') {
-          $toolbar.css('top', parseFloat($toolbar.css('top')) + 5 + 'px');
-        }
-        $toolbar.find('.edit-toolgroup')
-        .removeClass('edit-animate-exception-grow')
-        .css({'position': '', 'top': '', 'left': '', 'width': ''});
 
+        // Move the toolbar back to its original position.
+        var $hf = $toolbar.find('.edit-toolbar-heightfaker');
+        $hf.css({ bottom: '1px', left: '' });
+        // When using a WYSIWYG editor, restore the width of the toolbar.
+        if (self.$el.hasClass('edit-type-direct-with-wysiwyg')) {
+          $hf.css({ width: '' });
+        }
         // Undo our changes to the clipping (to prevent the bottom box-shadow).
         $toolbar
         .undelegate('.edit-toolbar', Drupal.edit.const.transitionEnd)

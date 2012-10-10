@@ -49,23 +49,84 @@
   -webkit-transition: width 0s;
 }
 
-
-.edit-animate-exception-grow {
-  -webkit-transition: all .2s linear;
-     -moz-transition: all .2s linear;
-      -ie-transition: all .2s linear;
-       -o-transition: all .2s linear;
-          transition: all .2s linear;
+.edit-animate-only-visibility {
+  -webkit-transition: opacity .2s ease;
+     -moz-transition: opacity .2s ease;
+      -ie-transition: opacity .2s ease;
+       -o-transition: opacity .2s ease;
+          transition: opacity .2s ease;
   -webkit-transition-delay: 0s;
 }
 
-/**
- * View/edit mode toggle.
- */
 
-#edit_view-edit-toggles {
-  float: left;
+
+
+/**
+ * Edit's bar — inspired by core's toolbar.module & shortcut.module.
+ */
+#editbar,
+#editbar * {
+  border: 0;
+  font-size: 100%;
+  line-height: inherit;
+  list-style: none;
+  margin: 0;
+  outline: 0;
+  padding: 0;
+  text-align: left; /* LTR */
+  vertical-align: baseline;
 }
+#editbar {
+  position: relative;
+  background: #666;
+  color: #ccc;
+  font: normal small "Lucida Grande", Verdana, sans-serif;
+  margin: 0 -20px;
+  padding: 0 20px;
+  -moz-box-shadow: 0 3px 20px #000;
+  -webkit-box-shadow: 0 3px 20px #000;
+  box-shadow: 0 3px 20px #000;
+  z-index: 500;
+}
+#editbar ul {
+  padding: 5px 0 2px 0;
+  height: 28px;
+  line-height: 24px;
+  margin-left:5px; /* LTR */
+}
+#editbar ul li,
+#editbar ul li a {
+  float: left; /* LTR */
+  padding: 0 5px 0 5px;
+  margin-right: 5px; /* LTR */
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+#editbar a {
+  padding: 5px 10px 5px 5px;
+  line-height: 24px;
+  color: #fefefe;
+  font-size: .846em;
+  text-decoration: none;
+}
+#editbar a:focus,
+#editbar a:hover,
+#editbar a.active {
+  color: #fff;
+}
+#editbar ul li a:focus,
+#editbar ul li a:hover,
+#editbar ul li a.active:focus {
+  background: #555;
+}
+#editbar ul li a.active:hover,
+#editbar ul li a.active {
+  background: #000;
+}
+
+
+
 
 /**
  * Edit mode: overlay + candidate editables + editables being edited.
@@ -80,7 +141,7 @@
   width: 100%;
   height: 100%;
   background-color: rgba(255,255,255,.5);
-  top: 90px; /* offset for navbar, modified later */
+  top: 0px; /* offset for navbar, modified later */
   left: 0px;
 }
 
@@ -91,9 +152,6 @@
 }
 .edit-editable:focus {
   outline: none;
-}
-.edit-editable.edit-entity {
-  box-shadow: 0px 0px 1px 1px #FFF;
 }
 .edit-field.edit-editable,
 .edit-field.edit-type-direct .edit-editable {
@@ -109,25 +167,12 @@
 .edit-field.edit-type-direct .edit-editable.edit-highlighted {
   box-shadow: 0px 0px 1px 1px #0199FF, 0px 0px 3px 3px rgba(153, 153, 153, .5);
 }
-.edit-editable.edit-entity.edit-highlighted {
-  box-shadow: 0px 0px 1px 1px #0199FF, 0px 0px 3px 3px rgba(153, 153, 153, .5);
-}
 
 /* Editing (focused) editable. */
 .edit-form.edit-editable.edit-editing,
 .edit-field.edit-type-direct .edit-editable.edit-editing {
   /* In the latest design, there's no special styling when editing as opposed to
      just hovering. */
-}
-
-/* Curtain. */
-.edit-editable.edit-entity .edit-curtain {
-  position: absolute;
-  z-index: 350;
-  width: 100%;
-  height: 0px; /* The JS will set the correct number of pixels. */
-  background-color: white;
-  opacity: .5;
 }
 
 
@@ -218,54 +263,62 @@
   z-index: 310;
 }
 
+.edit-toolbar-heightfaker {
+  height: auto;
+  position: absolute;
+  bottom: 1px;
+  box-shadow: 0px 0px 1px 1px #0199FF, 0px 0px 3px 3px rgba(153, 153, 153, .5);
+  background: #FFF;
+}
+
 /* The toolbar; these are not necessarily visible. */
 .edit-toolbar {
-  position: absolute;
-  top: -35px;
-  height: 35px;
-/*  clip: rect(-1000px, 10000px, 35px, -1000px); /* Remove bottom box-shadow. */
+  position: relative;
+  height: 100%;
   font-family: 'Droid sans', 'Lucida Grande', sans-serif;
 }
-.edit-toolbar.primary {
-  left: 0px; /* LTR */
+.edit-toolbar-heightfaker {
+  clip: rect(-1000px, 1000px, auto, -1000px); /* Remove bottom box-shadow. */
 }
-.edit-toolbar.secondary {
-  right: 0px; /* LTR */
-}
-.edit-toolbar.tertiary {
-  top: 0px;
-  height: 0px;
-  /* @todo: figure out how to deal with clipping; clip: auto causes problems on Safari 5 */
+/* Exception: when used for a directly WYSIWYG editable field that is actively
+   being edited. */
+.edit-type-direct-with-wysiwyg .edit-editing .edit-toolbar-heightfaker {
+  width: 100%;
+  clip: auto;
 }
 
 
 /* The toolbar contains toolgroups; these are visible. */
 .edit-toolgroup {
   float: left; /* LTR */
-  padding-left: 5px; /* LTR */
-  box-shadow: 0px 0px 1px 1px #0199FF, 0px 0px 3px 3px rgba(153, 153, 153, .5);
-  background: #fff url('../images/throbber.gif') no-repeat -60px 60px;
 }
 
-/* Entity toolgroup. */
-.edit-toolgroup.entity,
+/* Info toolgroup. */
 .edit-toolgroup.info {
   float: left; /* LTR */
+  font-weight: bolder;
+  padding: 0 5px;
+  background: #FFF url('../images/throbber.gif') no-repeat -60px 60px;
 }
-.edit-toolgroup.entity.loading,
 .edit-toolgroup.info.loading {
+  padding-right: 35px;
   background-position: 90% 50%;
-}
-.edit-toolgroup.info.loading a {
-  margin-right: 35px;
 }
 
 /* Operations toolgroup. */
 .edit-toolgroup.ops {
   float: right; /* LTR */
-  margin-left: 20px;
+  margin-left: 5px;
 }
 
+.edit-toolgroup.wysiwyg-tabs {
+  float: right;
+}
+.edit-toolgroup.wysiwyg {
+  clear: left;
+  width: 100%;
+  padding-left: none;
+}
 
 
 
