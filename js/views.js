@@ -503,7 +503,7 @@
         // When using a WYSIWYG editor, the width of the toolbar must match the
         // width of the editable.
         if (self.$el.hasClass('edit-type-direct-with-wysiwyg')) {
-          $hf.css({ width: $editable.width() + 10 });
+          $hf.css({ width: self.$el.width() + 10 });
         }
 
         // Pad the editable.
